@@ -55,6 +55,11 @@ namespace
   llvm::cl::opt<std::string> DialectName(
     "dialect-name", llvm::cl::desc("Override the inferred dialect name, used as the name for the generated Julia module."),
     llvm::cl::value_desc("dialect"));
+  
+  llvm::cl::opt<std::string> IgnorePattern(
+    "ignore",
+    llvm::cl::desc("Skip operations whose names match this regex pattern"),
+    llvm::cl::value_desc("regex"));
 
   using namespace mlir;
   using namespace mlir::tblgen;
@@ -173,6 +178,17 @@ bool emitOpTableDefs(const llvm::RecordKeeper &recordKeeper,
   std::vector<llvm::Record *> opdefs = recordKeeper.getAllDerivedDefinitions("Op");
 #endif
 
+  // Initialize regex matcher if ignore pattern is provided
+  std::optional<std::regex> ignoreRegex;
+  if (!IgnorePattern.empty()) {
+    try {
+      ignoreRegex = std::regex(IgnorePattern);
+    } catch (const std::regex_error& e) {
+      llvm::errs() << "Error: Invalid regex pattern: " << e.what() << "\n";
+      return true;
+    }
+  }
+
   const char *imports;
   if (isExternal)
   {
@@ -246,6 +262,16 @@ end
     std::string optionals = "";
 
     auto opname = op.getOperationName();
+
+    // Check if operation should be ignored
+    if (ignoreRegex && std::regex_match(opname, *ignoreRegex)) {
+      if (ExplainMissing) {
+        llvm::errs() << "Skipping operation " << op.getOperationName() 
+                     << " - matches ignore pattern\n";
+      }
+      continue;
+    }
+
     auto functionname = opname.substr(op.getDialectName().str().length() + 1); // get rid of "dialect." prefix.
     functionname = sanitizeName(functionname, modulename);
 
