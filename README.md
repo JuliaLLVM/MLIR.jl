@@ -8,4 +8,7 @@
 
 `MLIR.jl` presents high-level tools to manipulate MLIR dialects through [the MLIR C API](https://mlir.llvm.org/docs/CAPI/).
 
+> [!NOTE]
+> MLIR.jl is not abandoned, but all current maintainers are focused working on [Reactant.jl](https://github.com/EnzymeAD/Reactant.jl). It works with a local copy of MLIR.jl for fast development. Once it stabilizes, we plan to port changes here.
+
 ---
