@@ -1,6 +1,5 @@
 module IR
 
-using ..Reactant
 using ..API
 
 using LLVM: LLVM, @checked, mark_alloc, mark_use, mark_dispose
@@ -44,9 +43,9 @@ end
 # MLIR `Type` and `Module`
 export Attribute, Block, Context, Dialect, Location, Operation, Region, Value
 export activate, deactivate, dispose, enable_multithreading!
-export context, current_context, has_context, with_context
-export block, current_block, has_block, with_block
-export current_module, has_module, with_module
+export context, current_context, has_context
+export block, current_block, has_block
+export current_module, has_module
 export type, settype!, location, typeid, dialect
 export nattrs, getattr, setattr!, rmattr!
 export nregions, region
