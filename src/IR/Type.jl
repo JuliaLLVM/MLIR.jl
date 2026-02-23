@@ -1,21 +1,18 @@
-struct Type
-    type::API.MlirType
-
-    function Type(type)
-        @assert !mlirIsNull(type) "cannot create Type with null MlirType"
-        return new(type)
-    end
+@checked struct Type
+    ref::API.MlirType
 end
 
-Base.convert(::Core.Type{API.MlirType}, type::Type) = type.type
+Base.cconvert(::Core.Type{API.MlirType}, type::Type) = type
+Base.unsafe_convert(::Core.Type{API.MlirType}, type::Type) = type.ref
 
 """
-    parse(type; context=context())
+    Base.parse(type; context=current_context())
 
 Parses a type. The type is owned by the context.
 """
-Base.parse(::Core.Type{Type}, s; context::Context=context()) =
-    Type(API.mlirTypeParseGet(context, s))
+function Base.parse(::Core.Type{Type}, s; context::Context=current_context())
+    return Type(API.mlirTypeParseGet(context, s))
+end
 
 """
     ==(t1, t2)
@@ -40,11 +37,12 @@ typeid(type::Type) = TypeID(API.mlirTypeGetTypeID(type))
 
 # None type
 """
-    Type(::Core.Type{Nothing}; context=context())
+    Type(::Core.Type{Nothing}; context=current_context())
 
 Creates a None type in the given context. The type is owned by the context.
 """
-Type(::Core.Type{Nothing}; context::Context=context()) = Type(API.mlirNoneTypeGet(context))
+Type(::Core.Type{Nothing}; context::Context=current_context()) =
+    Type(API.mlirNoneTypeGet(context))
 
 """
     mlirTypeIsANone(type)
@@ -55,11 +53,11 @@ isnone(type::Type) = API.mlirTypeIsANone(type)
 
 # Index type
 """
-    IndexType(; context=context())
+    IndexType(; context=current_context())
 
 Creates an index type in the given context. The type is owned by the context.
 """
-IndexType(; context::Context=context()) = Type(API.mlirIndexTypeGet(context))
+IndexType(; context::Context=current_context()) = Type(API.mlirIndexTypeGet(context))
 
 """
     isindex(type)
@@ -69,37 +67,41 @@ Checks whether the given type is an index type.
 isindex(type::Type) = API.mlirTypeIsAIndex(type)
 
 """
-    Type(T::Core.Type{Bool}; context=context()
+    Type(T::Core.Type{Bool}; context=current_context()
 
 Creates a 1-bit signless integer type in the context. The type is owned by the context.
 """
-Type(::Core.Type{Bool}; context::Context=context()) =
-    Type(API.mlirIntegerTypeGet(context, 1))
+function Type(::Core.Type{Bool}; context::Context=current_context())
+    return Type(API.mlirIntegerTypeGet(context, 1))
+end
 
 # Integer types
 """
-    Type(T::Core.Type{<:Integer}; context=context()
+    Type(T::Core.Type{<:Integer}; context=current_context()
 
 Creates a signless integer type of the given bitwidth in the context. The type is owned by the context.
 """
-Type(T::Core.Type{<:Integer}; context::Context=context()) =
-    Type(API.mlirIntegerTypeGet(context, sizeof(T) * 8))
+function Type(T::Core.Type{<:Integer}; context::Context=current_context())
+    return Type(API.mlirIntegerTypeGet(context, sizeof(T) * 8))
+end
 
 """
-    Type(T::Core.Type{<:Signed}; context=context()
+    Type(T::Core.Type{<:Signed}; context=current_context()
 
 Creates a signed integer type of the given bitwidth in the context. The type is owned by the context.
 """
-Type(T::Core.Type{<:Signed}; context::Context=context()) =
-    Type(API.mlirIntegerTypeGet(context, sizeof(T) * 8))
+function Type(T::Core.Type{<:Signed}; context::Context=current_context())
+    return Type(API.mlirIntegerTypeGet(context, sizeof(T) * 8))
+end
 
 """
-    Type(T::Core.Type{<:Unsigned}; context=context()
+    Type(T::Core.Type{<:Unsigned}; context=current_context()
 
 Creates an unsigned integer type of the given bitwidth in the context. The type is owned by the context.
 """
-Type(T::Core.Type{<:Unsigned}; context::Context=context()) =
-    Type(API.mlirIntegerTypeUnsignedGet(context, sizeof(T) * 8))
+function Type(T::Core.Type{<:Unsigned}; context::Context=current_context())
+    return Type(API.mlirIntegerTypeUnsignedGet(context, sizeof(T) * 8))
+end
 
 """
     isinteger(type)
@@ -141,76 +143,150 @@ end
 
 # Floating point types
 """
-    Float8E5M2(; context=context())
+    Float8E5M2(; context=current_context())
 
 Creates an f8E5M2 type in the given context. The type is owned by the context.
 """
-function Float8E5M2(; context::Context=context())
-    MLIR_VERSION[] >= v"16" ||
-        throw(MLIRException("`Float8E5M2()` requires MLIR version 16 or later"))
+Float8E5M2(; context::Context=current_context()) = Type(API.mlirFloat8E5M2TypeGet(context))
+
+"""
+    Float8E4M3FN(; context=current_context())
+
+Creates an f8E4M3FN type in the given context. The type is owned by the context.
+"""
+Float8E4M3FN(; context::Context=current_context()) =
+    Type(API.mlirFloat8E4M3FNTypeGet(context))
+
+"""
+BFloat16Type(; context=current_context())
+
+Creates a bf16 type in the given context. The type is owned by the context.
+"""
+BFloat16Type(; context::Context=current_context()) = Type(API.mlirBF16TypeGet(context))
+
+"""
+    Type(::Core.Type{Float16}; context=current_context())
+
+Creates an f16 type in the given context. The type is owned by the context.
+"""
+Type(::Core.Type{Float16}; context::Context=current_context()) =
+    Type(API.mlirF16TypeGet(context))
+
+if isdefined(Core, :BFloat16)
+    """
+        Type(::Core.Type{Core.BFloat16}; context=current_context())
+
+    Creates an bf16 type in the given context. The type is owned by the context.
+    """
+    function Type(::Core.Type{Core.BFloat16}; context::Context=current_context())
+        return BFloat16Type(; context)
+    end
+end
+
+"""
+    Type(Core.Type{Float32}; context=current_context())
+
+Creates an f32 type in the given context. The type is owned by the context.
+"""
+Type(::Core.Type{Float32}; context::Context=current_context()) =
+    Type(API.mlirF32TypeGet(context))
+
+"""
+    Type(Core.Type{Float64}; context=current_context())
+
+Creates a f64 type in the given context. The type is owned by the context.
+"""
+Type(::Core.Type{Float64}; context::Context=current_context()) =
+    Type(API.mlirF64TypeGet(context))
+
+"""
+    Type(::Core.Type{Reactant.F8E5M2}; context=current_context())
+
+Creates a f8e5m2 type in the given context. The type is owned by the context.
+"""
+function Type(::Core.Type{<:Reactant.F8E5M2}; context::Context=current_context())
     return Type(API.mlirFloat8E5M2TypeGet(context))
 end
 
 """
-    Float8E4M3FN(; context=context())
+    Type(::Core.Type{Reactant.F8E4M3FN}; context=current_context())
 
-Creates an f8E4M3FN type in the given context. The type is owned by the context.
+Creates a f8e4m3fn type in the given context. The type is owned by the context.
 """
-function Float8E4M3FN(; context::Context=context())
-    MLIR_VERSION[] >= v"16" ||
-        throw(MLIRException("`Float8E4M3FN()` requires MLIR version 16 or later"))
+function Type(::Core.Type{<:Reactant.F8E4M3FN}; context::Context=current_context())
     return Type(API.mlirFloat8E4M3FNTypeGet(context))
 end
 
 """
-BFloat16Type(; context=context())
+    Type(::Core.Type{Reactant.F8E4M3B11FNUZ}; context=current_context())
 
-Creates a bf16 type in the given context. The type is owned by the context.
+Creates a f8e4m3b11fnuz type in the given context. The type is owned by the context.
 """
-BFloat16Type(; context::Context=context()) = Type(API.mlirBF16TypeGet(context))
-
-"""
-    Type(::Core.Type{Float16}; context=context())
-
-Creates an f16 type in the given context. The type is owned by the context.
-"""
-Type(::Core.Type{Float16}; context::Context=context()) = Type(API.mlirF16TypeGet(context))
+function Type(::Core.Type{<:Reactant.F8E4M3B11FNUZ}; context::Context=current_context())
+    return Type(API.mlirFloat8E4M3B11FNUZTypeGet(context))
+end
 
 """
-    Type(Core.Type{Float32}; context=context())
+    Type(::Core.Type{Reactant.F8E5M2FNUZ}; context=current_context())
 
-Creates an f32 type in the given context. The type is owned by the context.
+Creates a f8e5m2fnuz type in the given context. The type is owned by the context.
 """
-Type(::Core.Type{Float32}; context::Context=context()) = Type(API.mlirF32TypeGet(context))
+function Type(::Core.Type{<:Reactant.F8E5M2FNUZ}; context::Context=current_context())
+    return Type(API.mlirFloat8E5M2FNUZTypeGet(context))
+end
 
 """
-    Type(Core.Type{Float64}; context=context())
+    Type(::Core.Type{Reactant.F8E4M3FNUZ}; context=current_context())
 
-Creates a f64 type in the given context. The type is owned by the context.
+Creates a f8e4m3fnuz type in the given context. The type is owned by the context.
 """
-Type(::Core.Type{Float64}; context::Context=context()) = Type(API.mlirF64TypeGet(context))
+function Type(::Core.Type{<:Reactant.F8E4M3FNUZ}; context::Context=current_context())
+    return Type(API.mlirFloat8E4M3FNUZTypeGet(context))
+end
+
+"""
+    Type(::Core.Type{Reactant.TF32}; context=current_context())
+
+Creates a tf32 type in the given context. The type is owned by the context.
+"""
+function Type(::Core.Type{<:Reactant.TF32}; context::Context=current_context())
+    return Type(API.mlirTF32TypeGet(context))
+end
 
 """
     isf8e5m2(type)
 
 Checks whether the given type is an f8E5M2 type.
 """
-function isf8e5m2(type::Type)
-    MLIR_VERSION[] >= v"16" ||
-        throw(MLIRException("`isf8e5m2()` requires MLIR version 16 or later"))
-    return API.mlirTypeIsAFloat8E5M2(type)
-end
+isf8e5m2(type::Type) = API.mlirTypeIsAFloat8E5M2(type)
 
 """
     isf8e4m3fn(type)
 
 Checks whether the given type is an f8E4M3FN type.
 """
-function isf8e4m3fn(type::Type)
-    MLIR_VERSION[] >= v"16" ||
-        throw(MLIRException("`isf8e4m3fn()` requires MLIR version 16 or later"))
-    return API.mlirTypeIsAFloat8E4M3FN(type)
-end
+isf8e4m3fn(type::Type) = API.mlirTypeIsAFloat8E4M3FN(type)
+
+"""
+    isf8e4m3b11fnuz(type)
+
+Checks whether the given type is an f8E4M3B11FNUZ type.
+"""
+isf8e4m3b11fnuz(type::Type) = API.mlirTypeIsAFloat8E4M3B11FNUZ(type)
+
+"""
+    isf8e5m2fnuz(type)
+
+Checks whether the given type is an f8E5M2FNUZ type.
+"""
+isf8e5m2fnuz(type::Type) = API.mlirTypeIsAFloat8E5M2FNUZ(type)
+
+"""
+    isf8e4m3fnuz(type)
+
+Checks whether the given type is an f8E4M3FNUZ type.
+"""
+isf8e4m3fnuz(type::Type) = API.mlirTypeIsAFloat8E4M3FNUZ(type)
 
 """
     isbf16(type)
@@ -239,6 +315,13 @@ isf32(type::Type) = API.mlirTypeIsAF32(type)
 Checks whether the given type is an f64 type.
 """
 isf64(type::Type) = API.mlirTypeIsAF64(type)
+
+"""
+    istf32(type)
+
+Checks whether the given type is an tf32 type.
+"""
+istf32(type::Type) = API.mlirTypeIsATF32(type)
 
 # Complex types
 """
@@ -365,14 +448,17 @@ isvector(type::Type) = API.mlirTypeIsAVector(type)
     TensorType(shape, elementType, encoding=Attribute(); location=Location(), check=false)
 
 Creates a tensor type of a fixed rank with the given shape, element type, and optional encoding in the same context as the element type.
-The type is owned by the context. Tensor types without any specific encoding field should assign [`mlirAttributeGetNull`](@ref) to this parameter.
+The type is owned by the context. Tensor types without any specific encoding field should assign [`Reactant.MLIR.API.mlirAttributeGetNull`](@ref) to this parameter.
 If `check=true`, emits appropriate diagnostics on illegal arguments.
 """
-function TensorType(
-    shape, elem_type, encoding=Attribute(); location::Location=Location(), check::Bool=false
+Base.@nospecializeinfer function TensorType(
+    shape::Vector{Int},
+    @nospecialize(elem_type::Type),
+    encoding=Attribute();
+    location::Location=Location(),
+    check::Bool=false,
 )
     rank = length(shape)
-    shape = shape isa AbstractVector ? shape : collect(shape)
     return Type(
         if check
             API.mlirRankedTensorTypeGetChecked(location, rank, shape, elem_type, encoding)
@@ -388,7 +474,7 @@ end
 Creates an unranked tensor type with the given element type in the same context as the element type. The type is owned by the context.
 If `check=true`, emits appropriate diagnostics on illegal arguments.
 """
-function TensorType(elem_type; location::Location=Location(), check::Bool=false)
+function TensorType(elem_type::Type; location::Location=Location(), check::Bool=false)
     return Type(
         if check
             API.mlirUnrankedTensorTypeGetChecked(location, elem_type)
@@ -398,7 +484,7 @@ function TensorType(elem_type; location::Location=Location(), check::Bool=false)
     )
 end
 
-# TODO maybe add these helper methods?
+# TODO(#2245) maybe add these helper methods?
 # Type(a::AbstractArray{T}) where {T} = Type(Type(T), size(a))
 # Type(::Core.Type{<:AbstractArray{T,N}}, dims) where {T,N} =
 #     Type(API.mlirRankedTensorTypeGetChecked(
@@ -465,15 +551,11 @@ function MemRefType(
     if check
         Type(
             API.mlirMemRefTypeGetChecked(
-                location, elem_type, length(shape), pointer(shape), layout, memspace
+                location, elem_type, length(shape), shape, layout, memspace
             ),
         )
     else
-        Type(
-            API.mlirMemRefTypeGet(
-                elem_type, length(shape), pointer(shape), layout, memspace
-            ),
-        )
+        Type(API.mlirMemRefTypeGet(elem_type, length(shape), shape, layout, memspace))
     end
 end
 
@@ -490,15 +572,11 @@ function MemRefType(
     if check
         Type(
             API.mlirMemRefTypeContiguousGetChecked(
-                location, elem_type, length(shape), pointer(shape), memspace
+                location, elem_type, length(shape), shape, memspace
             ),
         )
     else
-        Type(
-            API.mlirMemRefTypeContiguousGet(
-                elem_type, length(shape), pointer(shape), memspace
-            ),
-        )
+        Type(API.mlirMemRefTypeContiguousGet(elem_type, length(shape), shape, memspace))
     end
 end
 
@@ -551,7 +629,7 @@ Returns the affine map of the given MemRef type.
 """
 function affinemap(type::Type)
     @assert ismemref(type) "expected a MemRef type"
-    return AffineMap(API.mlirMemRefTypeGetAffineMaps(type))
+    return AffineMap(API.mlirMemRefTypeGetAffineMap(type))
 end
 
 """
@@ -570,17 +648,19 @@ end
 
 # Tuple type
 """
-    Type(elements; context=context())
-    Type(::Core.Type{<:Tuple{T...}}; context=context())
+    Type(elements; context=current_context())
+    Type(::Core.Type{<:Tuple{T...}}; context=current_context())
 
 Creates a tuple type that consists of the given list of elemental types. The type is owned by the context.
 """
-Type(elements::Vector{Type}; context::Context=context()) =
-    Type(API.mlirTupleTypeGet(context, length(elements), pointer(elements)))
-function Type(@nospecialize(elements::NTuple{N,Type}); context::Context=context()) where {N}
+Type(elements::Vector{Type}; context::Context=current_context()) =
+    Type(API.mlirTupleTypeGet(context, length(elements), elements))
+function Type(
+    @nospecialize(elements::NTuple{N,Type}); context::Context=current_context()
+) where {N}
     return Type(collect(elements); context)
 end
-function Type(T::Core.Type{<:Tuple}; context::Context=context())
+function Type(T::Core.Type{<:Tuple}; context::Context=current_context())
     return Type(map(Type, T.parameters); context)
 end
 
@@ -600,19 +680,17 @@ Checks whether the given type is a function type.
 isfunction(type::Type) = API.mlirTypeIsAFunction(type)
 
 """
-    FunctionType(inputs, results; context=context())
+    FunctionType(inputs, results; context=current_context())
 
 Creates a function type, mapping a list of input types to result types.
 """
-function FunctionType(inputs, results; context::Context=context())
+function FunctionType(inputs, results; context::Context=current_context())
     return Type(
-        API.mlirFunctionTypeGet(
-            context, length(inputs), pointer(inputs), length(results), pointer(results)
-        ),
+        API.mlirFunctionTypeGet(context, length(inputs), inputs, length(results), results)
     )
 end
 
-# TODO maybe add this helper method?
+# TODO(#2245) maybe add this helper method?
 # Type(ft::Pair) = Type(API.mlirFunctionTypeGet(context(),
 #     length(ft.first), [Type(t) for t in ft.first],
 #     length(ft.second), [Type(t) for t in ft.second]))
@@ -659,11 +737,11 @@ end
 
 # Opaque type
 """
-    OpaqueType(dialectNamespace, typeData; context=context())
+    OpaqueType(dialectNamespace, typeData; context=current_context())
 
 Creates an opaque type in the given context associated with the dialect identified by its namespace. The type contains opaque byte data of the specified length (data need not be null-terminated).
 """
-OpaqueType(namespace, data; context::Context=context()) =
+OpaqueType(namespace, data; context::Context=current_context()) =
     Type(API.mlirOpaqueTypeGet(context, namespace, data))
 
 """
@@ -747,12 +825,26 @@ function julia_type(type::Type)
                 throw("could not convert unsigned $width-bit integer type to julia")
             end
         end
+    elseif istf32(type)
+        Reactant.TF32
+    elseif isbf16(type)
+        Core.BFloat16
     elseif isf16(type)
         Float16
     elseif isf32(type)
         Float32
     elseif isf64(type)
         Float64
+    elseif isf8e5m2(type)
+        Reactant.F8E5M2
+    elseif isf8e4m3fn(type)
+        Reactant.F8E4M3FN
+    elseif isf8e4m3b11fnuz(type)
+        Reactant.F8E4M3B11FNUZ
+    elseif isf8e5m2fnuz(type)
+        Reactant.F8E5M2FNUZ
+    elseif isf8e4m3fnuz(type)
+        Reactant.F8E4M3FNUZ
     elseif isnone(type)
         Nothing
     elseif iscomplex(type)
