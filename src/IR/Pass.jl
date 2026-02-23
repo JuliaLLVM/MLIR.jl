@@ -110,7 +110,7 @@ function dump_mlir(
         dir = if isnothing(DUMP_MLIR_DIR[])
             mkpath(tempdir())
             # Use the same directory for this session
-            DUMP_MLIR_DIR[] = mktempdir(; prefix="reactant_", cleanup=false)
+            DUMP_MLIR_DIR[] = mktempdir(; prefix="mlir_", cleanup=false)
         else
             DUMP_MLIR_DIR[]
         end
