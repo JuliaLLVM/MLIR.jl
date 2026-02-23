@@ -1,38 +1,62 @@
 module IR
 
-using ..MLIR: MLIR_VERSION, MLIRException
+using ..Reactant
 using ..API
 
-# do not export `Type`, as it is already defined in Core
-# also, use `Core.Type` inside this module to avoid clash with MLIR `Type`
+using LLVM: LLVM, @checked, mark_alloc, mark_use, mark_dispose
+import LLVM: activate, deactivate, dispose, @dispose, refcheck
+
+mark_donate(x) = (mark_dispose(x); x)
+
+# fix for `@checked` on MLIR.API types
+for AT in [
+    :MlirDialect,
+    :MlirDialectHandle,
+    :MlirDialectRegistry,
+    :MlirContext,
+    :MlirLocation,
+    :MlirType,
+    :MlirTypeID,
+    :MlirTypeIDAllocator,
+    :MlirModule,
+    :MlirOperation,
+    :MlirOpOperand,
+    :MlirBlock,
+    :MlirRegion,
+    :MlirValue,
+    # :MlirLogicalResult,
+    :MlirAffineExpr,
+    :MlirAffineMap,
+    # :MlirAttribute,
+    # :MlirNamedAttribute,
+    :MlirIntegerSet,
+    :MlirIdentifier,
+    :MlirSymbolTable,
+    :MlirExecutionEngine,
+    :MlirPassManager,
+    :MlirOpPassManager,
+]
+    @eval refcheck(T::Core.Type, ref::API.$AT) = refcheck(T, ref.ptr)
+end
+
+# WARN do not export `Type` nor `Module` as they are already defined in Core
+# also, use `Core.Type` and `Core.Module` inside this module to avoid clash with
+# MLIR `Type` and `Module`
 export Attribute, Block, Context, Dialect, Location, Operation, Region, Value
-export activate!, deactivate!, dispose!, enable_multithreading!, context!
-export context, type, type!, location, typeid, block, dialect
-export nattrs,
-    attr,
-    attr!,
-    rmattr!,
-    nregions,
-    region,
-    nresults,
-    result,
-    noperands,
-    operand,
-    operand!,
-    nsuccessors,
-    successor
-export BlockIterator, RegionIterator, OperationIterator
+export activate, deactivate, dispose, enable_multithreading!
+export context, current_context, has_context, with_context
+export block, current_block, has_block, with_block
+export current_module, has_module, with_module
+export type, settype!, location, typeid, dialect
+export nattrs, getattr, setattr!, rmattr!
+export nregions, region
+export nresults, result, noperands, operand, setoperand!
+export nsuccessors, successor
 export @affinemap
 
-function mlirIsNull(val)
-    return val.ptr == C_NULL
-end
+using Random: randstring
 
-function print_callback(str::API.MlirStringRef, userdata)
-    data = unsafe_wrap(Array, Base.convert(Ptr{Cchar}, str.data), str.length; own=false)
-    write(userdata isa Base.RefValue ? userdata[] : userdata, data)
-    return Cvoid()
-end
+include("Utils.jl")
 
 include("LogicalResult.jl")
 include("Context.jl")
@@ -45,43 +69,15 @@ include("Module.jl")
 include("Block.jl")
 include("Region.jl")
 include("Value.jl")
-include("OpOperand.jl") # introduced in LLVM 16
+include("OpOperand.jl")
 include("Identifier.jl")
 include("SymbolTable.jl")
 include("AffineExpr.jl")
 include("AffineMap.jl")
 include("Attribute.jl")
 include("IntegerSet.jl")
-include("Iterators.jl")
 
 include("ExecutionEngine.jl")
 include("Pass.jl")
-
-### Utils
-
-function visit(f, op)
-    for region in RegionIterator(op)
-        for block in BlockIterator(region)
-            for op in OperationIterator(block)
-                f(op)
-            end
-        end
-    end
-end
-
-"""
-    verifyall(operation; debug=false)
-
-Prints the operations which could not be verified.
-"""
-function verifyall(operation::Operation; debug=false)
-    io = IOContext(stdout, :debug => debug)
-    visit(operation) do op
-        if !verify(op)
-            show(io, op)
-        end
-    end
-end
-verifyall(module_::IR.Module) = verifyall(Operation(module_))
 
 end # module IR
