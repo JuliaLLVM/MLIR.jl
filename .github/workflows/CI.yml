@@ -2,12 +2,22 @@ name: MLIR CI
 
 on:
   pull_request:
-    branches:
-      - main
+    paths: &paths
+      - ".github/workflows/CI.yml"
+      - "src/**"
+      - "test/**"
+      - "Project.toml"
   push:
     branches:
       - main
-    tags: '*'
+    tags: ["*"]
+    paths: *paths
+
+concurrency:
+  # Skip intermediate builds: always.
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
   test:
@@ -17,35 +27,25 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.9'
           - '1.10'
           - '1.11'
-          - 'nightly'
+          - '1.12'
         os:
           - ubuntu-latest
         arch:
           - x64
     steps:
-      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-          include-all-prereleases: true
-      - uses: actions/cache@v4
-        env:
-          cache-name: cache-artifacts
+      - uses: julia-actions/cache@v2
+        id: julia-cache
         with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
+          cache-name: julia-cache-workflow=${{ inputs.julia_version }}-${{ github.event_name }}
+      - uses: actions/checkout@v6
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
   docs:
@@ -65,7 +65,7 @@ jobs:
           julia --project=docs -e '
             using Documenter: doctest
             using MLIR
-            doctest(MLIR)' # change MYPACKAGE to the name of your package
+            doctest(MLIR)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
