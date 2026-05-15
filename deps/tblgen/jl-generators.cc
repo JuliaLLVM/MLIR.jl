@@ -14,11 +14,18 @@
 // limitations under the License.
 
 #include <functional>
-#include <regex>
 #include <optional>
-#include <iostream>
-#include <numeric>
+#include <regex>
 
+#include "mlir/TableGen/Argument.h"
+#include "mlir/TableGen/Class.h"
+#include "mlir/TableGen/CodeGenHelpers.h"
+#include "mlir/TableGen/Format.h"
+#include "mlir/TableGen/Interfaces.h"
+#include "mlir/TableGen/Operator.h"
+#include "mlir/TableGen/Region.h"
+#include "mlir/TableGen/SideEffects.h"
+#include "mlir/TableGen/Trait.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/Sequence.h"
 #include "llvm/ADT/StringExtras.h"
@@ -37,55 +44,40 @@
 #include "llvm/TableGen/Error.h"
 #include "llvm/TableGen/Record.h"
 #include "llvm/TableGen/TableGenBackend.h"
-#include "mlir/TableGen/Argument.h"
-#include "mlir/TableGen/Class.h"
-#include "mlir/TableGen/CodeGenHelpers.h"
-#include "mlir/TableGen/Format.h"
-#include "mlir/TableGen/Interfaces.h"
-#include "mlir/TableGen/Operator.h"
-#include "mlir/TableGen/Region.h"
-#include "mlir/TableGen/SideEffects.h"
-#include "mlir/TableGen/Trait.h"
 
-namespace
-{
+namespace {
   using namespace mlir;
   using namespace mlir::tblgen;
 
   /// Returns true if the SameArgumentAndResultTypes trait can be used to infer
   /// result types of the given operation.
-  static bool hasSameArgumentAndResultTypes(const Operator &op)
-  {
+  static bool hasSameArgumentAndResultTypes(const Operator &op) {
     return op.getTrait("::mlir::OpTrait::SameOperandsAndResultType") &&
-           op.getNumVariableLengthResults() == 0;
+          op.getNumVariableLengthResults() == 0;
   }
 
   /// Returns true if the FirstAttrDerivedResultType trait can be used to infer
   /// result types of the given operation.
-  static bool hasFirstAttrDerivedResultTypes(const Operator &op)
-  {
+  static bool hasFirstAttrDerivedResultTypes(const Operator &op) {
     return op.getTrait("::mlir::OpTrait::FirstAttrDerivedResultType") &&
-           op.getNumVariableLengthResults() == 0;
+          op.getNumVariableLengthResults() == 0;
   }
 
   /// Returns true if the InferTypeOpInterface can be used to infer result types
   /// of the given operation.
-  static bool hasInferTypeInterface(const Operator &op)
-  {
+  static bool hasInferTypeInterface(const Operator &op) {
     return op.getTrait("::mlir::InferTypeOpInterface::Trait") &&
-           op.getNumRegions() == 0;
+          op.getNumRegions() == 0;
   }
 
   /// Returns true if there is a trait or interface that can be used to infer
   /// result types of the given operation.
-  static bool canInferType(const Operator &op)
-  {
+  static bool canInferType(const Operator &op) {
     return hasSameArgumentAndResultTypes(op) ||
-           hasFirstAttrDerivedResultTypes(op) || hasInferTypeInterface(op);
+          hasFirstAttrDerivedResultTypes(op) || hasInferTypeInterface(op);
   }
 
-  std::string formatDescription(mlir::tblgen::Operator op)
-  {
+  std::string formatDescription(mlir::tblgen::Operator op) {
     std::string description;
     description = op.getDescription().str();
     size_t pos = 0;
@@ -94,16 +86,17 @@ namespace
     size_t leading_spaces = 0;
     while (description[pos++] == ' ')
       ++leading_spaces;
-    if (leading_spaces)
-    {
+    if (leading_spaces) {
       std::string leading_spaces_str;
       for (size_t i = 0; i < leading_spaces; ++i)
         leading_spaces_str += "[ ]";
-      description = std::regex_replace(description, std::regex("\n" + leading_spaces_str), "\n");
+      description = std::regex_replace(
+          description, std::regex("\n" + leading_spaces_str), "\n");
     }
     description = std::regex_replace(description, std::regex(R"(\\)"), R"(\\)");
     description = std::regex_replace(description, std::regex("(['\"$])"), "\\$1");
-    description = std::regex_replace(description, std::regex("(^|\n)(Example|Syntax):"), "$1# $2");
+    description = std::regex_replace(
+        description, std::regex("(^|\n)(Example|Syntax):"), "$1# $2");
 
     // remove trailing whitespaces and newlines
     while (std::isspace(description.back())) {
@@ -122,27 +115,31 @@ namespace
     return any_op.getDialectName().str();
   }
 
-  std::string sanitizeName(std::string name, std::optional<std::string> modulename = std::nullopt) {
+  std::string sanitizeName(std::string name,
+                          std::optional<std::string> modulename = std::nullopt) {
     // check if name starts with digit:
-    if (std::isdigit(name[0]))
-    {
+    if (std::isdigit(name[0])) {
       name = "_" + name;
     }
-    // check if name colides with Julia keywords, generated module name, or "location":
-    // https://docs.julialang.org/en/v1/base/base/#Keywords
-    // aditionally check that name doesn't conflict with local variables defined in the function (results, operands, owned_regions, successors, attributes)
+    // check if name colides with Julia keywords, generated module name, or
+    // "location": https://docs.julialang.org/en/v1/base/base/#Keywords
     std::vector<std::string> reservedKeywords = {
-      "_results", "_operands", "_owned_regions", "_successors", "_attributes", 
-      "include", "location", "baremodule", "begin", "break", "catch", "const", "continue", "do", "else", "elseif", "end", "export", "false", "finally", "for", "function", "global", "if", "import", "let", "local", "macro", "module", "public", "quote", "return", "struct", "true", "try", "using", "while"
-      };
+        "include", "location", "baremodule", "begin",  "break",    "catch",
+        "const",   "continue", "do",         "else",   "elseif",   "end",
+        "export",  "false",    "finally",    "for",    "function", "global",
+        "if",      "import",   "let",        "local",  "macro",    "module",
+        "public",  "quote",    "return",     "struct", "true",     "try",
+        "using",   "while"};
     if (modulename.has_value()) {
       reservedKeywords.push_back(modulename.value());
     }
-    while (std::find(reservedKeywords.begin(), reservedKeywords.end(), name) != reservedKeywords.end()) {
+    if (std::find(reservedKeywords.begin(), reservedKeywords.end(), name) !=
+        reservedKeywords.end()) {
       name = name + "_";
     }
     // replace all .'s with _'s
     std::replace(name.begin(), name.end(), '.', '_');
+    std::replace(name.begin(), name.end(), '-', '_');
     return name;
   }
 
@@ -163,34 +160,23 @@ bool emitOpTableDefs(llvm::raw_ostream &os, const llvm::RecordKeeper &recordKeep
     _opdefs.size()
   );
 
-  const char *imports;
-  if (isExternal)
-  {
-    imports = R"(import MLIR.IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import MLIR.Dialects: namedattribute, operandsegmentsizes)";
-  }
-  else
-  {
-    imports = R"(import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes)";
-  }
-
   const char *moduleTemplate;
-  if (disableModuleWrap)
-  {
-    // 0: imports, 1: content
-    moduleTemplate = R"({0}
+  if (disableModuleWrap) {
+    moduleTemplate =
+        R"(import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
 
-{1}
+{0}
 )";
-  }
-  else
-  {
-    // 0: module name, 1: imports, 2: content
+  } else {
     moduleTemplate = R"(module {0}
+using ...IR
+import ...IR: NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
 
 {1}
-{2}
 end # {0}
 )";
   }
@@ -201,34 +187,31 @@ function {0}({1}location=Location())
     {2}
 end
 )";      // 0: functionname, 1: functionarguments, 2: functionbody
-  const char *functionbodytemplate = R"(_results = IR.Type[{0}]
-    _operands = Value[{1}]
-    _owned_regions = Region[{2}]
-    _successors = Block[{3}]
-    _attributes = NamedAttribute[{4}]
+  const char *functionbodytemplate = R"(op_ty_results = IR.Type[{0}]
+    operands = Value[{1}]
+    owned_regions = Region[{2}]
+    successors = Block[{3}]
+    attributes = NamedAttribute[{4}]
     {5}
-    IR.create_operation(
+    create_operation(
         "{6}", location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
+        operands, owned_regions, successors, attributes,
         results={7},
         result_inference={8}
-    ))"; // 0: results, 1: operands, 2: owned_regions, 3: successors, 4: attributes, 5: optionals, 6: opname, 7: results expression, 8: result_inference
+    ))"; // 0: results, 1: operands, 2: owned_regions, 3: successors, 4:
+         // attributes, 5: optionals, 6: opname, 7: results expression, 8:
+         // result_inference
 
   std::string modulecontents = "";
 
   std::string modulename;
-  if (!dialectName.has_value())
-  {
-    modulename = dialectName.value();
+  if (!DialectName.empty()) {
+    modulename = DialectName;
   } else {
     modulename = getDialectName(opdefs);
   }
 
-  for (const auto *def : opdefs)
-  {
+  for (const auto *def : opdefs) {
     mlir::tblgen::Operator op(*def);
 
     std::string operandarguments = "";
@@ -236,24 +219,26 @@ end
     std::string optionals = "";
 
     auto opname = op.getOperationName();
-    auto functionname = opname.substr(op.getDialectName().str().length() + 1); // get rid of "dialect." prefix.
+    auto functionname = opname.substr(op.getDialectName().str().length() +
+                                      1); // get rid of "dialect." prefix.
     functionname = sanitizeName(functionname, modulename);
 
     std::string description = "";
-    if (op.hasDescription())
-    {
-      description = "\"\"\"\n`"+functionname+"`\n"+formatDescription(op)+"\n\"\"\"";
+    if (op.hasDescription()) {
+      description = "\"\"\"\n`" + functionname + "`\n" + formatDescription(op) +
+                    "\n\"\"\"";
     }
     bool inferrable = canInferType(op);
 
-    bool alreadykeyword = false; // set to true when first optional argument is encountered. This is used to insert a single semicolon (;) instead of a comma (,) as separator between positional and keyword arguments.
-    for (int i = 0; i < op.getNumOperands(); i++)
-    {
+    bool alreadykeyword =
+        false; // set to true when first optional argument is encountered. This
+               // is used to insert a single semicolon (;) instead of a comma
+               // (,) as separator between positional and keyword arguments.
+    for (int i = 0; i < op.getNumOperands(); i++) {
       const auto &named_operand = op.getOperand(i);
       std::string defaultvalue = "";
       std::string operandname = named_operand.name.str();
-      if (operandname.empty())
-      {
+      if (operandname.empty()) {
         operandname = "operand_" + std::to_string(i);
       }
       operandname = sanitizeName(operandname);
@@ -263,15 +248,13 @@ end
       bool optional = named_operand.isOptional();
       bool variadic = named_operand.isVariadic();
 
-      if (variadic)
-      {
+      if (variadic) {
         type = "Vector{" + type + "}";
       }
 
       std::string separator = ", ";
-      if (optional)
-      {
-        optionals += llvm::formatv(R"(!isnothing({0}) && push!(_operands, {0}{1})
+      if (optional) {
+        optionals += llvm::formatv(R"(!isnothing({0}) && push!(operands, {0}{1})
     )",
                                    operandname, (variadic ? "..." : ""));
         type = "Union{Nothing, " + type + "}";
@@ -280,12 +263,11 @@ end
         if (!alreadykeyword) {
           alreadykeyword = true;
           separator = "; ";
-        } 
-      }
-      else
-      {
+        }
+      } else {
         operandcontainer += operandname + (variadic ? "..." : "") + ", ";
-        separator = (!alreadykeyword && i == op.getNumOperands() - 1) ? "; " : ", ";
+        separator =
+            (!alreadykeyword && i == op.getNumOperands() - 1) ? "; " : ", ";
       }
 
       operandarguments += operandname + defaultvalue + "::" + type + separator;
@@ -294,40 +276,35 @@ end
       operandarguments = "; ";
     }
 
-    if (op.getTrait("::mlir::OpTrait::AttrSizedOperandSegments"))
-    {
+    if (op.getTrait("::mlir::OpTrait::AttrSizedOperandSegments")) {
       std::string operandsegmentsizes = "";
-      for (int i = 0; i < op.getNumOperands(); i++)
-      {
+      for (int i = 0; i < op.getNumOperands(); i++) {
         const auto &named_operand = op.getOperand(i);
-        std::string operandname = sanitizeName(named_operand.name.str());
-        if (operandname.empty())
-        {
+        std::string operandname = named_operand.name.str();
+        if (operandname.empty()) {
           operandname = "operand_" + std::to_string(i);
         }
-        if (named_operand.isOptional())
-        {
-          operandsegmentsizes += "isnothing(" + operandname + ") ? 0 : 1, ";
+        if (named_operand.isOptional()) {
+          operandsegmentsizes += "Int(!isnothing(" + operandname + ")), ";
+          continue;
         }
-        else
-        {
-          operandsegmentsizes += named_operand.isVariadic() ? "length(" + operandname + "), " : "1, ";
-        }
+        operandsegmentsizes += named_operand.isVariadic()
+                                   ? "length(" + operandname + "), "
+                                   : "1, ";
       }
-      optionals += llvm::formatv(R"(push!(_attributes, operandsegmentsizes([{0}]))
+      optionals +=
+          llvm::formatv(R"(push!(attributes, operandsegmentsizes([{0}]))
     )",
-                                 operandsegmentsizes);
+                        operandsegmentsizes);
     }
 
     std::string resultarguments = "";
     std::string resultcontainer = "";
-    for (int i = 0; i < op.getNumResults(); i++)
-    {
+    for (int i = 0; i < op.getNumResults(); i++) {
       const auto &named_result = op.getResult(i);
       std::string defaultvalue = "";
       std::string resultname = named_result.name.str();
-      if (resultname.empty())
-      {
+      if (resultname.empty()) {
         resultname = "result_" + std::to_string(i);
       }
       resultname = sanitizeName(resultname);
@@ -336,33 +313,52 @@ end
       bool optional = named_result.isOptional() || inferrable;
       bool variadic = named_result.isVariadic();
 
-      if (variadic)
-      {
+      if (variadic) {
         type = "Vector{" + type + "}";
       }
 
-      if (optional)
-      {
-        optionals += llvm::formatv(R"(!isnothing({0}) && push!(_results, {0}{1})
+      if (optional) {
+        optionals +=
+            llvm::formatv(R"(!isnothing({0}) && push!(op_ty_results, {0}{1})
     )",
-                                   resultname, (variadic ? "..." : ""));
+                          resultname, (variadic ? "..." : ""));
         type = "Union{Nothing, " + type + "}";
         defaultvalue = "=nothing";
-      }
-      else
-      {
+      } else {
         resultcontainer += resultname + (variadic ? "..." : "") + ", ";
       }
       resultarguments += resultname + defaultvalue + "::" + type + ", ";
     }
 
-    std::string resultsexpression = (inferrable ? "(length(_results) == 0 ? nothing : _results)" : "_results");
-    std::string resultinference = (inferrable ? "(length(_results) == 0 ? true : false)" : "false");
+    if (op.getTrait("::mlir::OpTrait::AttrSizedResultSegments")) {
+      std::string resultsegmentsizes = "";
+      for (int i = 0; i < op.getNumResults(); i++) {
+        const auto &named_result = op.getResult(i);
+        std::string resultname = named_result.name.str();
+        if (resultname.empty()) {
+          resultname = "result_" + std::to_string(i);
+        }
+        if (named_result.isOptional() || inferrable) {
+          resultsegmentsizes += "Int(!isnothing(" + resultname + ")), ";
+          continue;
+        }
+        resultsegmentsizes +=
+            named_result.isVariadic() ? "length(" + resultname + "), " : "1, ";
+      }
+      optionals += llvm::formatv(R"(push!(attributes, resultsegmentsizes([{0}]))
+    )",
+                                 resultsegmentsizes);
+    }
+
+    std::string resultsexpression =
+        (inferrable ? "(length(op_ty_results) == 0 ? nothing : op_ty_results)"
+                    : "op_ty_results");
+    std::string resultinference =
+        (inferrable ? "(length(op_ty_results) == 0 ? true : false)" : "false");
 
     std::string attributearguments = "";
     std::string attributecontainer = "";
-    for (int i = 0; i < op.getNumAttributes(); i++)
-    {
+    for (int i = 0; i < op.getNumAttributes(); i++) {
       const auto &named_attr = op.getAttribute(i);
 
       // Derived attributes are never materialized and don't have to be
@@ -372,34 +368,33 @@ end
 
       std::string defaultvalue = "";
       std::string attributename = named_attr.name.str();
-      assert(!attributename.empty() && "expected NamedAttribute to have a name");
+      assert(!attributename.empty() &&
+             "expected NamedAttribute to have a name");
       std::string sanitizedname = sanitizeName(attributename);
 
-      bool optional = named_attr.attr.isOptional() || named_attr.attr.hasDefaultValue();
+      bool optional =
+          named_attr.attr.isOptional() || named_attr.attr.hasDefaultValue();
 
-      if (optional)
-      {
-        optionals += llvm::formatv(R"(!isnothing({0}) && push!(_attributes, namedattribute("{0}", {1}))
+      if (optional) {
+        optionals += llvm::formatv(
+            R"(!isnothing({1}) && push!(attributes, NamedAttribute("{0}", {1}))
     )",
-                                   attributename, sanitizedname);
+            attributename, sanitizedname);
         defaultvalue = "=nothing";
-      }
-      else
-      {
-        attributecontainer += "namedattribute(\"" + attributename + "\", " + sanitizedname + "), ";
+      } else {
+        attributecontainer += "NamedAttribute(\"" + attributename + "\", " +
+                              sanitizedname + "), ";
       }
       attributearguments += sanitizedname + defaultvalue + ", ";
     }
 
     std::string regionarguments = "";
     std::string regioncontainer = "";
-    for (size_t i = 0; i < op.getNumRegions(); i++)
-    {
+    for (size_t i = 0; i < op.getNumRegions(); i++) {
       const auto &named_region = op.getRegion(i);
       std::string defaultvalue = "";
       std::string regionname = named_region.name.str();
-      if (regionname.empty())
-      {
+      if (regionname.empty()) {
         regionname = "region_" + std::to_string(i);
       }
       regionname = sanitizeName(regionname);
@@ -407,8 +402,7 @@ end
 
       bool variadic = named_region.isVariadic();
 
-      if (variadic)
-      {
+      if (variadic) {
         type = "Vector{" + type + "}";
       }
 
@@ -418,21 +412,18 @@ end
 
     std::string successorarguments = "";
     std::string successorcontainer = "";
-    for (size_t i = 0; i < op.getNumSuccessors(); i++)
-    {
+    for (size_t i = 0; i < op.getNumSuccessors(); i++) {
       const auto &named_successor = op.getSuccessor(i);
       std::string defaultvalue = "";
       std::string successorname = named_successor.name.str();
-      if (successorname.empty())
-      {
+      if (successorname.empty()) {
         successorname = "successor_" + std::to_string(i);
       }
       successorname = sanitizeName(successorname);
       std::string type = "Block";
 
       bool variadic = named_successor.isVariadic();
-      if (variadic)
-      {
+      if (variadic) {
         type = "Vector{" + type + "}";
       }
 
@@ -440,19 +431,22 @@ end
       successorarguments += successorname + defaultvalue + "::" + type + ", ";
     }
 
-    std::string arguments = operandarguments + resultarguments + attributearguments + regionarguments + successorarguments;
-    std::string functionbody = llvm::formatv(functionbodytemplate, resultcontainer, operandcontainer, regioncontainer, successorcontainer, attributecontainer, optionals, opname, resultsexpression, resultinference);
+    std::string arguments = operandarguments + resultarguments +
+                            attributearguments + regionarguments +
+                            successorarguments;
+    std::string functionbody =
+        llvm::formatv(functionbodytemplate, resultcontainer, operandcontainer,
+                      regioncontainer, successorcontainer, attributecontainer,
+                      optionals, opname, resultsexpression, resultinference);
 
-    modulecontents += llvm::formatv(functiontemplate, functionname, arguments, functionbody, description);
+    modulecontents += llvm::formatv(functiontemplate, functionname, arguments,
+                                    functionbody, description);
   }
 
-  if (disableModuleWrap)
-  {
-    os << llvm::formatv(moduleTemplate, imports, modulecontents);
-  }
-  else
-  {
-    os << llvm::formatv(moduleTemplate, modulename, imports, modulecontents);
+  if (disableModuleWrap) {
+    os << llvm::formatv(moduleTemplate, modulecontents);
+  } else {
+    os << llvm::formatv(moduleTemplate, modulename, modulecontents);
   }
 
   return false;
