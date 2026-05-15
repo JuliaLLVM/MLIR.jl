@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <optional>
+
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FormatVariadic.h"
@@ -26,45 +28,64 @@
 
 using namespace llvm;
 
-using generator_function = bool(const llvm::RecordKeeper& recordKeeper,
-                                llvm::raw_ostream& os);
-
-struct GeneratorInfo {
-  const char* name;
-  generator_function* generator;
+enum ActionType {
+  EmitOpTableDefs,
 };
 
-extern generator_function emitOpTableDefs;
-extern generator_function emitTestTableDefs;
+// defined in jl-generators.cc
+extern bool emitOpTableDefs(llvm::raw_ostream &os, const llvm::RecordKeeper &recordKeeper, bool disableModuleWrap, bool isExternal, std::optional<std::string> dialectName);
 
-static std::array<GeneratorInfo, 1> generators {{
-  {"jl-op-defs", emitOpTableDefs},
-}};
+cl::opt<ActionType> generator(
+  "generator",
+  cl::desc("Generator to run"),
+  cl::values(clEnumValN(EmitOpTableDefs, "emit-op-table-defs",
+                        "Emit Julia definitions for MLIR operations")),
+  cl::Required
+);
 
-generator_function* generator;
-bool disableModuleWrap;
-bool isExternal;
+cl::opt<bool> disableModuleWrap(
+  "disable-module-wrap",
+  cl::desc("Disable module wrap"),
+  cl::init(false)
+);
+
+cl::opt<bool> isExternal(
+  "external",
+  cl::desc("Mark the dialect as external and generate bindings accordingly"),
+  cl::init(false)
+);
+
+cl::opt<std::string> dialectName(
+    "dialect-name",
+    llvm::cl::desc("Override the inferred dialect name, used as the name for the generated Julia module."),
+    llvm::cl::value_desc("dialect")
+);
+
+#if LLVM_VERSION_MAJOR < 20
+static bool MlirJuliaTablegenMain(llvm::raw_ostream &os, llvm::RecordKeeper &recordKeeper) {
+#else
+static bool MlirJuliaTablegenMain(llvm::raw_ostream &os, const llvm::RecordKeeper &recordKeeper) {
+#endif
+  switch (generator) {
+    case EmitOpTableDefs: {
+      std::optional<std::string> dialectNameOpt;
+      if (!dialectName.empty()) dialectNameOpt = dialectName;
+      return emitOpTableDefs(os, recordKeeper, disableModuleWrap, isExternal, dialectNameOpt);
+      break;
+    }
+    default:
+      llvm::errs() << "Invalid generator type\n";
+      return true;
+  }
+}
 
 int main(int argc, char **argv) {
   llvm::InitLLVM y(argc, argv);
-  llvm::cl::opt<std::string> generatorOpt("generator", llvm::cl::desc("Generator to run"), cl::Required);
-  llvm::cl::opt<bool> disableModuleWrapOpt("disable-module-wrap", llvm::cl::desc("Disable module wrap"), cl::init(false));
-  llvm::cl::opt<bool> isExternalOpt("external", llvm::cl::desc("Mark the dialect as external and generate bindings accordingly"), cl::init(false));
   cl::ParseCommandLineOptions(argc, argv);
-  for (const auto& spec : generators) {
-    if (generatorOpt == spec.name) {
-      generator = spec.generator;
-      break;
-    }
-  }
-  if (!generator) {
-    llvm::errs() << "Invalid generator type\n";
-    abort();
-  }
-  disableModuleWrap = disableModuleWrapOpt;
-  isExternal = isExternalOpt;
-
-  return TableGenMain(argv[0], [](raw_ostream& os, RecordKeeper &records) {
-    return generator(records, os);
-  });
+#if LLVM_VERSION_MAJOR < 20
+  return TableGenMain(argv[0], MlirJuliaTablegenMain);
+#else
+  std::function<bool(llvm::raw_ostream&, const llvm::RecordKeeper&)> mainFn = MlirJuliaTablegenMain;
+  return TableGenMain(argv[0], mainFn);
+#endif
 }
