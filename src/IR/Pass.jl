@@ -159,7 +159,7 @@ function try_compile_dump_mlir(f, mod::Module, pm=nothing)
     failed = false
     # Dump MLIR before calling `f`.  We set `pm` to nothing because the pass
     # manager isn't called yet here.
-    DUMP_MLIR_ALWAYS[] && dump_mlir(mod, nothing, "pre_xla_compile")
+    DUMP_MLIR_ALWAYS[] && dump_mlir(mod, nothing, "pre")
     try
         f()
     catch
@@ -167,7 +167,7 @@ function try_compile_dump_mlir(f, mod::Module, pm=nothing)
         rethrow()
     finally
         if failed || DUMP_MLIR_ALWAYS[]
-            dump_mlir(Operation(mod), pm, "post_xla_compile"; failed)
+            dump_mlir(Operation(mod), pm, "post"; failed)
         end
     end
 end
