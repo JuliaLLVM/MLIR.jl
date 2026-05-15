@@ -26,6 +26,7 @@
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/StringSet.h"
 #include "llvm/ADT/iterator_range.h"
+#include "llvm/Config/llvm-config.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FormatAdapters.h"
 #include "llvm/Support/FormatCommon.h"
@@ -48,14 +49,6 @@
 
 namespace
 {
-
-  llvm::cl::opt<bool> ExplainMissing(
-      "explain-missing",
-      llvm::cl::desc("Print the reason for skipping operations from output"));
-  llvm::cl::opt<std::string> DialectName(
-    "dialect-name", llvm::cl::desc("Override the inferred dialect name, used as the name for the generated Julia module."),
-    llvm::cl::value_desc("dialect"));
-
   using namespace mlir;
   using namespace mlir::tblgen;
 
@@ -126,13 +119,7 @@ namespace
           return mlir::tblgen::Operator(op).getDialectName() ==
                 any_op.getDialectName();
         }));
-    std::string dialect_name;
-    if (DialectName.empty()) {
-      dialect_name = any_op.getDialectName().str();
-    } else {
-      dialect_name = DialectName;
-    }
-    return dialect_name;
+    return any_op.getDialectName().str();
   }
 
   std::string sanitizeName(std::string name, std::optional<std::string> modulename = std::nullopt) {
@@ -161,17 +148,20 @@ namespace
 
 } // namespace
 
-extern bool disableModuleWrap;
-extern bool isExternal;
-
-bool emitOpTableDefs(const llvm::RecordKeeper &recordKeeper,
-                     llvm::raw_ostream &os)
+bool emitOpTableDefs(llvm::raw_ostream &os, const llvm::RecordKeeper &recordKeeper, bool disableModuleWrap, bool isExternal, std::optional<std::string> dialectName)
 {
+
 #if LLVM_VERSION_MAJOR >= 16
-  std::vector<llvm::Record *> opdefs = recordKeeper.getAllDerivedDefinitionsIfDefined("Op");
+  auto _opdefs = recordKeeper.getAllDerivedDefinitionsIfDefined("Op");
 #else
-  std::vector<llvm::Record *> opdefs = recordKeeper.getAllDerivedDefinitions("Op");
+  auto _opdefs = recordKeeper.getAllDerivedDefinitions("Op");
 #endif
+
+  // LLVM 20 changed the return type to `ArrayRef<const Record*>` and the const cast away was giving me headaches
+  llvm::ArrayRef<llvm::Record*> opdefs(
+    const_cast<llvm::Record* const*>(_opdefs.data()),
+    _opdefs.size()
+  );
 
   const char *imports;
   if (isExternal)
@@ -230,9 +220,9 @@ end
   std::string modulecontents = "";
 
   std::string modulename;
-  if (!DialectName.empty())
+  if (!dialectName.has_value())
   {
-    modulename = DialectName;
+    modulename = dialectName.value();
   } else {
     modulename = getDialectName(opdefs);
   }
