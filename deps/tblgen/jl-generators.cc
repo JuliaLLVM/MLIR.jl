@@ -205,8 +205,8 @@ end
   std::string modulecontents = "";
 
   std::string modulename;
-  if (!DialectName.empty()) {
-    modulename = DialectName;
+  if (dialectName.has_value()) {
+    modulename = dialectName.value();
   } else {
     modulename = getDialectName(opdefs);
   }
