@@ -1,7 +1,6 @@
 module Dialects
 
-using ..MLIR: MLIR_VERSION_MIN, MLIR_VERSION_MAX
-using ..IR: IR, NamedAttribute
+using ..MLIR: MLIR_VERSION_MIN, MLIR_VERSION_MAX, IR
 
 operandsegmentsizes(segments) = NamedAttribute("operand_segment_sizes", Int32.(segments))
 resultsegmentsizes(segments) = NamedAttribute("result_segment_sizes", Int32.(segments))
