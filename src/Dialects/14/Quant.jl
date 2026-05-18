@@ -1,8 +1,9 @@
 module quant
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `const_fake_quant`
@@ -12,39 +13,21 @@ same uniform quantization simulation as is done by the TensorFlow
 fake_quant_with_min_max_args op. See the fakeQuantAttrsToType() utility
 method and the quant-convert-simulated-quantization pass for further details.
 """
-function const_fake_quant(
-    inputs::Value;
-    outputs=nothing::Union{Nothing,IR.Type},
-    min,
-    max,
-    num_bits,
-    narrow_range=nothing,
-    is_signed=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[inputs,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("min", min),
-        namedattribute("max", max),
-        namedattribute("num_bits", num_bits),
-    ]
-    !isnothing(outputs) && push!(_results, outputs)
-    !isnothing(narrow_range) &&
-        push!(_attributes, namedattribute("narrow_range", narrow_range))
-    !isnothing(is_signed) && push!(_attributes, namedattribute("is_signed", is_signed))
-
-    return IR.create_operation(
-        "quant.const_fake_quant",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function const_fake_quant(inputs::Value; outputs=nothing::Union{Nothing, IR.Type}, min, max, num_bits, narrow_range=nothing, is_signed=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[inputs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("min", min), NamedAttribute("max", max), NamedAttribute("num_bits", num_bits), ]
+    !isnothing(outputs) && push!(op_ty_results, outputs)
+    !isnothing(narrow_range) && push!(attributes, NamedAttribute("narrow_range", narrow_range))
+    !isnothing(is_signed) && push!(attributes, NamedAttribute("is_signed", is_signed))
+    
+    create_operation(
+        "quant.const_fake_quant", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -57,41 +40,21 @@ fake_quant_with_min_max_vars_per_channel op. See the fakeQuantAttrsToType()
 utility method and the quant-convert-simulated-quantization pass for further
 details.
 """
-function const_fake_quant_per_axis(
-    inputs::Value;
-    outputs=nothing::Union{Nothing,IR.Type},
-    min,
-    max,
-    axis,
-    num_bits,
-    narrow_range=nothing,
-    is_signed=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[inputs,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("min", min),
-        namedattribute("max", max),
-        namedattribute("axis", axis),
-        namedattribute("num_bits", num_bits),
-    ]
-    !isnothing(outputs) && push!(_results, outputs)
-    !isnothing(narrow_range) &&
-        push!(_attributes, namedattribute("narrow_range", narrow_range))
-    !isnothing(is_signed) && push!(_attributes, namedattribute("is_signed", is_signed))
-
-    return IR.create_operation(
-        "quant.const_fake_quant_per_axis",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function const_fake_quant_per_axis(inputs::Value; outputs=nothing::Union{Nothing, IR.Type}, min, max, axis, num_bits, narrow_range=nothing, is_signed=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[inputs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("min", min), NamedAttribute("max", max), NamedAttribute("axis", axis), NamedAttribute("num_bits", num_bits), ]
+    !isnothing(outputs) && push!(op_ty_results, outputs)
+    !isnothing(narrow_range) && push!(attributes, NamedAttribute("narrow_range", narrow_range))
+    !isnothing(is_signed) && push!(attributes, NamedAttribute("is_signed", is_signed))
+    
+    create_operation(
+        "quant.const_fake_quant_per_axis", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -105,25 +68,19 @@ external connections. In such a case, during analysis, all coupled_ref
 nodes in a module which share a coupledKey will be considered to be
 directly connected as via an identity op for the purpose of type inference.
 """
-function coupled_ref(
-    arg::Value; result_0=nothing::Union{Nothing,IR.Type}, coupledKey, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("coupledKey", coupledKey),]
-    !isnothing(result_0) && push!(_results, result_0)
-
-    return IR.create_operation(
-        "quant.coupled_ref",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function coupled_ref(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, coupledKey, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("coupledKey", coupledKey), ]
+    !isnothing(result_0) && push!(op_ty_results, result_0)
+    
+    create_operation(
+        "quant.coupled_ref", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -132,21 +89,17 @@ end
 
 """
 function dcast(arg::Value; result_0::IR.Type, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "quant.dcast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "quant.dcast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -155,21 +108,17 @@ end
 
 """
 function qcast(arg::Value; result_0::IR.Type, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "quant.qcast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "quant.qcast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -177,34 +126,18 @@ end
 `region`
 
 """
-function region(
-    inputs::Vector{Value};
-    outputs::Vector{IR.Type},
-    input_specs,
-    output_specs,
-    logical_kernel,
-    body::Region,
-    location=Location(),
-)
-    _results = IR.Type[outputs...,]
-    _operands = Value[inputs...,]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("input_specs", input_specs),
-        namedattribute("output_specs", output_specs),
-        namedattribute("logical_kernel", logical_kernel),
-    ]
-
-    return IR.create_operation(
-        "quant.region",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function region(inputs::Vector{Value}; outputs::Vector{IR.Type}, input_specs, output_specs, logical_kernel, body::Region, location=Location())
+    op_ty_results = IR.Type[outputs..., ]
+    operands = Value[inputs..., ]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("input_specs", input_specs), NamedAttribute("output_specs", output_specs), NamedAttribute("logical_kernel", logical_kernel), ]
+    
+    create_operation(
+        "quant.region", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -213,21 +146,17 @@ end
 
 """
 function return_(results::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[results...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "quant.return",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[results..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "quant.return", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -251,32 +180,21 @@ Currently, only dim=2 is supported, which is interpreted as [min, max].
 <?x?x3x2>, axis=2 => N=6
 ```
 """
-function stats(
-    arg::Value;
-    result_0=nothing::Union{Nothing,IR.Type},
-    layerStats,
-    axisStats=nothing,
-    axis=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("layerStats", layerStats),]
-    !isnothing(result_0) && push!(_results, result_0)
-    !isnothing(axisStats) && push!(_attributes, namedattribute("axisStats", axisStats))
-    !isnothing(axis) && push!(_attributes, namedattribute("axis", axis))
-
-    return IR.create_operation(
-        "quant.stats",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function stats(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, layerStats, axisStats=nothing, axis=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("layerStats", layerStats), ]
+    !isnothing(result_0) && push!(op_ty_results, result_0)
+    !isnothing(axisStats) && push!(attributes, NamedAttribute("axisStats", axisStats))
+    !isnothing(axis) && push!(attributes, NamedAttribute("axis", axis))
+    
+    create_operation(
+        "quant.stats", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -289,25 +207,19 @@ Such statistics will be stored with the provided key, allowing this node
 to later be converted to a \'stats\' op if statistics with that key have been
 encountered.
 """
-function stats_ref(
-    arg::Value; result_0=nothing::Union{Nothing,IR.Type}, statsKey, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("statsKey", statsKey),]
-    !isnothing(result_0) && push!(_results, result_0)
-
-    return IR.create_operation(
-        "quant.stats_ref",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function stats_ref(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, statsKey, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("statsKey", statsKey), ]
+    !isnothing(result_0) && push!(op_ty_results, result_0)
+    
+    create_operation(
+        "quant.stats_ref", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -316,21 +228,17 @@ end
 
 """
 function scast(arg::Value; result_0::IR.Type, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[arg,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "quant.scast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[arg, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "quant.scast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

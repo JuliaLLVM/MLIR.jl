@@ -1,8 +1,9 @@
 module arm_neon
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `intr_smull`
@@ -16,21 +17,17 @@ Source:
 https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
 """
 function intr_smull(a::Value, b::Value; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[a, b]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_neon.intr.smull",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.smull", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -47,21 +44,17 @@ res[i] := a[i] + dot_product(b[i, ...], c[i, ...])
 ```
 """
 function _2d_sdot(a::Value, b::Value, c::Value; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[a, b, c]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_neon.2d.sdot",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.2d.sdot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -76,21 +69,17 @@ Source:
 https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
 """
 function intr_sdot(a::Value, b::Value, c::Value; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[a, b, c]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_neon.intr.sdot",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.sdot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

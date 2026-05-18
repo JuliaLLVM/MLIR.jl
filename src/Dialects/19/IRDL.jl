@@ -1,8 +1,9 @@
 module irdl
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `all_of`
@@ -33,25 +34,19 @@ The above program defines a type `complex` inside the dialect `cmath` that
 can has one parameter that must be 32-bit long and a float (in other
 words, that must be `f32`).
 """
-function all_of(
-    args::Vector{Value}; output=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.all_of",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function all_of(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.all_of", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -80,25 +75,19 @@ The above program defines a type `complex` inside the dialect `cmath` that
 can have a single type parameter that can be either `i32`, `i64`, `f32` or
 `f32`.
 """
-function any_of(
-    args::Vector{Value}; output=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.any_of",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function any_of(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.any_of", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -121,23 +110,19 @@ irdl.dialect @cmath {
 The above program defines a type `complex_flexible` inside the dialect
 `cmath` that has a single parameter that can be any attribute.
 """
-function any(; output=nothing::Union{Nothing,IR.Type}, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.any",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function any(; output=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.any", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -168,21 +153,17 @@ dialect. The attribute has one `StringAttr` parameter that should be
 either a `\"foo\"` or a `\"bar\"`.
 """
 function attribute(; sym_name, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "irdl.attribute",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "irdl.attribute", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -212,24 +193,18 @@ irdl.dialect @example {
 The operation will expect an arbitrary attribute \"attr1\" and an
 attribute \"attr2\" with value `i64`.
 """
-function attributes(
-    attributeValues::Vector{Value}; attributeValueNames, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[attributeValues...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("attributeValueNames", attributeValueNames),]
-
-    return IR.create_operation(
-        "irdl.attributes",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function attributes(attributeValues::Vector{Value}; attributeValueNames, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[attributeValues..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("attributeValueNames", attributeValueNames), ]
+    
+    create_operation(
+        "irdl.attributes", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -264,30 +239,21 @@ name of an `IntegerType` type.
 It also defines a `cmath.complex_wrapper` type that expects a single
 parameter, which is a type of base type `cmath.complex`.
 """
-function base(;
-    output=nothing::Union{Nothing,IR.Type},
-    base_ref=nothing,
-    base_name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(output) && push!(_results, output)
-    !isnothing(base_ref) && push!(_attributes, namedattribute("base_ref", base_ref))
-    !isnothing(base_name) && push!(_attributes, namedattribute("base_name", base_name))
-
-    return IR.create_operation(
-        "irdl.base",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function base(; output=nothing::Union{Nothing, IR.Type}, base_ref=nothing, base_name=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(output) && push!(op_ty_results, output)
+    !isnothing(base_ref) && push!(attributes, NamedAttribute("base_ref", base_ref))
+    !isnothing(base_name) && push!(attributes, NamedAttribute("base_name", base_name))
+    
+    create_operation(
+        "irdl.base", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -320,23 +286,19 @@ irdl.type @op_with_attr {
 In this example, @op_with_attr is defined as a type with a single
 parameter, which is an `IntegerAttr`, as constrained by the C++ predicate.
 """
-function c_pred(; output=nothing::Union{Nothing,IR.Type}, pred, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("pred", pred),]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.c_pred",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function c_pred(; output=nothing::Union{Nothing, IR.Type}, pred, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("pred", pred), ]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.c_pred", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -357,21 +319,17 @@ irdl.dialect @cmath {
 The above program defines a `cmath` dialect.
 """
 function dialect(; sym_name, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "irdl.dialect",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "irdl.dialect", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -395,23 +353,19 @@ irdl.dialect @cmath {
 The above program defines a `complex_i32` type inside the dialect `cmath`
 that can only have a `i32` as its parameter.
 """
-function is(; output=nothing::Union{Nothing,IR.Type}, expected, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("expected", expected),]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.is",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function is(; output=nothing::Union{Nothing, IR.Type}, expected, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("expected", expected), ]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.is", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -454,21 +408,17 @@ will expect a \'operandSegmentSizes\' attribute that defines the number of
 operands in each segment.
 """
 function operands(args::Vector{Value}; variadicity, location=Location())
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("variadicity", variadicity),]
-
-    return IR.create_operation(
-        "irdl.operands",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("variadicity", variadicity), ]
+    
+    create_operation(
+        "irdl.operands", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -503,21 +453,17 @@ The operation expects a single operand of base type `cmath.complex`, and
 returns a single result of the element type of the operand.
 """
 function operation(; sym_name, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "irdl.operation",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "irdl.operation", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -544,21 +490,17 @@ The above program defines a type `complex` inside the dialect `cmath`. The
 type has a single parameter that should be either `i32` or `i64`.
 """
 function parameters(args::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "irdl.parameters",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "irdl.parameters", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -589,28 +531,19 @@ irdl.dialect @cmath {
 The above program defines an operation `norm` inside the dialect `cmath` that
 for any `T` takes a `cmath.complex` with parameter `T` and returns a `T`.
 """
-function parametric(
-    args::Vector{Value};
-    output=nothing::Union{Nothing,IR.Type},
-    base_type,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("base_type", base_type),]
-    !isnothing(output) && push!(_results, output)
-
-    return IR.create_operation(
-        "irdl.parametric",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function parametric(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, base_type, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("base_type", base_type), ]
+    !isnothing(output) && push!(op_ty_results, output)
+    
+    create_operation(
+        "irdl.parametric", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -657,33 +590,21 @@ which is constrained to have four regions.
 * Region `%r2` should have two arguments of types `i32` and `i64`.
 * Region `%r3` should contain exactly three blocks.
 """
-function region(
-    entryBlockArgs::Vector{Value};
-    output=nothing::Union{Nothing,IR.Type},
-    numberOfBlocks=nothing,
-    constrainedArguments=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[entryBlockArgs...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(output) && push!(_results, output)
-    !isnothing(numberOfBlocks) &&
-        push!(_attributes, namedattribute("numberOfBlocks", numberOfBlocks))
-    !isnothing(constrainedArguments) &&
-        push!(_attributes, namedattribute("constrainedArguments", constrainedArguments))
-
-    return IR.create_operation(
-        "irdl.region",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function region(entryBlockArgs::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, numberOfBlocks=nothing, constrainedArguments=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[entryBlockArgs..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(output) && push!(op_ty_results, output)
+    !isnothing(numberOfBlocks) && push!(attributes, NamedAttribute("numberOfBlocks", numberOfBlocks))
+    !isnothing(constrainedArguments) && push!(attributes, NamedAttribute("constrainedArguments", constrainedArguments))
+    
+    create_operation(
+        "irdl.region", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -711,21 +632,17 @@ The first region should contain three blocks.
 The second region should have one region with one argument.
 """
 function regions(args::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "irdl.regions",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "irdl.regions", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -768,21 +685,17 @@ will expect a \'resultSegmentSizes\' attribute that defines the number of
 results in each segment.
 """
 function results(args::Vector{Value}; variadicity, location=Location())
-    _results = IR.Type[]
-    _operands = Value[args...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("variadicity", variadicity),]
-
-    return IR.create_operation(
-        "irdl.results",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[args..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("variadicity", variadicity), ]
+    
+    create_operation(
+        "irdl.results", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -811,21 +724,17 @@ The above program defines a type `complex` inside the dialect `cmath`. The
 type has a single parameter that should be either `i32` or `i64`.
 """
 function type(; sym_name, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "irdl.type",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "irdl.type", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

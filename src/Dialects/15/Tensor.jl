@@ -1,8 +1,9 @@
 module tensor
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `cast`
@@ -28,21 +29,17 @@ converting to a mismatching constant dimension.
 ```
 """
 function cast(source::Value; dest::IR.Type, location=Location())
-    _results = IR.Type[dest,]
-    _operands = Value[source,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.cast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[dest, ]
+    operands = Value[source, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.cast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -72,21 +69,17 @@ Examples:
 ```
 """
 function collapse_shape(src::Value; result::IR.Type, reassociation, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[src,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("reassociation", reassociation),]
-
-    return IR.create_operation(
-        "tensor.collapse_shape",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[src, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("reassociation", reassociation), ]
+    
+    create_operation(
+        "tensor.collapse_shape", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -115,25 +108,19 @@ The specified tensor type is that of the first operand.
 %y = \"tensor.dim\"(%A, %c1) : (memref<4x?xf32>, index) -> index
 ```
 """
-function dim(
-    source::Value, index::Value; result=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[source, index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "tensor.dim",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function dim(source::Value, index::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[source, index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "tensor.dim", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -163,21 +150,17 @@ Examples:
 ```
 """
 function expand_shape(src::Value; result::IR.Type, reassociation, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[src,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("reassociation", reassociation),]
-
-    return IR.create_operation(
-        "tensor.expand_shape",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[src, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("reassociation", reassociation), ]
+    
+    create_operation(
+        "tensor.expand_shape", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -199,24 +182,18 @@ indices should all be of `index` type.
 %6 = tensor.extract %ut[%1, %2] : tensor<*xi32>
 ```
 """
-function extract(
-    tensor::Value, indices::Vector{Value}; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[tensor, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.extract",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function extract(tensor::Value, indices::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[tensor, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.extract", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -281,40 +258,19 @@ dims, to map the rank-reduced type to the source type by dropping ones:
   tensor<8x16x4xf32> to tensor<1x?xf32>
 ```
 """
-function extract_slice(
-    source::Value,
-    offsets::Vector{Value},
-    sizes::Vector{Value},
-    strides::Vector{Value};
-    result::IR.Type,
-    static_offsets,
-    static_sizes,
-    static_strides,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[source, offsets..., sizes..., strides...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("static_offsets", static_offsets),
-        namedattribute("static_sizes", static_sizes),
-        namedattribute("static_strides", static_strides),
-    ]
-    push!(
-        _attributes,
-        operandsegmentsizes([1, length(offsets), length(sizes), length(strides)]),
-    )
-
-    return IR.create_operation(
-        "tensor.extract_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function extract_slice(source::Value, offsets::Vector{Value}, sizes::Vector{Value}, strides::Vector{Value}; result::IR.Type, static_offsets, static_sizes, static_strides, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[source, offsets..., sizes..., strides..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("static_offsets", static_offsets), NamedAttribute("static_sizes", static_sizes), NamedAttribute("static_strides", static_strides), ]
+    push!(attributes, operandsegmentsizes([1, length(offsets), length(sizes), length(strides), ]))
+    
+    create_operation(
+        "tensor.extract_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -337,21 +293,17 @@ will result in a tensor
  [%d, %e, %f]]
 """
 function from_elements(elements::Vector{Value}; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[elements...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.from_elements",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[elements..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.from_elements", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -377,24 +329,18 @@ a \"parallel map\" operation.
   } : tensor<?x3x?f32>
 ```
 """
-function generate(
-    dynamicExtents::Vector{Value}; result::IR.Type, body::Region, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[dynamicExtents...,]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.generate",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function generate(dynamicExtents::Vector{Value}; result::IR.Type, body::Region, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[dynamicExtents..., ]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.generate", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -419,24 +365,18 @@ indices should all be of `index` type.
 %6 = tensor.insert %ut into %dest[%1, %2] : tensor<*xi32>
 ```
 """
-function insert(
-    scalar::Value, dest::Value, indices::Vector{Value}; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[scalar, dest, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.insert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function insert(scalar::Value, dest::Value, indices::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[scalar, dest, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.insert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -495,41 +435,19 @@ Unlike ExtractSliceOp however, there is no need for a specific inference.
   tensor<1x?xf32> into tensor<8x16x4xf32>
 ```
 """
-function insert_slice(
-    source::Value,
-    dest::Value,
-    offsets::Vector{Value},
-    sizes::Vector{Value},
-    strides::Vector{Value};
-    result::IR.Type,
-    static_offsets,
-    static_sizes,
-    static_strides,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[source, dest, offsets..., sizes..., strides...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("static_offsets", static_offsets),
-        namedattribute("static_sizes", static_sizes),
-        namedattribute("static_strides", static_strides),
-    ]
-    push!(
-        _attributes,
-        operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides)]),
-    )
-
-    return IR.create_operation(
-        "tensor.insert_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function insert_slice(source::Value, dest::Value, offsets::Vector{Value}, sizes::Vector{Value}, strides::Vector{Value}; result::IR.Type, static_offsets, static_sizes, static_strides, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[source, dest, offsets..., sizes..., strides..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("static_offsets", static_offsets), NamedAttribute("static_sizes", static_sizes), NamedAttribute("static_strides", static_strides), ]
+    push!(attributes, operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides), ]))
+    
+    create_operation(
+        "tensor.insert_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -605,36 +523,20 @@ Example 4:
   } : tensor<2x3xf32> to tensor<2x3xf32>
 ```
 """
-function pad(
-    source::Value,
-    low::Vector{Value},
-    high::Vector{Value};
-    result::IR.Type,
-    static_low,
-    static_high,
-    nofold=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[source, low..., high...]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("static_low", static_low), namedattribute("static_high", static_high)
-    ]
-    push!(_attributes, operandsegmentsizes([1, length(low), length(high)]))
-    !isnothing(nofold) && push!(_attributes, namedattribute("nofold", nofold))
-
-    return IR.create_operation(
-        "tensor.pad",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function pad(source::Value, low::Vector{Value}, high::Vector{Value}; result::IR.Type, static_low, static_high, nofold=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[source, low..., high..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("static_low", static_low), NamedAttribute("static_high", static_high), ]
+    push!(attributes, operandsegmentsizes([1, length(low), length(high), ]))
+    !isnothing(nofold) && push!(attributes, NamedAttribute("nofold", nofold))
+    
+    create_operation(
+        "tensor.pad", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -699,40 +601,19 @@ Verification in the rank-reduced case:
 The same verification discussion and mechanisms apply as for ExtractSliceOp.
 Unlike ExtractSliceOp however, there is no need for a specific inference.
 """
-function parallel_insert_slice(
-    source::Value,
-    dest::Value,
-    offsets::Vector{Value},
-    sizes::Vector{Value},
-    strides::Vector{Value};
-    static_offsets,
-    static_sizes,
-    static_strides,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[source, dest, offsets..., sizes..., strides...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("static_offsets", static_offsets),
-        namedattribute("static_sizes", static_sizes),
-        namedattribute("static_strides", static_strides),
-    ]
-    push!(
-        _attributes,
-        operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides)]),
-    )
-
-    return IR.create_operation(
-        "tensor.parallel_insert_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function parallel_insert_slice(source::Value, dest::Value, offsets::Vector{Value}, sizes::Vector{Value}, strides::Vector{Value}; static_offsets, static_sizes, static_strides, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[source, dest, offsets..., sizes..., strides..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("static_offsets", static_offsets), NamedAttribute("static_sizes", static_sizes), NamedAttribute("static_strides", static_strides), ]
+    push!(attributes, operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides), ]))
+    
+    create_operation(
+        "tensor.parallel_insert_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -748,23 +629,19 @@ The `tensor.rank` operation takes a tensor operand and returns its rank.
 %1 = tensor.rank %arg1 : tensor<?x?xf32>
 ```
 """
-function rank(tensor::Value; result_0=nothing::Union{Nothing,IR.Type}, location=Location())
-    _results = IR.Type[]
-    _operands = Value[tensor,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result_0) && push!(_results, result_0)
-
-    return IR.create_operation(
-        "tensor.rank",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function rank(tensor::Value; result_0=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tensor, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result_0) && push!(op_ty_results, result_0)
+    
+    create_operation(
+        "tensor.rank", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -803,21 +680,17 @@ Result type is unranked.
 ```
 """
 function reshape(source::Value, shape::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[source, shape]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.reshape",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[source, shape, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.reshape", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -847,21 +720,17 @@ TODO: This operation is easy to extend to broadcast to dynamically shaped
 ```
 """
 function splat(input::Value; aggregate::IR.Type, location=Location())
-    _results = IR.Type[aggregate,]
-    _operands = Value[input,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.splat",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[aggregate, ]
+    operands = Value[input, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.splat", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -873,21 +742,17 @@ is used to create dynamically sized tensors
 (see `tensor.generate` and `tensor.pad` ops).
 """
 function yield(value::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "tensor.yield",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "tensor.yield", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

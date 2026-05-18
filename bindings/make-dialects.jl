@@ -1,7 +1,6 @@
 using Pkg
 import BinaryBuilderBase:
     PkgSpec, Prefix, temp_prefix, setup_dependencies, cleanup_dependencies, destdir
-using Clang.Generators
 
 # returns a mapping of dialect name to expected output file name and list of td files to generate from, for a given MLIR version
 function mlir_dialects(version::VersionNumber)
@@ -105,7 +104,7 @@ function mlir_dialects(version::VersionNumber)
     if v"19" <= version
         push!(dialects["llvm"].td_files, "LLVMIR/VCIXOps.td")
     end
-    if v"20" <= version
+    if v"21" <= version
         push!(dialects["llvm"].td_files, "LLVMIR/XeVMOps.td")
     end
 
@@ -130,9 +129,9 @@ function mlir_dialects(version::VersionNumber)
     end
 
     # dialect added in v15
-    if v"15" <= version
-        dialects["nvgpu"] = (; output_file="NVGPU.jl", td_files=["NVGPU/IR/NVGPU.td"])
-    end
+    # if v"15" <= version
+    #     dialects["nvgpu"] = (; output_file="NVGPU.jl", td_files=["NVGPU/IR/NVGPU.td"])
+    # end
 
     dialects["omp"] = (; output_file="OpenMP.jl", td_files=["OpenMP/OpenMPOps.td"])
     dialects["pdl_interp"] = (;
@@ -140,19 +139,23 @@ function mlir_dialects(version::VersionNumber)
     )
     dialects["pdl"] = (; output_file="PDL.jl", td_files=["PDL/IR/PDLOps.td"])
 
-    # dialect added in v19
-    if v"19" <= version
+    # dialect added in v19 and removed in v20
+    if v"19" <= version < v"20"
         dialects["polynomial"] = (;
             output_file="Polynomial.jl", td_files=["Polynomial/IR/Polynomial.td"]
         )
     end
 
-    # dialect added in v19
-    # if v"19" <= version
-    #     dialects["ptr"] = (; output_file = "Ptr.jl", td_files = ["Ptr/IR/PtrOps.td"])
-    # end
+    # dialect added in v19, but ops added in v21
+    if v"21" <= version
+        dialects["ptr"] = (; output_file = "Ptr.jl", td_files = ["Ptr/IR/PtrOps.td"])
+    end
 
-    dialects["quant"] = (; output_file="Quant.jl", td_files=["Quant/QuantOps.td"])
+    if version < v"20"
+        dialects["quant"] = (; output_file="Quant.jl", td_files=["Quant/QuantOps.td"])
+    else
+        dialects["quant"] = (; output_file="Quant.jl", td_files=["Quant/IR/QuantOps.td"])
+    end
 
     # moved to IR subfolder in v15
     if version < v"15"
@@ -169,16 +172,8 @@ function mlir_dialects(version::VersionNumber)
     end
 
     # dialect added in v20
-    if v"20" <= version
-        dialects["smt"] = (;
-            output_file="SMT.jl",
-            td_files=[
-                "SMT/IR/SMTOps.td",
-                "SMT/IR/SMTIntOps.td",
-                "SMT/IR/SMTArrayOps.td",
-                "SMT/IR/SMTBitVectorOps.td",
-            ],
-        )
+    if v"21" <= version
+        dialects["smt"] = (; output_file="SMT.jl", td_files=["SMT/IR/SMT.td"])
     end
 
     dialects["sparse_tensor"] = (;
@@ -189,7 +184,7 @@ function mlir_dialects(version::VersionNumber)
     if version < v"16"
         dialects["spv"] = (; output_file="SPIRV.jl", td_files=["SPIRV/IR/SPIRVOps.td"])
     else
-        dialects["spirv"] = (; output_file="SPIRV.jl", td_files=["SPIRV/SPIRV.td"])
+        dialects["spirv"] = (; output_file="SPIRV.jl", td_files=["SPIRV/IR/SPIRVOps.td"])
     end
 
     # deleted in v15
@@ -279,29 +274,23 @@ function mlir_dialects(version::VersionNumber)
     )
 
     # dialect added in v19
-    if version < v"19"
+    if v"19" < version
         dialects["xegpu"] = (; output_file="XeGPU.jl", td_files=["XeGPU/IR/XeGPUOps.td"])
     end
 
     return dialects
 end
 
-function rewrite!(dag::ExprDAG) end
-
 julia_llvm = [
-    (v"1.9", v"14.0.6+4"),
-    (v"1.10", v"15.0.7+9"),
-    (v"1.11", v"16.0.6+5"),
-    (v"1.12", v"17.0.6+5"),
-    (v"1.12", v"18.1.7+4"),
-    (v"1.12", v"19.1.7+1"),
-    (v"1.12", v"20.1.8+0"),
+    # (v"1.9", v"14.0.6+4"),
+    # (v"1.10", v"15.0.7+9"),
+    # (v"1.11", v"16.0.6+5"),
+    # (v"1.12", v"17.0.6+5"),
+    # (v"1.12", v"18.1.7+4"),
+    # (v"1.12", v"19.1.7+1"),
+    # (v"1.12", v"20.1.8+0"),
     (v"1.12", v"21.1.8+0"),
 ]
-options = load_options(joinpath(@__DIR__, "wrap.toml"))
-
-@add_def off_t
-@add_def MlirTypesCallback
 
 for (julia_version, llvm_version) in julia_llvm
     println("Generating... julia version: $julia_version, llvm version: $llvm_version")
@@ -322,44 +311,10 @@ for (julia_version, llvm_version) in julia_llvm
         mlir_jl_tblgen = joinpath(destdir(prefix, platform), "bin", "mlir-jl-tblgen")
         include_dir = joinpath(destdir(prefix, platform), "include")
 
-        # generate MLIR API bindings
-        mkpath(joinpath(@__DIR__, "..", "src", "API", string(llvm_version.major)))
-
-        let options = deepcopy(options)
-            output_file_path = joinpath(
-                @__DIR__,
-                "..",
-                "src",
-                "API",
-                string(llvm_version.major),
-                options["general"]["output_file_path"],
-            )
-            isdir(dirname(output_file_path)) || mkpath(dirname(output_file_path))
-            options["general"]["output_file_path"] = output_file_path
-
-            libmlir_header_dir = joinpath(include_dir, "mlir-c")
-            args = Generators.get_default_args(get_triple(); is_cxx=true)
-            push!(args, "-I$include_dir")
-            push!(args, "-xc++")
-
-            headers = detect_headers(
-                libmlir_header_dir, args, Dict(), endswith("Python/Interop.h")
-            )
-            ctx = create_context(headers, args, options)
-
-            # build without printing so we can do custom rewriting
-            build!(ctx, BUILDSTAGE_NO_PRINTING)
-
-            rewrite!(ctx.dag)
-
-            # print
-            build!(ctx, BUILDSTAGE_PRINTING_ONLY)
-        end
-
         # generate MLIR dialect bindings
         mkpath(joinpath(@__DIR__, "..", "src", "Dialects", string(llvm_version.major)))
 
-        for (dialect_name, (binding, tds)) in mlir_dialects(llvm_version)
+        for (dialect_name, (binding, tds)) in sort(mlir_dialects(llvm_version), by=first)
             tempfiles = map(tds) do td
                 tempfile, _ = mktemp()
                 tdpath = joinpath(include_dir, "mlir", "Dialect", td)

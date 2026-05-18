@@ -1,8 +1,9 @@
 module spv
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `AccessChain`
@@ -46,24 +47,18 @@ access-chain-op ::= ssa-id `=` `spv.AccessChain` ssa-use
 %3 = spv.Load \"Function\" %2 [\"Volatile\"] : !spv.array<4xf32>
 ```
 """
-function AccessChain(
-    base_ptr::Value, indices::Vector{Value}; component_ptr::IR.Type, location=Location()
-)
-    _results = IR.Type[component_ptr,]
-    _operands = Value[base_ptr, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.AccessChain",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AccessChain(base_ptr::Value, indices::Vector{Value}; component_ptr::IR.Type, location=Location())
+    op_ty_results = IR.Type[component_ptr, ]
+    operands = Value[base_ptr, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.AccessChain", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -92,21 +87,17 @@ spv-address-of-op ::= ssa-id `=` `spv.mlir.addressof` symbol-ref-id
 ```
 """
 function mlir_addressof(; pointer::IR.Type, variable, location=Location())
-    _results = IR.Type[pointer,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("variable", variable),]
-
-    return IR.create_operation(
-        "spv.mlir.addressof",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[pointer, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("variable", variable), ]
+    
+    create_operation(
+        "spv.mlir.addressof", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -147,31 +138,18 @@ atomic-and-op ::=
                    !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicAnd(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicAnd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicAnd(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicAnd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -221,35 +199,18 @@ atomic-compare-exchange-op ::=
                                 : !spv.ptr<i32, WorkGroup>
 ```
 """
-function AtomicCompareExchange(
-    pointer::Value,
-    value::Value,
-    comparator::Value;
-    result::IR.Type,
-    memory_scope,
-    equal_semantics,
-    unequal_semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value, comparator]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope),
-        namedattribute("equal_semantics", equal_semantics),
-        namedattribute("unequal_semantics", unequal_semantics),
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicCompareExchange",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicCompareExchange(pointer::Value, value::Value, comparator::Value; result::IR.Type, memory_scope, equal_semantics, unequal_semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, comparator, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("equal_semantics", equal_semantics), NamedAttribute("unequal_semantics", unequal_semantics), ]
+    
+    create_operation(
+        "spv.AtomicCompareExchange", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -277,35 +238,18 @@ atomic-compare-exchange-weak-op ::=
                                    : !spv.ptr<i32, WorkGroup>
 ```
 """
-function AtomicCompareExchangeWeak(
-    pointer::Value,
-    value::Value,
-    comparator::Value;
-    result::IR.Type,
-    memory_scope,
-    equal_semantics,
-    unequal_semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value, comparator]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope),
-        namedattribute("equal_semantics", equal_semantics),
-        namedattribute("unequal_semantics", unequal_semantics),
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicCompareExchangeWeak",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicCompareExchangeWeak(pointer::Value, value::Value, comparator::Value; result::IR.Type, memory_scope, equal_semantics, unequal_semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, comparator, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("equal_semantics", equal_semantics), NamedAttribute("unequal_semantics", unequal_semantics), ]
+    
+    create_operation(
+        "spv.AtomicCompareExchangeWeak", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -342,31 +286,18 @@ atomic-exchange-op ::=
                         : !spv.ptr<i32, WorkGroup>
 ```
 """
-function AtomicExchange(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicExchange",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicExchange(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicExchange", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -408,31 +339,18 @@ atomic-fadd-op ::=
                        !spv.ptr<f32, StorageBuffer>
 ```mlir
 """
-function AtomicFAddEXT(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicFAddEXT",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicFAddEXT(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicFAddEXT", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -469,31 +387,18 @@ atomic-iadd-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicIAdd(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicIAdd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicIAdd(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicIAdd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -529,26 +434,18 @@ atomic-idecrement-op ::=
                           !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicIDecrement(
-    pointer::Value; result::IR.Type, memory_scope, semantics, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicIDecrement",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicIDecrement(pointer::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicIDecrement", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -583,26 +480,18 @@ atomic-iincrement-op ::=
                          !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicIIncrement(
-    pointer::Value; result::IR.Type, memory_scope, semantics, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicIIncrement",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicIIncrement(pointer::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicIIncrement", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -640,31 +529,18 @@ atomic-isub-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicISub(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicISub",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicISub(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicISub", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -701,31 +577,18 @@ atomic-or-op ::=
                   !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicOr(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicOr",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicOr(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicOr", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -763,31 +626,18 @@ atomic-smax-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicSMax(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicSMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicSMax(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicSMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -825,31 +675,18 @@ atomic-smin-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicSMin(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicSMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicSMin(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicSMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -887,31 +724,18 @@ atomic-umax-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicUMax(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicUMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicUMax(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicUMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -949,31 +773,18 @@ atomic-umin-op ::=
                     !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicUMin(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicUMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicUMin(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicUMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1011,31 +822,18 @@ atomic-xor-op ::=
                    !spv.ptr<i32, StorageBuffer>
 ```
 """
-function AtomicXor(
-    pointer::Value,
-    value::Value;
-    result::IR.Type,
-    memory_scope,
-    semantics,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope), namedattribute("semantics", semantics)
-    ]
-
-    return IR.create_operation(
-        "spv.AtomicXor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function AtomicXor(pointer::Value, value::Value; result::IR.Type, memory_scope, semantics, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
+    
+    create_operation(
+        "spv.AtomicXor", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1071,25 +869,19 @@ Results are computed per component.
     %3 = spv.BitCount %1: vector<4xi32>
     ```
 """
-function BitCount(
-    operand::Value; result=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitCount",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitCount(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitCount", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1135,30 +927,19 @@ The type of Base and Insert must be the same as Result Type.
     %0 = spv.BitFieldInsert %base, %insert, %offset, %count : vector<3xi32>, i8, i8
     ```
 """
-function BitFieldInsert(
-    base::Value,
-    insert::Value,
-    offset::Value,
-    count::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[base, insert, offset, count]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitFieldInsert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitFieldInsert(base::Value, insert::Value, offset::Value, count::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[base, insert, offset, count, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitFieldInsert", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1204,29 +985,19 @@ The type of Base must be the same as Result Type.
     %0 = spv.BitFieldSExtract %base, %offset, %count : vector<3xi32>, i8, i8
     ```
 """
-function BitFieldSExtract(
-    base::Value,
-    offset::Value,
-    count::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[base, offset, count]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitFieldSExtract",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitFieldSExtract(base::Value, offset::Value, count::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[base, offset, count, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitFieldSExtract", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1254,29 +1025,19 @@ bitfield-extract-u-op ::= ssa-id `=` `spv.BitFieldUExtract` ssa-use
 %0 = spv.BitFieldUExtract %base, %offset, %count : vector<3xi32>, i8, i8
 ```
 """
-function BitFieldUExtract(
-    base::Value,
-    offset::Value,
-    count::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[base, offset, count]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitFieldUExtract",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitFieldUExtract(base::Value, offset::Value, count::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[base, offset, count, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitFieldUExtract", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1308,25 +1069,19 @@ The type of Base must be the same as Result Type.
     %3 = spv.BitReverse %1 : vector<4xi32>
     ```
 """
-function BitReverse(
-    operand::Value; result=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitReverse",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitReverse(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitReverse", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1370,21 +1125,17 @@ bitcast-op ::= ssa-id `=` `spv.Bitcast` ssa-use
 ```
 """
 function Bitcast(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Bitcast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Bitcast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1414,28 +1165,19 @@ Results are computed per component, and within each component, per bit.
     %2 = spv.BitwiseAnd %0, %1 : vector<4xi32>
     ```
 """
-function BitwiseAnd(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitwiseAnd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitwiseAnd(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitwiseAnd", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1465,28 +1207,19 @@ Results are computed per component, and within each component, per bit.
     %2 = spv.BitwiseOr %0, %1 : vector<4xi32>
     ```
 """
-function BitwiseOr(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitwiseOr",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitwiseOr(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitwiseOr", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1516,28 +1249,19 @@ Results are computed per component, and within each component, per bit.
     %2 = spv.BitwiseXor %0, %1 : vector<4xi32>
     ```
 """
-function BitwiseXor(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.BitwiseXor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function BitwiseXor(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.BitwiseXor", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -1575,36 +1299,20 @@ spv.BranchConditional %condition, ^true_branch, ^false_branch
 spv.BranchConditional %condition, ^true_branch(%0: i32), ^false_branch(%1: i32)
 ```
 """
-function BranchConditional(
-    condition::Value,
-    trueTargetOperands::Vector{Value},
-    falseTargetOperands::Vector{Value};
-    branch_weights=nothing,
-    trueTarget::Block,
-    falseTarget::Block,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[condition, trueTargetOperands..., falseTargetOperands...]
-    _owned_regions = Region[]
-    _successors = Block[trueTarget, falseTarget]
-    _attributes = NamedAttribute[]
-    push!(
-        _attributes,
-        operandsegmentsizes([1, length(trueTargetOperands), length(falseTargetOperands)]),
-    )
-    !isnothing(branch_weights) &&
-        push!(_attributes, namedattribute("branch_weights", branch_weights))
-
-    return IR.create_operation(
-        "spv.BranchConditional",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function BranchConditional(condition::Value, trueTargetOperands::Vector{Value}, falseTargetOperands::Vector{Value}; branch_weights=nothing, trueTarget::Block, falseTarget::Block, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[condition, trueTargetOperands..., falseTargetOperands..., ]
+    owned_regions = Region[]
+    successors = Block[trueTarget, falseTarget, ]
+    attributes = NamedAttribute[]
+    push!(attributes, operandsegmentsizes([1, length(trueTargetOperands), length(falseTargetOperands), ]))
+    !isnothing(branch_weights) && push!(attributes, NamedAttribute("branch_weights", branch_weights))
+    
+    create_operation(
+        "spv.BranchConditional", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1629,21 +1337,17 @@ spv.Branch ^target(%0, %1: i32, f32)
 ```
 """
 function Branch(targetOperands::Vector{Value}; target::Block, location=Location())
-    _results = IR.Type[]
-    _operands = Value[targetOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[target,]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Branch",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[targetOperands..., ]
+    owned_regions = Region[]
+    successors = Block[target, ]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Branch", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1681,24 +1385,18 @@ composite-construct-op ::= ssa-id `=` `spv.CompositeConstruct`
 %0 = spv.CompositeConstruct %1, %2, %3 : vector<3xf32>
 ```
 """
-function CompositeConstruct(
-    constituents::Vector{Value}; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[constituents...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.CompositeConstruct",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CompositeConstruct(constituents::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[constituents..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.CompositeConstruct", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1731,24 +1429,18 @@ composite-extract-op ::= ssa-id `=` `spv.CompositeExtract` ssa-use
 %2 = spv.CompositeExtract %1[1 : i32] : !spv.array<4x!spv.array<4xf32>>
 ```
 """
-function CompositeExtract(
-    composite::Value; component::IR.Type, indices, location=Location()
-)
-    _results = IR.Type[component,]
-    _operands = Value[composite,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("indices", indices),]
-
-    return IR.create_operation(
-        "spv.CompositeExtract",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CompositeExtract(composite::Value; component::IR.Type, indices, location=Location())
+    op_ty_results = IR.Type[component, ]
+    operands = Value[composite, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("indices", indices), ]
+    
+    create_operation(
+        "spv.CompositeExtract", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1781,24 +1473,18 @@ composite-insert-op ::= ssa-id `=` `spv.CompositeInsert` ssa-use, ssa-use
 %0 = spv.CompositeInsert %object, %composite[1 : i32] : f32 into !spv.array<4xf32>
 ```
 """
-function CompositeInsert(
-    object::Value, composite::Value; result::IR.Type, indices, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[object, composite]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("indices", indices),]
-
-    return IR.create_operation(
-        "spv.CompositeInsert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CompositeInsert(object::Value, composite::Value; result::IR.Type, indices, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[object, composite, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("indices", indices), ]
+    
+    create_operation(
+        "spv.CompositeInsert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1838,21 +1524,17 @@ spv.Constant-op ::= ssa-id `=` `spv.Constant` attribute-value
 TODO: support constant structs
 """
 function Constant(; constant::IR.Type, value, location=Location())
-    _results = IR.Type[constant,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("value", value),]
-
-    return IR.create_operation(
-        "spv.Constant",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[constant, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("value", value), ]
+    
+    create_operation(
+        "spv.Constant", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1902,28 +1584,18 @@ spv.ControlBarrier \"Workgroup\", \"Device\", \"Acquire|UniformMemory\"
 
 ```
 """
-function ControlBarrier(;
-    execution_scope, memory_scope, memory_semantics, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("memory_scope", memory_scope),
-        namedattribute("memory_semantics", memory_semantics),
-    ]
-
-    return IR.create_operation(
-        "spv.ControlBarrier",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ControlBarrier(; execution_scope, memory_scope, memory_semantics, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
+    
+    create_operation(
+        "spv.ControlBarrier", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1952,21 +1624,17 @@ convert-f-to-s-op ::= ssa-id `=` `spv.ConvertFToSOp` ssa-use
 ```
 """
 function ConvertFToS(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ConvertFToS",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ConvertFToS", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1996,21 +1664,17 @@ convert-f-to-u-op ::= ssa-id `=` `spv.ConvertFToUOp` ssa-use
 ```
 """
 function ConvertFToU(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ConvertFToU",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ConvertFToU", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2039,21 +1703,17 @@ convert-s-to-f-op ::= ssa-id `=` `spv.ConvertSToFOp` ssa-use
 ```
 """
 function ConvertSToF(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ConvertSToF",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ConvertSToF", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2082,21 +1742,17 @@ convert-u-to-f-op ::= ssa-id `=` `spv.ConvertUToFOp` ssa-use
 ```
 """
 function ConvertUToF(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ConvertUToF",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ConvertUToF", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2121,25 +1777,19 @@ For example:
 %0 = spv.CooperativeMatrixLengthNV : !spv.coopmatrix<Subgroup, i32, 8, 16>
 ```
 """
-function CooperativeMatrixLengthNV(;
-    result=nothing::Union{Nothing,IR.Type}, type, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("type", type),]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.CooperativeMatrixLengthNV",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function CooperativeMatrixLengthNV(; result=nothing::Union{Nothing, IR.Type}, type, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("type", type), ]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.CooperativeMatrixLengthNV", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2196,31 +1846,19 @@ For example:
      : !spv.ptr<i32, StorageBuffer> as !spv.coopmatrix<i32, Workgroup, 16, 8>
 ```
 """
-function CooperativeMatrixLoadNV(
-    pointer::Value,
-    stride::Value,
-    columnmajor::Value;
-    result::IR.Type,
-    memory_access=nothing,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[pointer, stride, columnmajor]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(memory_access) &&
-        push!(_attributes, namedattribute("memory_access", memory_access))
-
-    return IR.create_operation(
-        "spv.CooperativeMatrixLoadNV",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CooperativeMatrixLoadNV(pointer::Value, stride::Value, columnmajor::Value; result::IR.Type, memory_access=nothing, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[pointer, stride, columnmajor, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
+    
+    create_operation(
+        "spv.CooperativeMatrixLoadNV", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2271,29 +1909,19 @@ For example:
   !spv.coopmatrix<Subgroup, i32, 8, 16>
 ```
 """
-function CooperativeMatrixMulAddNV(
-    a::Value,
-    b::Value,
-    c::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[a, b, c]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.CooperativeMatrixMulAddNV",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function CooperativeMatrixMulAddNV(a::Value, b::Value, c::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.CooperativeMatrixMulAddNV", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2336,31 +1964,19 @@ For example:
     !spv.ptr<i32, StorageBuffer>, !spv.coopmatrix<Workgroup, i32, 16, 8>
 ```
 """
-function CooperativeMatrixStoreNV(
-    pointer::Value,
-    object::Value,
-    stride::Value,
-    columnmajor::Value;
-    memory_access=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[pointer, object, stride, columnmajor]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(memory_access) &&
-        push!(_attributes, namedattribute("memory_access", memory_access))
-
-    return IR.create_operation(
-        "spv.CooperativeMatrixStoreNV",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CooperativeMatrixStoreNV(pointer::Value, object::Value, stride::Value, columnmajor::Value; memory_access=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[pointer, object, stride, columnmajor, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
+    
+    create_operation(
+        "spv.CooperativeMatrixStoreNV", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2393,37 +2009,22 @@ copy-memory-op ::= `spv.CopyMemory ` storage-class ssa-use
 spv.CopyMemory \"Function\" %0, \"Function\" %1 : f32
 ```
 """
-function CopyMemory(
-    target::Value,
-    source::Value;
-    memory_access=nothing,
-    alignment=nothing,
-    source_memory_access=nothing,
-    source_alignment=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[target, source]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(memory_access) &&
-        push!(_attributes, namedattribute("memory_access", memory_access))
-    !isnothing(alignment) && push!(_attributes, namedattribute("alignment", alignment))
-    !isnothing(source_memory_access) &&
-        push!(_attributes, namedattribute("source_memory_access", source_memory_access))
-    !isnothing(source_alignment) &&
-        push!(_attributes, namedattribute("source_alignment", source_alignment))
-
-    return IR.create_operation(
-        "spv.CopyMemory",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function CopyMemory(target::Value, source::Value; memory_access=nothing, alignment=nothing, source_memory_access=nothing, source_alignment=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[target, source, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
+    !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
+    !isnothing(source_memory_access) && push!(attributes, NamedAttribute("source_memory_access", source_memory_access))
+    !isnothing(source_alignment) && push!(attributes, NamedAttribute("source_alignment", source_alignment))
+    
+    create_operation(
+        "spv.CopyMemory", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2469,25 +2070,17 @@ spv.EntryPoint \"Kernel\" @foo, @var1, @var2
 ```
 """
 function EntryPoint(; execution_model, fn, interface, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_model", execution_model),
-        namedattribute("fn", fn),
-        namedattribute("interface", interface),
-    ]
-
-    return IR.create_operation(
-        "spv.EntryPoint",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_model", execution_model), NamedAttribute("fn", fn), NamedAttribute("interface", interface), ]
+    
+    create_operation(
+        "spv.EntryPoint", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2521,25 +2114,17 @@ spv.ExecutionMode @bar \"LocalSizeHint\", 3, 4, 5
 ```
 """
 function ExecutionMode(; fn, execution_mode, values, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("fn", fn),
-        namedattribute("execution_mode", execution_mode),
-        namedattribute("values", values),
-    ]
-
-    return IR.create_operation(
-        "spv.ExecutionMode",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("fn", fn), NamedAttribute("execution_mode", execution_mode), NamedAttribute("values", values), ]
+    
+    create_operation(
+        "spv.ExecutionMode", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2567,28 +2152,19 @@ fadd-op ::= ssa-id `=` `spv.FAdd` ssa-use, ssa-use
 %5 = spv.FAdd %2, %3 : vector<4xf32>
 ```
 """
-function FAdd(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FAdd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FAdd(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FAdd", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2618,21 +2194,17 @@ f-convert-op ::= ssa-id `=` `spv.FConvertOp` ssa-use
 ```
 """
 function FConvert(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FConvert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FConvert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2662,28 +2234,19 @@ fdiv-op ::= ssa-id `=` `spv.FDiv` ssa-use, ssa-use
 %5 = spv.FDiv %2, %3 : vector<4xf32>
 ```
 """
-function FDiv(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FDiv",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FDiv", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2714,28 +2277,19 @@ fmod-op ::= ssa-id `=` `spv.FMod` ssa-use, ssa-use
 %5 = spv.FMod %2, %3 : vector<4xf32>
 ```
 """
-function FMod(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FMod",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FMod", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2765,28 +2319,19 @@ fmul-op ::= `spv.FMul` ssa-use, ssa-use
 %5 = spv.FMul %2, %3 : vector<4xf32>
 ```
 """
-function FMul(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FMul",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FMul(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FMul", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2814,25 +2359,19 @@ fmul-op ::= `spv.FNegate` ssa-use `:` float-scalar-vector-type
 %3 = spv.FNegate %2 : vector<4xf32>
 ```
 """
-function FNegate(
-    operand::Value; result=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FNegate",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FNegate(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FNegate", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -2863,21 +2402,17 @@ fordequal-op ::= ssa-id `=` `spv.FOrdEqual` ssa-use, ssa-use
 ```
 """
 function FOrdEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2907,24 +2442,18 @@ fordgte-op ::= ssa-id `=` `spv.FOrdGreaterThanEqual` ssa-use, ssa-use
 %5 = spv.FOrdGreaterThanEqual %2, %3 : vector<4xf32>
 ```
 """
-function FOrdGreaterThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdGreaterThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FOrdGreaterThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdGreaterThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2954,24 +2483,18 @@ fordgt-op ::= ssa-id `=` `spv.FOrdGreaterThan` ssa-use, ssa-use
 %5 = spv.FOrdGreaterThan %2, %3 : vector<4xf32>
 ```
 """
-function FOrdGreaterThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdGreaterThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FOrdGreaterThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdGreaterThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3001,24 +2524,18 @@ fordlte-op ::= ssa-id `=` `spv.FOrdLessThanEqual` ssa-use, ssa-use
 %5 = spv.FOrdLessThanEqual %2, %3 : vector<4xf32>
 ```
 """
-function FOrdLessThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdLessThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FOrdLessThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdLessThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3048,24 +2565,18 @@ fordlt-op ::= ssa-id `=` `spv.FOrdLessThan` ssa-use, ssa-use
 %5 = spv.FOrdLessThan %2, %3 : vector<4xf32>
 ```
 """
-function FOrdLessThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdLessThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FOrdLessThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdLessThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3095,24 +2606,18 @@ fordneq-op ::= ssa-id `=` `spv.FOrdNotEqual` ssa-use, ssa-use
 %5 = spv.FOrdNotEqual %2, %3 : vector<4xf32>
 ```
 """
-function FOrdNotEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FOrdNotEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FOrdNotEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FOrdNotEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3144,28 +2649,19 @@ frem-op ::= ssa-id `=` `spv.FRemOp` ssa-use, ssa-use
 %5 = spv.FRemOp %2, %3 : vector<4xf32>
 ```
 """
-function FRem(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FRem",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FRem(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FRem", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -3194,28 +2690,19 @@ fsub-op ::= ssa-id `=` `spv.FRemOp` ssa-use, ssa-use
 %5 = spv.FRemOp %2, %3 : vector<4xf32>
 ```
 """
-function FSub(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FSub",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function FSub(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FSub", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -3246,21 +2733,17 @@ funordequal-op ::= ssa-id `=` `spv.FUnordEqual` ssa-use, ssa-use
 ```
 """
 function FUnordEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3290,24 +2773,18 @@ funordgte-op ::= ssa-id `=` `spv.FUnordGreaterThanEqual` ssa-use, ssa-use
 %5 = spv.FUnordGreaterThanEqual %2, %3 : vector<4xf32>
 ```
 """
-function FUnordGreaterThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordGreaterThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FUnordGreaterThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordGreaterThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3337,24 +2814,18 @@ funordgt-op ::= ssa-id `=` `spv.FUnordGreaterThan` ssa-use, ssa-use
 %5 = spv.FUnordGreaterThan %2, %3 : vector<4xf32>
 ```
 """
-function FUnordGreaterThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordGreaterThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FUnordGreaterThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordGreaterThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3384,24 +2855,18 @@ funordlte-op ::= ssa-id `=` `spv.FUnordLessThanEqual` ssa-use, ssa-use
 %5 = spv.FUnordLessThanEqual %2, %3 : vector<4xf32>
 ```
 """
-function FUnordLessThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordLessThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FUnordLessThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordLessThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3431,24 +2896,18 @@ funordlt-op ::= ssa-id `=` `spv.FUnordLessThan` ssa-use, ssa-use
 %5 = spv.FUnordLessThan %2, %3 : vector<4xf32>
 ```
 """
-function FUnordLessThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordLessThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FUnordLessThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordLessThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3478,24 +2937,18 @@ funordneq-op ::= ssa-id `=` `spv.FUnordNotEqual` ssa-use, ssa-use
 %5 = spv.FUnordNotEqual %2, %3 : vector<4xf32>
 ```
 """
-function FUnordNotEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.FUnordNotEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FUnordNotEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.FUnordNotEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3529,25 +2982,17 @@ spv.func @bar() -> () \"Inline|Pure\" { ... }
 ```
 """
 function func(; type, sym_name, function_control, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("type", type),
-        namedattribute("sym_name", sym_name),
-        namedattribute("function_control", function_control),
-    ]
-
-    return IR.create_operation(
-        "spv.func",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("type", type), NamedAttribute("sym_name", sym_name), NamedAttribute("function_control", function_control), ]
+    
+    create_operation(
+        "spv.func", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3581,28 +3026,19 @@ spv.FunctionCall @f_void(%arg0) : (i32) ->  ()
 %0 = spv.FunctionCall @f_iadd(%arg0, %arg1) : (i32, i32) -> i32
 ```
 """
-function FunctionCall(
-    arguments::Vector{Value};
-    result=nothing::Union{Nothing,IR.Type},
-    callee,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[arguments...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("callee", callee),]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.FunctionCall",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function FunctionCall(arguments::Vector{Value}; result=nothing::Union{Nothing, IR.Type}, callee, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[arguments..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("callee", callee), ]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.FunctionCall", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3636,21 +3072,17 @@ acos-op ::= ssa-id `=` `spv.GLSL.Acos` ssa-use `:`
 ```
 """
 function GLSL_Acos(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Acos",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Acos", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3684,21 +3116,17 @@ asin-op ::= ssa-id `=` `spv.GLSL.Asin` ssa-use `:`
 ```
 """
 function GLSL_Asin(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Asin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Asin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3732,21 +3160,17 @@ atan-op ::= ssa-id `=` `spv.GLSL.Atan` ssa-use `:`
 ```
 """
 function GLSL_Atan(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Atan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Atan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3777,21 +3201,17 @@ ceil-op ::= ssa-id `=` `spv.GLSL.Ceil` ssa-use `:`
 ```
 """
 function GLSL_Ceil(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Ceil",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Ceil", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3823,21 +3243,17 @@ cos-op ::= ssa-id `=` `spv.GLSL.Cos` ssa-use `:`
 ```
 """
 function GLSL_Cos(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Cos",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Cos", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3869,21 +3285,17 @@ cosh-op ::= ssa-id `=` `spv.GLSL.Cosh` ssa-use `:`
 ```
 """
 function GLSL_Cosh(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Cosh",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Cosh", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3915,21 +3327,17 @@ exp-op ::= ssa-id `=` `spv.GLSL.Exp` ssa-use `:`
 ```
 """
 function GLSL_Exp(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Exp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Exp", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -3959,21 +3367,17 @@ abs-op ::= ssa-id `=` `spv.GLSL.FAbs` ssa-use `:`
 ```
 """
 function GLSL_FAbs(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FAbs",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FAbs", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4003,21 +3407,17 @@ fclamp-op ::= ssa-id `=` `spv.GLSL.FClamp` ssa-use, ssa-use, ssa-use `:`
 ```
 """
 function GLSL_FClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[x, y, z]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FClamp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[x, y, z, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FClamp", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4048,21 +3448,17 @@ fmax-op ::= ssa-id `=` `spv.GLSL.FMax` ssa-use `:`
 ```
 """
 function GLSL_FMax(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4093,21 +3489,17 @@ fmin-op ::= ssa-id `=` `spv.GLSL.FMin` ssa-use `:`
 ```
 """
 function GLSL_FMin(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4129,29 +3521,19 @@ Result Type and the type of all operands must be the same type. Results are comp
 %0 = spv.GLSL.FMix %x : vector<4xf32>, %y : vector<4xf32>, %a : vector<4xf32> -> vector<4xf32>
 ```
 """
-function GLSL_FMix(
-    x::Value,
-    y::Value,
-    a::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[x, y, a]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.GLSL.FMix",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function GLSL_FMix(x::Value, y::Value, a::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[x, y, a, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.GLSL.FMix", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -4181,21 +3563,17 @@ sign-op ::= ssa-id `=` `spv.GLSL.FSign` ssa-use `:`
 ```
 """
 function GLSL_FSign(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FSign",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FSign", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4226,21 +3604,17 @@ floor-op ::= ssa-id `=` `spv.GLSL.Floor` ssa-use `:`
 ```
 """
 function GLSL_Floor(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Floor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Floor", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4280,21 +3654,17 @@ fma-op ::= ssa-id `=` `spv.GLSL.Fma` ssa-use, ssa-use, ssa-use `:`
 ```
 """
 function GLSL_Fma(x::Value, y::Value, z::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[x, y, z]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Fma",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[x, y, z, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Fma", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4337,21 +3707,17 @@ frexpstruct-op ::= ssa-id `=` `spv.GLSL.FrexpStruct` ssa-use `:`
 ```
 """
 function GLSL_FrexpStruct(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.FrexpStruct",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.FrexpStruct", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4381,21 +3747,17 @@ rsqrt-op ::= ssa-id `=` `spv.GLSL.InverseSqrt` ssa-use `:`
 ```
 """
 function GLSL_InverseSqrt(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.InverseSqrt",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.InverseSqrt", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4433,25 +3795,19 @@ component.
 %y = spv.GLSL.Ldexp %x : vector<3xf32>, %exp : vector<3xi32> -> vector<3xf32>
 ```
 """
-function GLSL_Ldexp(
-    x::Value, exp::Value; y=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[x, exp]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(y) && push!(_results, y)
-
-    return IR.create_operation(
-        "spv.GLSL.Ldexp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function GLSL_Ldexp(x::Value, exp::Value; y=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[x, exp, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(y) && push!(op_ty_results, y)
+    
+    create_operation(
+        "spv.GLSL.Ldexp", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -4484,21 +3840,17 @@ log-op ::= ssa-id `=` `spv.GLSL.Log` ssa-use `:`
 ```
 """
 function GLSL_Log(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Log",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Log", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4532,21 +3884,17 @@ pow-op ::= ssa-id `=` `spv.GLSL.Pow` ssa-use `:`
 ```
 """
 function GLSL_Pow(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Pow",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Pow", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4576,21 +3924,17 @@ floor-op ::= ssa-id `=` `spv.GLSL.Round` ssa-use `:`
 ```
 """
 function GLSL_Round(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Round",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Round", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4619,21 +3963,17 @@ abs-op ::= ssa-id `=` `spv.GLSL.SAbs` ssa-use `:`
 ```
 """
 function GLSL_SAbs(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.SAbs",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.SAbs", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4662,21 +4002,17 @@ uclamp-op ::= ssa-id `=` `spv.GLSL.UClamp` ssa-use, ssa-use, ssa-use `:`
 ```
 """
 function GLSL_SClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[x, y, z]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.SClamp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[x, y, z, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.SClamp", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4706,21 +4042,17 @@ smax-op ::= ssa-id `=` `spv.GLSL.SMax` ssa-use `:`
 ```
 """
 function GLSL_SMax(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.SMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.SMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4750,21 +4082,17 @@ smin-op ::= ssa-id `=` `spv.GLSL.SMin` ssa-use `:`
 ```
 """
 function GLSL_SMin(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.SMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.SMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4793,21 +4121,17 @@ sign-op ::= ssa-id `=` `spv.GLSL.SSign` ssa-use `:`
 ```
 """
 function GLSL_SSign(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.SSign",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.SSign", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4839,21 +4163,17 @@ sin-op ::= ssa-id `=` `spv.GLSL.Sin` ssa-use `:`
 ```
 """
 function GLSL_Sin(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Sin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Sin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4885,21 +4205,17 @@ sinh-op ::= ssa-id `=` `spv.GLSL.Sinh` ssa-use `:`
 ```
 """
 function GLSL_Sinh(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Sinh",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Sinh", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4929,21 +4245,17 @@ sqrt-op ::= ssa-id `=` `spv.GLSL.Sqrt` ssa-use `:`
 ```
 """
 function GLSL_Sqrt(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Sqrt",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Sqrt", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -4975,21 +4287,17 @@ tan-op ::= ssa-id `=` `spv.GLSL.Tan` ssa-use `:`
 ```
 """
 function GLSL_Tan(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Tan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Tan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5021,21 +4329,17 @@ tanh-op ::= ssa-id `=` `spv.GLSL.Tanh` ssa-use `:`
 ```
 """
 function GLSL_Tanh(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.Tanh",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.Tanh", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5064,21 +4368,17 @@ uclamp-op ::= ssa-id `=` `spv.GLSL.UClamp` ssa-use, ssa-use, ssa-use `:`
 ```
 """
 function GLSL_UClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[x, y, z]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.UClamp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[x, y, z, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.UClamp", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5108,21 +4408,17 @@ smax-op ::= ssa-id `=` `spv.GLSL.UMax` ssa-use `:`
 ```
 """
 function GLSL_UMax(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.UMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.UMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5152,21 +4448,17 @@ smin-op ::= ssa-id `=` `spv.GLSL.UMin` ssa-use `:`
 ```
 """
 function GLSL_UMin(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.GLSL.UMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.GLSL.UMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5210,40 +4502,23 @@ spv.GlobalVariable @var2 bind(1, 2) : !spv.ptr<f32, Uniform>
 spv.GlobalVariable @var3 built_in(\"GlobalInvocationId\") : !spv.ptr<vector<3xi32>, Input>
 ```
 """
-function GlobalVariable(;
-    type,
-    sym_name,
-    initializer=nothing,
-    location_=nothing,
-    binding=nothing,
-    descriptorSet=nothing,
-    builtin=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("type", type), namedattribute("sym_name", sym_name)
-    ]
-    !isnothing(initializer) &&
-        push!(_attributes, namedattribute("initializer", initializer))
-    !isnothing(location) && push!(_attributes, namedattribute("location", location_))
-    !isnothing(binding) && push!(_attributes, namedattribute("binding", binding))
-    !isnothing(descriptorSet) &&
-        push!(_attributes, namedattribute("descriptorSet", descriptorSet))
-    !isnothing(builtin) && push!(_attributes, namedattribute("builtin", builtin))
-
-    return IR.create_operation(
-        "spv.GlobalVariable",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GlobalVariable(; type, sym_name, initializer=nothing, location_=nothing, binding=nothing, descriptorSet=nothing, builtin=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("type", type), NamedAttribute("sym_name", sym_name), ]
+    !isnothing(initializer) && push!(attributes, NamedAttribute("initializer", initializer))
+    !isnothing(location_) && push!(attributes, NamedAttribute("location", location_))
+    !isnothing(binding) && push!(attributes, NamedAttribute("binding", binding))
+    !isnothing(descriptorSet) && push!(attributes, NamedAttribute("descriptorSet", descriptorSet))
+    !isnothing(builtin) && push!(attributes, NamedAttribute("builtin", builtin))
+    
+    create_operation(
+        "spv.GlobalVariable", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5292,29 +4567,19 @@ group-broadcast-op ::= ssa-id `=` `spv.GroupBroadcast` scope ssa_use,
   vector<4xf32>, vector<3xi32>
 ```
 """
-function GroupBroadcast(
-    value::Value,
-    localid::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    execution_scope,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, localid]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("execution_scope", execution_scope),]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.GroupBroadcast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function GroupBroadcast(value::Value, localid::Value; result=nothing::Union{Nothing, IR.Type}, execution_scope, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, localid, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.GroupBroadcast", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -5347,24 +4612,18 @@ non-uniform-ballot-op ::= ssa-id `=` `spv.GroupNonUniformBallot` scope
 %0 = spv.GroupNonUniformBallot \"SubGroup\" %predicate : vector<4xi32>
 ```
 """
-function GroupNonUniformBallot(
-    predicate::Value; result::IR.Type, execution_scope, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[predicate,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("execution_scope", execution_scope),]
-
-    return IR.create_operation(
-        "spv.GroupNonUniformBallot",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformBallot(predicate::Value; result::IR.Type, execution_scope, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[predicate, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
+    
+    create_operation(
+        "spv.GroupNonUniformBallot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5409,29 +4668,19 @@ group-non-uniform-broadcast-op ::= ssa-id `=`
   vector<4xf32>, i32
 ```
 """
-function GroupNonUniformBroadcast(
-    value::Value,
-    id::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    execution_scope,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, id]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("execution_scope", execution_scope),]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformBroadcast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function GroupNonUniformBroadcast(value::Value, id::Value; result=nothing::Union{Nothing, IR.Type}, execution_scope, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, id, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.GroupNonUniformBroadcast", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -5456,25 +4705,19 @@ non-uniform-elect-op ::= ssa-id `=` `spv.GroupNonUniformElect` scope
 %0 = spv.GroupNonUniformElect : i1
 ```
 """
-function GroupNonUniformElect(;
-    result=nothing::Union{Nothing,IR.Type}, execution_scope, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("execution_scope", execution_scope),]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformElect",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function GroupNonUniformElect(; result=nothing::Union{Nothing, IR.Type}, execution_scope, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.GroupNonUniformElect", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -5520,33 +4763,19 @@ non-uniform-fadd-op ::= ssa-id `=` `spv.GroupNonUniformFAdd` scope operation
 %1 = spv.GroupNonUniformFAdd \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xf32>
 ```
 """
-function GroupNonUniformFAdd(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformFAdd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformFAdd(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformFAdd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5595,33 +4824,19 @@ non-uniform-fmax-op ::= ssa-id `=` `spv.GroupNonUniformFMax` scope operation
 %1 = spv.GroupNonUniformFMax \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xf32>
 ```
 """
-function GroupNonUniformFMax(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformFMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformFMax(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformFMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5670,33 +4885,19 @@ non-uniform-fmin-op ::= ssa-id `=` `spv.GroupNonUniformFMin` scope operation
 %1 = spv.GroupNonUniformFMin \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xf32>
 ```
 """
-function GroupNonUniformFMin(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformFMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformFMin(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformFMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5742,33 +4943,19 @@ non-uniform-fmul-op ::= ssa-id `=` `spv.GroupNonUniformFMul` scope operation
 %1 = spv.GroupNonUniformFMul \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xf32>
 ```
 """
-function GroupNonUniformFMul(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformFMul",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformFMul(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformFMul", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5812,33 +4999,19 @@ non-uniform-iadd-op ::= ssa-id `=` `spv.GroupNonUniformIAdd` scope operation
 %1 = spv.GroupNonUniformIAdd \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformIAdd(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformIAdd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformIAdd(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformIAdd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5882,33 +5055,19 @@ non-uniform-imul-op ::= ssa-id `=` `spv.GroupNonUniformIMul` scope operation
 %1 = spv.GroupNonUniformIMul \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformIMul(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformIMul",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformIMul(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformIMul", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -5952,33 +5111,19 @@ non-uniform-smax-op ::= ssa-id `=` `spv.GroupNonUniformSMax` scope operation
 %1 = spv.GroupNonUniformSMax \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformSMax(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformSMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformSMax(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformSMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6022,33 +5167,19 @@ non-uniform-smin-op ::= ssa-id `=` `spv.GroupNonUniformSMin` scope operation
 %1 = spv.GroupNonUniformSMin \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformSMin(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformSMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformSMin(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformSMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6093,33 +5224,19 @@ non-uniform-umax-op ::= ssa-id `=` `spv.GroupNonUniformUMax` scope operation
 %1 = spv.GroupNonUniformUMax \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformUMax(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformUMax",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformUMax(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformUMax", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6164,33 +5281,19 @@ non-uniform-umin-op ::= ssa-id `=` `spv.GroupNonUniformUMin` scope operation
 %1 = spv.GroupNonUniformUMin \"Subgroup\" \"ClusteredReduce\" %vector cluster_size(%four) : vector<4xi32>
 ```
 """
-function GroupNonUniformUMin(
-    value::Value,
-    cluster_size=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    execution_scope,
-    group_operation,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("execution_scope", execution_scope),
-        namedattribute("group_operation", group_operation),
-    ]
-    !isnothing(cluster_size) && push!(_operands, cluster_size)
-
-    return IR.create_operation(
-        "spv.GroupNonUniformUMin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function GroupNonUniformUMin(value::Value, cluster_size=nothing::Union{Nothing, Value}; result::IR.Type, execution_scope, group_operation, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
+    !isnothing(cluster_size) && push!(operands, cluster_size)
+    
+    create_operation(
+        "spv.GroupNonUniformUMin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6225,28 +5328,19 @@ iadd-op ::= ssa-id `=` `spv.IAdd` ssa-use, ssa-use
 
 ```
 """
-function IAdd(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.IAdd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function IAdd(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.IAdd", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -6277,21 +5371,17 @@ iequal-op ::= ssa-id `=` `spv.IEqual` ssa-use, ssa-use
 ```
 """
 function IEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.IEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.IEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6326,28 +5416,19 @@ imul-op ::= ssa-id `=` `spv.IMul` ssa-use, ssa-use
 
 ```
 """
-function IMul(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.IMul",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function IMul(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.IMul", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -6378,21 +5459,17 @@ inot-equal-op ::= ssa-id `=` `spv.INotEqual` ssa-use, ssa-use
 ```
 """
 function INotEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.INotEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.INotEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6427,28 +5504,19 @@ isub-op ::= `spv.ISub` ssa-use, ssa-use
 
 ```
 """
-function ISub(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.ISub",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function ISub(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.ISub", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -6488,32 +5556,19 @@ image-operands ::= `\"None\"` | `\"Bias\"` | `\"Lod\"` | `\"Grad\"`
 %0 = spv.ImageDrefGather %1 : !spv.sampled_image<!spv.image<i32, Dim2D, NoDepth, NonArrayed, SingleSampled, NoSampler, Unknown>>, %2 : vector<4xf32>, %3 : f32 [\"NonPrivateTexel\"] : f32, f32 -> vector<4xi32>
 ```
 """
-function ImageDrefGather(
-    sampledimage::Value,
-    coordinate::Value,
-    dref::Value,
-    operand_arguments::Vector{Value};
-    result::IR.Type,
-    imageoperands=nothing,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[sampledimage, coordinate, dref, operand_arguments...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(imageoperands) &&
-        push!(_attributes, namedattribute("imageoperands", imageoperands))
-
-    return IR.create_operation(
-        "spv.ImageDrefGather",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ImageDrefGather(sampledimage::Value, coordinate::Value, dref::Value, operand_arguments::Vector{Value}; result::IR.Type, imageoperands=nothing, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[sampledimage, coordinate, dref, operand_arguments..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(imageoperands) && push!(attributes, NamedAttribute("imageoperands", imageoperands))
+    
+    create_operation(
+        "spv.ImageDrefGather", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6534,21 +5589,17 @@ same as Result Type.
 ```
 """
 function Image(sampledimage::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[sampledimage,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Image",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[sampledimage, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Image", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6587,21 +5638,17 @@ See the client API specification for additional image type restrictions.
 ```
 """
 function ImageQuerySize(image::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[image,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ImageQuerySize",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[image, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ImageQuerySize", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6627,28 +5674,18 @@ func @inbounds_ptr_access_chain(%arg0: !spv.ptr<f32, CrossWorkgroup>, %arg1 : i6
 }
 ```
 """
-function InBoundsPtrAccessChain(
-    base_ptr::Value,
-    element::Value,
-    indices::Vector{Value};
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[base_ptr, element, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.InBoundsPtrAccessChain",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function InBoundsPtrAccessChain(base_ptr::Value, element::Value, indices::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[base_ptr, element, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.InBoundsPtrAccessChain", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6679,21 +5716,17 @@ isinf-op ::= ssa-id `=` `spv.IsInf` ssa-use
 ```
 """
 function IsInf(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.IsInf",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.IsInf", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6724,21 +5757,17 @@ isnan-op ::= ssa-id `=` `spv.IsNan` ssa-use
 ```
 """
 function IsNan(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.IsNan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.IsNan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6775,31 +5804,20 @@ load-op ::= ssa-id ` = spv.Load ` storage-class ssa-use
 %3 = spv.Load \"Function\" %0 [\"Aligned\", 4] : f32
 ```
 """
-function Load(
-    ptr::Value;
-    value::IR.Type,
-    memory_access=nothing,
-    alignment=nothing,
-    location=Location(),
-)
-    _results = IR.Type[value,]
-    _operands = Value[ptr,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(memory_access) &&
-        push!(_attributes, namedattribute("memory_access", memory_access))
-    !isnothing(alignment) && push!(_attributes, namedattribute("alignment", alignment))
-
-    return IR.create_operation(
-        "spv.Load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function Load(ptr::Value; value::IR.Type, memory_access=nothing, alignment=nothing, location=Location())
+    op_ty_results = IR.Type[value, ]
+    operands = Value[ptr, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
+    !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
+    
+    create_operation(
+        "spv.Load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6829,21 +5847,17 @@ logical-and ::= `spv.LogicalAnd` ssa-use `,` ssa-use
 ```
 """
 function LogicalAnd(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.LogicalAnd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.LogicalAnd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6872,24 +5886,18 @@ logical-equal ::= `spv.LogicalEqual` ssa-use `,` ssa-use
 %2 = spv.LogicalEqual %0, %1 : vector<4xi1>
 ```
 """
-function LogicalEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.LogicalEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function LogicalEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.LogicalEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6918,24 +5926,18 @@ logical-not-equal ::= `spv.LogicalNotEqual` ssa-use `,` ssa-use
 %2 = spv.LogicalNotEqual %0, %1 : vector<4xi1>
 ```
 """
-function LogicalNotEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.LogicalNotEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function LogicalNotEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.LogicalNotEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -6962,21 +5964,17 @@ logical-not ::= `spv.LogicalNot` ssa-use `:` operand-type
 ```
 """
 function LogicalNot(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.LogicalNot",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.LogicalNot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7006,21 +6004,17 @@ logical-or ::= `spv.LogicalOr` ssa-use `,` ssa-use
 ```
 """
 function LogicalOr(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.LogicalOr",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.LogicalOr", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7052,21 +6046,17 @@ branch to the loop header block. The loop continue block should be the only
 block, except the entry block, branching to the header block.
 """
 function mlir_loop(; loop_control, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("loop_control", loop_control),]
-
-    return IR.create_operation(
-        "spv.mlir.loop",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("loop_control", loop_control), ]
+    
+    create_operation(
+        "spv.mlir.loop", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7099,24 +6089,18 @@ ssa-use `:` matrix-type `,` matrix-type `->` matrix-type
     !spv.matrix<4 x vector<4xf32>>
 ```
 """
-function MatrixTimesMatrix(
-    leftmatrix::Value, rightmatrix::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[leftmatrix, rightmatrix]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.MatrixTimesMatrix",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function MatrixTimesMatrix(leftmatrix::Value, rightmatrix::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[leftmatrix, rightmatrix, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.MatrixTimesMatrix", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7148,24 +6132,18 @@ ssa-use `:` matrix-type `,` float-type `->` matrix-type
 
 ```
 """
-function MatrixTimesScalar(
-    matrix::Value, scalar::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[matrix, scalar]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.MatrixTimesScalar",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function MatrixTimesScalar(matrix::Value, scalar::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[matrix, scalar, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.MatrixTimesScalar", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7204,24 +6182,17 @@ spv.MemoryBarrier \"Device\", \"Acquire|UniformMemory\"
 ```
 """
 function MemoryBarrier(; memory_scope, memory_semantics, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_scope", memory_scope),
-        namedattribute("memory_semantics", memory_semantics),
-    ]
-
-    return IR.create_operation(
-        "spv.MemoryBarrier",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
+    
+    create_operation(
+        "spv.MemoryBarrier", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7235,21 +6206,17 @@ merge point, which is the next op following the `spv.mlir.selection` or
 SPIR-V binary format; it\'s solely for structural purpose.
 """
 function mlir_merge(; location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.mlir.merge",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.mlir.merge", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7296,34 +6263,20 @@ spv.module Logical Vulkan
 }
 ```
 """
-function module_(;
-    addressing_model,
-    memory_model,
-    vce_triple=nothing,
-    sym_name=nothing,
-    region_0::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[region_0,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("addressing_model", addressing_model),
-        namedattribute("memory_model", memory_model),
-    ]
-    !isnothing(vce_triple) && push!(_attributes, namedattribute("vce_triple", vce_triple))
-    !isnothing(sym_name) && push!(_attributes, namedattribute("sym_name", sym_name))
-
-    return IR.create_operation(
-        "spv.module",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function module_(; addressing_model, memory_model, vce_triple=nothing, sym_name=nothing, region_0::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[region_0, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("addressing_model", addressing_model), NamedAttribute("memory_model", memory_model), ]
+    !isnothing(vce_triple) && push!(attributes, NamedAttribute("vce_triple", vce_triple))
+    !isnothing(sym_name) && push!(attributes, NamedAttribute("sym_name", sym_name))
+    
+    create_operation(
+        "spv.module", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7353,23 +6306,19 @@ Results are computed per component, and within each component, per bit.
     %3 = spv.Not %1 : vector<4xi32>
     ```
 """
-function Not(operand::Value; result=nothing::Union{Nothing,IR.Type}, location=Location())
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.Not",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function Not(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.Not", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -7399,21 +6348,17 @@ ceil-op ::= ssa-id `=` `spv.OCL.ceil` ssa-use `:`
 ```
 """
 function OCL_ceil(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.ceil",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.ceil", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7443,21 +6388,17 @@ cos-op ::= ssa-id `=` `spv.OCL.cos` ssa-use `:`
 ```
 """
 function OCL_cos(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.cos",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.cos", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7487,21 +6428,17 @@ erf-op ::= ssa-id `=` `spv.OCL.erf` ssa-use `:`
 ```
 """
 function OCL_erf(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.erf",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.erf", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7531,21 +6468,17 @@ exp-op ::= ssa-id `=` `spv.OCL.exp` ssa-use `:`
 ```
 """
 function OCL_exp(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.exp",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.exp", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7575,21 +6508,17 @@ abs-op ::= ssa-id `=` `spv.OCL.fabs` ssa-use `:`
 ```
 """
 function OCL_fabs(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.fabs",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.fabs", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7619,21 +6548,17 @@ floor-op ::= ssa-id `=` `spv.OCL.floor` ssa-use `:`
 ```
 """
 function OCL_floor(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.floor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.floor", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7663,21 +6588,17 @@ log-op ::= ssa-id `=` `spv.OCL.log` ssa-use `:`
 ```
 """
 function OCL_log(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.log",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.log", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7708,21 +6629,17 @@ pow-op ::= ssa-id `=` `spv.OCL.pow` ssa-use `:`
 ```
 """
 function OCL_pow(lhs::Value, rhs::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.pow",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.pow", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7752,21 +6669,17 @@ rsqrt-op ::= ssa-id `=` `spv.OCL.rsqrt` ssa-use `:`
 ```
 """
 function OCL_rsqrt(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.rsqrt",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.rsqrt", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7796,21 +6709,17 @@ abs-op ::= ssa-id `=` `spv.OCL.s_abs` ssa-use `:`
 ```
 """
 function OCL_s_abs(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.s_abs",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.s_abs", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7840,21 +6749,17 @@ sin-op ::= ssa-id `=` `spv.OCL.sin` ssa-use `:`
 ```
 """
 function OCL_sin(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.sin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.sin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7884,21 +6789,17 @@ sqrt-op ::= ssa-id `=` `spv.OCL.sqrt` ssa-use `:`
 ```
 """
 function OCL_sqrt(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.sqrt",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.sqrt", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7928,21 +6829,17 @@ tanh-op ::= ssa-id `=` `spv.OCL.tanh` ssa-use `:`
 ```
 """
 function OCL_tanh(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.OCL.tanh",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.OCL.tanh", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -7974,21 +6871,17 @@ ordered-op ::= ssa-id `=` `spv.Ordered` ssa-use, ssa-use
 ```
 """
 function Ordered(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Ordered",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Ordered", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8037,28 +6930,18 @@ func @ptr_access_chain(%arg0: !spv.ptr<f32, CrossWorkgroup>, %arg1 : i64) -> () 
 }
 ```
 """
-function PtrAccessChain(
-    base_ptr::Value,
-    element::Value,
-    indices::Vector{Value};
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[base_ptr, element, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.PtrAccessChain",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function PtrAccessChain(base_ptr::Value, element::Value, indices::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[base_ptr, element, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.PtrAccessChain", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8088,21 +6971,17 @@ spv-reference-of-op ::= ssa-id `=` `spv.mlir.referenceof` symbol-ref-id
 TODO Add support for composite specialization constants.
 """
 function mlir_referenceof(; reference::IR.Type, spec_const, location=Location())
-    _results = IR.Type[reference,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("spec_const", spec_const),]
-
-    return IR.create_operation(
-        "spv.mlir.referenceof",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[reference, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("spec_const", spec_const), ]
+    
+    create_operation(
+        "spv.mlir.referenceof", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8118,21 +6997,17 @@ return-op ::= `spv.Return`
 ```
 """
 function Return(; location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Return",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Return", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8158,21 +7033,17 @@ spv.ReturnValue %0 : f32
 ```
 """
 function ReturnValue(value::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[value,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ReturnValue",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ReturnValue", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8202,21 +7073,17 @@ s-convert-op ::= ssa-id `=` `spv.SConvertOp` ssa-use
 ```
 """
 function SConvert(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SConvert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SConvert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8248,28 +7115,19 @@ sdiv-op ::= ssa-id `=` `spv.SDiv` ssa-use, ssa-use
 
 ```
 """
-function SDiv(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.SDiv",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function SDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.SDiv", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -8299,24 +7157,18 @@ sgreater-than-equal-op ::= ssa-id `=` `spv.SGreaterThanEqual` ssa-use, ssa-use
 
 ```
 """
-function SGreaterThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SGreaterThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function SGreaterThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SGreaterThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8346,24 +7198,18 @@ sgreater-than-op ::= ssa-id `=` `spv.SGreaterThan` ssa-use, ssa-use
 
 ```
 """
-function SGreaterThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SGreaterThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function SGreaterThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SGreaterThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8393,24 +7239,18 @@ sless-than-equal-op ::= ssa-id `=` `spv.SLessThanEqual` ssa-use, ssa-use
 
 ```
 """
-function SLessThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SLessThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function SLessThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SLessThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8441,21 +7281,17 @@ sless-than-op ::= ssa-id `=` `spv.SLessThan` ssa-use, ssa-use
 ```
 """
 function SLessThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SLessThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SLessThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8488,28 +7324,19 @@ smod-op ::= ssa-id `=` `spv.SMod` ssa-use, ssa-use
 
 ```
 """
-function SMod(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.SMod",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function SMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.SMod", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -8533,25 +7360,19 @@ must equal the component width in Result Type.
 %3 = spv.SNegate %2 : vector<4xi32>
 ```
 """
-function SNegate(
-    operand::Value; result=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.SNegate",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function SNegate(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.SNegate", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -8584,28 +7405,19 @@ srem-op ::= ssa-id `=` `spv.SRem` ssa-use, ssa-use
 
 ```
 """
-function SRem(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.SRem",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function SRem(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.SRem", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -8648,29 +7460,19 @@ select-op ::= ssa-id `=` `spv.Select` ssa-use, ssa-use, ssa-use
 %3 = spv.Select %0, %1, %2 : vector<3xi1>, vector<3xf32>
 ```
 """
-function Select(
-    condition::Value,
-    true_value::Value,
-    false_value::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[condition, true_value, false_value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.Select",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function Select(condition::Value, true_value::Value, false_value::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[condition, true_value, false_value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.Select", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -8696,21 +7498,17 @@ the first block. The selection merge block should be the last block.
 The merge block should only contain a `spv.mlir.merge` op.
 """
 function mlir_selection(; selection_control, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("selection_control", selection_control),]
-
-    return IR.create_operation(
-        "spv.mlir.selection",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("selection_control", selection_control), ]
+    
+    create_operation(
+        "spv.mlir.selection", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8750,24 +7548,18 @@ shift-left-logical-op ::= ssa-id `=` `spv.ShiftLeftLogical`
 %5 = spv.ShiftLeftLogical %3, %4 : vector<3xi32>, vector<3xi16>
 ```
 """
-function ShiftLeftLogical(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ShiftLeftLogical",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ShiftLeftLogical(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ShiftLeftLogical", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8804,24 +7596,18 @@ shift-right-arithmetic-op ::= ssa-id `=` `spv.ShiftRightArithmetic`
 %5 = spv.ShiftRightArithmetic %3, %4 : vector<3xi32>, vector<3xi16>
 ```
 """
-function ShiftRightArithmetic(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ShiftRightArithmetic",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ShiftRightArithmetic(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ShiftRightArithmetic", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8859,24 +7645,18 @@ shift-right-logical-op ::= ssa-id `=` `spv.ShiftRightLogical`
 %5 = spv.ShiftRightLogical %3, %4 : vector<3xi32>, vector<3xi16>
 ```
 """
-function ShiftRightLogical(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ShiftRightLogical",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ShiftRightLogical(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ShiftRightLogical", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8917,25 +7697,17 @@ TODO Add support for constituents that are:
 - spec constant composite.
 """
 function SpecConstantComposite(; type, sym_name, constituents, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("type", type),
-        namedattribute("sym_name", sym_name),
-        namedattribute("constituents", constituents),
-    ]
-
-    return IR.create_operation(
-        "spv.SpecConstantComposite",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("type", type), NamedAttribute("sym_name", sym_name), NamedAttribute("constituents", constituents), ]
+    
+    create_operation(
+        "spv.SpecConstantComposite", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -8971,23 +7743,17 @@ spv.SpecConstant @spec_const2 spec_id(5) = 42 : i32
 ```
 """
 function SpecConstant(; sym_name, default_value, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("sym_name", sym_name), namedattribute("default_value", default_value)
-    ]
-
-    return IR.create_operation(
-        "spv.SpecConstant",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("default_value", default_value), ]
+    
+    create_operation(
+        "spv.SpecConstant", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9061,21 +7827,17 @@ TODO Add capability-specific ops when supported.
 ```
 """
 function SpecConstantOperation(; result::IR.Type, body::Region, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SpecConstantOperation",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SpecConstantOperation", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9108,27 +7870,20 @@ spv.Store \"Function\" %0, %1 [\"Volatile\"] : f32
 spv.Store \"Function\" %0, %1 [\"Aligned\", 4] : f32
 ```
 """
-function Store(
-    ptr::Value, value::Value; memory_access=nothing, alignment=nothing, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[ptr, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(memory_access) &&
-        push!(_attributes, namedattribute("memory_access", memory_access))
-    !isnothing(alignment) && push!(_attributes, namedattribute("alignment", alignment))
-
-    return IR.create_operation(
-        "spv.Store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function Store(ptr::Value, value::Value; memory_access=nothing, alignment=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[ptr, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
+    !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
+    
+    create_operation(
+        "spv.Store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9163,21 +7918,17 @@ subgroup-ballot-op ::= ssa-id `=` `spv.SubgroupBallotKHR`
 ```
 """
 function SubgroupBallotKHR(predicate::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[predicate,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SubgroupBallotKHR",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[predicate, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SubgroupBallotKHR", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9213,21 +7964,17 @@ subgroup-block-read-INTEL-op ::= ssa-id `=` `spv.SubgroupBlockReadINTEL`
 ```
 """
 function SubgroupBlockReadINTEL(ptr::Value; value::IR.Type, location=Location())
-    _results = IR.Type[value,]
-    _operands = Value[ptr,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SubgroupBlockReadINTEL",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[value, ]
+    operands = Value[ptr, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SubgroupBlockReadINTEL", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9262,21 +8009,17 @@ spv.SubgroupBlockWriteINTEL \"StorageBuffer\" %ptr, %value : i32
 ```
 """
 function SubgroupBlockWriteINTEL(ptr::Value, value::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[ptr, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.SubgroupBlockWriteINTEL",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[ptr, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.SubgroupBlockWriteINTEL", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9309,21 +8052,17 @@ matrix-type
 ```
 """
 function Transpose(matrix::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[matrix,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Transpose",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[matrix, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Transpose", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9354,21 +8093,17 @@ u-convert-op ::= ssa-id `=` `spv.UConvertOp` ssa-use
 ```
 """
 function UConvert(operand::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.UConvert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.UConvert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9399,28 +8134,19 @@ udiv-op ::= ssa-id `=` `spv.UDiv` ssa-use, ssa-use
 
 ```
 """
-function UDiv(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.UDiv",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function UDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.UDiv", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -9450,24 +8176,18 @@ ugreater-than-equal-op ::= ssa-id `=` `spv.UGreaterThanEqual` ssa-use, ssa-use
 
 ```
 """
-function UGreaterThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.UGreaterThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function UGreaterThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.UGreaterThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9497,24 +8217,18 @@ ugreater-than-op ::= ssa-id `=` `spv.UGreaterThan` ssa-use, ssa-use
 
 ```
 """
-function UGreaterThan(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.UGreaterThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function UGreaterThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.UGreaterThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9544,24 +8258,18 @@ uless-than-equal-op ::= ssa-id `=` `spv.ULessThanEqual` ssa-use, ssa-use
 
 ```
 """
-function ULessThanEqual(
-    operand1::Value, operand2::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ULessThanEqual",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function ULessThanEqual(operand1::Value, operand2::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ULessThanEqual", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9592,21 +8300,17 @@ uless-than-op ::= ssa-id `=` `spv.ULessThan` ssa-use, ssa-use
 ```
 """
 function ULessThan(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.ULessThan",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.ULessThan", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9637,28 +8341,19 @@ umod-op ::= ssa-id `=` `spv.UMod` ssa-use, ssa-use
 
 ```
 """
-function UMod(
-    operand1::Value,
-    operand2::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.UMod",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function UMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.UMod", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -9685,21 +8380,17 @@ undef-op ::= `spv.Undef` `:` spirv-type
 ```
 """
 function Undef(; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Undef",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Undef", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9731,21 +8422,17 @@ unordered-op ::= ssa-id `=` `spv.Unordered` ssa-use, ssa-use
 ```
 """
 function Unordered(operand1::Value, operand2::Value; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[operand1, operand2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Unordered",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[operand1, operand2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Unordered", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9761,21 +8448,17 @@ unreachable-op ::= `spv.Unreachable`
 ```
 """
 function Unreachable(; location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.Unreachable",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.Unreachable", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9813,28 +8496,19 @@ where `init` specifies initializer.
 %2 = spv.Variable init(%0): !spv.ptr<f32, Function>
 ```
 """
-function Variable(
-    initializer=nothing::Union{Nothing,Value};
-    pointer::IR.Type,
-    storage_class,
-    location=Location(),
-)
-    _results = IR.Type[pointer,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("storage_class", storage_class),]
-    !isnothing(initializer) && push!(_operands, initializer)
-
-    return IR.create_operation(
-        "spv.Variable",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function Variable(initializer=nothing::Union{Nothing, Value}; pointer::IR.Type, storage_class, location=Location())
+    op_ty_results = IR.Type[pointer, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("storage_class", storage_class), ]
+    !isnothing(initializer) && push!(operands, initializer)
+    
+    create_operation(
+        "spv.Variable", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9860,24 +8534,18 @@ or equal to the number of components in Vector.
 %2 = spv.VectorExtractDynamic %0[%1] : vector<8xf32>, i32
 ```
 """
-function VectorExtractDynamic(
-    vector::Value, index::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[vector, index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.VectorExtractDynamic",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function VectorExtractDynamic(vector::Value, index::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[vector, index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.VectorExtractDynamic", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -9915,29 +8583,19 @@ vector-insert-dynamic-op ::= `spv.VectorInsertDynamic ` ssa-use `,`
 %2 = spv.VectorInsertDynamic %scalar %0[%1] : f32, vector<8xf32>, i32
 ```
 """
-function VectorInsertDynamic(
-    vector::Value,
-    component::Value,
-    index::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[vector, component, index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "spv.VectorInsertDynamic",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function VectorInsertDynamic(vector::Value, component::Value, index::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[vector, component, index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "spv.VectorInsertDynamic", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -9978,24 +8636,18 @@ operands, or using an OpUndef for one of the Vector operands.
                     -> vector<3xf32>
 ```
 """
-function VectorShuffle(
-    vector1::Value, vector2::Value; result::IR.Type, components, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[vector1, vector2]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("components", components),]
-
-    return IR.create_operation(
-        "spv.VectorShuffle",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function VectorShuffle(vector1::Value, vector2::Value; result::IR.Type, components, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[vector1, vector2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("components", components), ]
+    
+    create_operation(
+        "spv.VectorShuffle", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -10019,21 +8671,17 @@ spv.mlir.yield %0
 ```
 """
 function mlir_yield(operand::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[operand,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "spv.mlir.yield",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[operand, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "spv.mlir.yield", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

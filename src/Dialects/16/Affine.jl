@@ -1,8 +1,9 @@
 module affine
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `apply`
@@ -27,21 +28,17 @@ have ‘index’ type.
 ```
 """
 function apply(mapOperands::Vector{Value}; result_0::IR.Type, map, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[mapOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("map", map),]
-
-    return IR.create_operation(
-        "affine.apply",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[mapOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("map", map), ]
+    
+    create_operation(
+        "affine.apply", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -68,27 +65,18 @@ In the above example, `%indices:3` conceptually holds the following:
 %indices_2 = affine.apply #map2()[%linear_index]
 ```
 """
-function delinearize_index(
-    linear_index::Value,
-    basis::Vector{Value};
-    multi_index::Vector{IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[multi_index...,]
-    _operands = Value[linear_index, basis...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.delinearize_index",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function delinearize_index(linear_index::Value, basis::Vector{Value}; multi_index::Vector{IR.Type}, location=Location())
+    op_ty_results = IR.Type[multi_index..., ]
+    operands = Value[linear_index, basis..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.delinearize_index", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -199,24 +187,18 @@ If the `affine.for` defines any values, a yield terminator must be
 explicitly present. The number and types of the \"affine.for\" results must
 match the initial values in the `iter_args` binding and the yield operands.
 """
-function for_(
-    operand_0::Vector{Value}; results::Vector{IR.Type}, region::Region, location=Location()
-)
-    _results = IR.Type[results...,]
-    _operands = Value[operand_0...,]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.for",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function for_(operand_0::Vector{Value}; results::Vector{IR.Type}, region::Region, location=Location())
+    op_ty_results = IR.Type[results..., ]
+    operands = Value[operand_0..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.for", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -290,28 +272,18 @@ func.func @pad_edges(%I : memref<10x10xf32>) -> (memref<12x12xf32) {
 }
 ```
 """
-function if_(
-    operand_0::Vector{Value};
-    results::Vector{IR.Type},
-    thenRegion::Region,
-    elseRegion::Region,
-    location=Location(),
-)
-    _results = IR.Type[results...,]
-    _operands = Value[operand_0...,]
-    _owned_regions = Region[thenRegion, elseRegion]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.if",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function if_(operand_0::Vector{Value}; results::Vector{IR.Type}, thenRegion::Region, elseRegion::Region, location=Location())
+    op_ty_results = IR.Type[results..., ]
+    operands = Value[operand_0..., ]
+    owned_regions = Region[thenRegion, elseRegion, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.if", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -338,21 +310,17 @@ Example 2: Uses \'symbol\' keyword for symbols \'%n\' and \'%m\'.
 ```
 """
 function load(memref::Value, indices::Vector{Value}; result::IR.Type, location=Location())
-    _results = IR.Type[result,]
-    _operands = Value[memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result, ]
+    operands = Value[memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -369,21 +337,17 @@ affine map.
 ```
 """
 function max(operands::Vector{Value}; result_0::IR.Type, map, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[operands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("map", map),]
-
-    return IR.create_operation(
-        "affine.max",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[operands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("map", map), ]
+    
+    create_operation(
+        "affine.max", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -410,21 +374,17 @@ input operands and result must all have \'index\' type.
 ```
 """
 function min(operands::Vector{Value}; result_0::IR.Type, map, location=Location())
-    _results = IR.Type[result_0,]
-    _operands = Value[operands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("map", map),]
-
-    return IR.create_operation(
-        "affine.min",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[result_0, ]
+    operands = Value[operands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("map", map), ]
+    
+    create_operation(
+        "affine.min", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -493,40 +453,18 @@ affine.parallel (%ii, %jj) = (0, 0) to (%N, %M) step (32, 32) {
 }
 ```
 """
-function parallel(
-    mapOperands::Vector{Value};
-    results::Vector{IR.Type},
-    reductions,
-    lowerBoundsMap,
-    lowerBoundsGroups,
-    upperBoundsMap,
-    upperBoundsGroups,
-    steps,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[results...,]
-    _operands = Value[mapOperands...,]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("reductions", reductions),
-        namedattribute("lowerBoundsMap", lowerBoundsMap),
-        namedattribute("lowerBoundsGroups", lowerBoundsGroups),
-        namedattribute("upperBoundsMap", upperBoundsMap),
-        namedattribute("upperBoundsGroups", upperBoundsGroups),
-        namedattribute("steps", steps),
-    ]
-
-    return IR.create_operation(
-        "affine.parallel",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function parallel(mapOperands::Vector{Value}; results::Vector{IR.Type}, reductions, lowerBoundsMap, lowerBoundsGroups, upperBoundsMap, upperBoundsGroups, steps, region::Region, location=Location())
+    op_ty_results = IR.Type[results..., ]
+    operands = Value[mapOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("reductions", reductions), NamedAttribute("lowerBoundsMap", lowerBoundsMap), NamedAttribute("lowerBoundsGroups", lowerBoundsGroups), NamedAttribute("upperBoundsMap", upperBoundsMap), NamedAttribute("upperBoundsGroups", upperBoundsGroups), NamedAttribute("steps", steps), ]
+    
+    create_operation(
+        "affine.parallel", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -548,33 +486,18 @@ local keep in cache). The cache type specifier is either \'data\' or \'instr\'
 and specifies whether the prefetch is performed on data cache or on
 instruction cache.
 """
-function prefetch(
-    memref::Value,
-    indices::Vector{Value};
-    isWrite,
-    localityHint,
-    isDataCache,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("isWrite", isWrite),
-        namedattribute("localityHint", localityHint),
-        namedattribute("isDataCache", isDataCache),
-    ]
-
-    return IR.create_operation(
-        "affine.prefetch",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function prefetch(memref::Value, indices::Vector{Value}; isWrite, localityHint, isDataCache, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("isWrite", isWrite), NamedAttribute("localityHint", localityHint), NamedAttribute("isDataCache", isDataCache), ]
+    
+    create_operation(
+        "affine.prefetch", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -601,21 +524,17 @@ affine.store %v0, %0[%i0 + symbol(%n), %i1 + symbol(%m)] : memref<100x100xf32>
 ```
 """
 function store(value::Value, memref::Value, indices::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[value, memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[value, memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -658,24 +577,18 @@ TODOs:
 * Consider adding a permutation map to permute the slice that is read from memory
 (see [vector.transfer_read](../Vector/#vectortransfer_read-vectortransferreadop)).
 """
-function vector_load(
-    memref::Value, indices::Vector{Value}; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.vector_load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function vector_load(memref::Value, indices::Vector{Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.vector_load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -720,24 +633,18 @@ TODOs:
 * Consider adding a permutation map to permute the slice that is written to memory
 (see [vector.transfer_write](../Vector/#vectortransfer_write-vectortransferwriteop)).
 """
-function vector_store(
-    value::Value, memref::Value, indices::Vector{Value}; location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[value, memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.vector_store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function vector_store(value::Value, memref::Value, indices::Vector{Value}; location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.vector_store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -756,21 +663,17 @@ yielded.
 ```
 """
 function yield(operands::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[operands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "affine.yield",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[operands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "affine.yield", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

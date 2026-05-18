@@ -1,32 +1,27 @@
 module x86vector
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `avx_intr_dp_ps_256`
 
 """
-function avx_intr_dp_ps_256(
-    a::Value, b::Value, c::Value; res=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[a, b, c]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx.intr.dp.ps.256",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx_intr_dp_ps_256(a::Value, b::Value, c::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx.intr.dp.ps.256", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -48,25 +43,19 @@ dot product of the two source vectors.
 %d = arith.addf %1, %2 : f32
 ```
 """
-function avx_intr_dot(
-    a::Value, b::Value; res=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[a, b]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx.intr.dot",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx_intr_dot(a::Value, b::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx.intr.dot", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -74,25 +63,19 @@ end
 `avx512_intr_mask_compress`
 
 """
-function avx512_intr_mask_compress(
-    a::Value, src::Value, k::Value; res=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[a, src, k]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.mask.compress",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_intr_mask_compress(a::Value, src::Value, k::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, src, k, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx512.intr.mask.compress", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -111,33 +94,21 @@ Contiguously store the active integer/floating-point elements in `a` (those
 with their respective bit set in writemask `k`) to `dst`, and pass through the
 remaining elements from `src`.
 """
-function avx512_mask_compress(
-    k::Value,
-    a::Value,
-    src=nothing::Union{Nothing,Value};
-    dst=nothing::Union{Nothing,IR.Type},
-    constant_src=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[k, a]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(src) && push!(_operands, src)
-    !isnothing(dst) && push!(_results, dst)
-    !isnothing(constant_src) &&
-        push!(_attributes, namedattribute("constant_src", constant_src))
-
-    return IR.create_operation(
-        "x86vector.avx512.mask.compress",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_mask_compress(k::Value, a::Value, src=nothing::Union{Nothing, Value}; dst=nothing::Union{Nothing, IR.Type}, constant_src=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[k, a, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(src) && push!(operands, src)
+    !isnothing(dst) && push!(op_ty_results, dst)
+    !isnothing(constant_src) && push!(attributes, NamedAttribute("constant_src", constant_src))
+    
+    create_operation(
+        "x86vector.avx512.mask.compress", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -155,31 +126,19 @@ Round packed floating-point elements in `a` to the number of fraction bits
 specified by `imm`, and store the results in `dst` using writemask `k`
 (elements are copied from src when the corresponding mask bit is not set).
 """
-function avx512_mask_rndscale(
-    src::Value,
-    k::Value,
-    a::Value,
-    imm::Value,
-    rounding::Value;
-    dst=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, k, a, imm, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(dst) && push!(_results, dst)
-
-    return IR.create_operation(
-        "x86vector.avx512.mask.rndscale",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_mask_rndscale(src::Value, k::Value, a::Value, imm::Value, rounding::Value; dst=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, k, a, imm, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(dst) && push!(op_ty_results, dst)
+    
+    create_operation(
+        "x86vector.avx512.mask.rndscale", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -187,31 +146,19 @@ end
 `avx512_intr_mask_rndscale_pd_512`
 
 """
-function avx512_intr_mask_rndscale_pd_512(
-    src::Value,
-    k::Value,
-    a::Value,
-    imm::Value,
-    rounding::Value;
-    res=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, k, a, imm, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.mask.rndscale.pd.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_intr_mask_rndscale_pd_512(src::Value, k::Value, a::Value, imm::Value, rounding::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, k, a, imm, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx512.intr.mask.rndscale.pd.512", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -219,31 +166,19 @@ end
 `avx512_intr_mask_rndscale_ps_512`
 
 """
-function avx512_intr_mask_rndscale_ps_512(
-    src::Value,
-    k::Value,
-    a::Value,
-    imm::Value,
-    rounding::Value;
-    res=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, k, a, imm, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.mask.rndscale.ps.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_intr_mask_rndscale_ps_512(src::Value, k::Value, a::Value, imm::Value, rounding::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, k, a, imm, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx512.intr.mask.rndscale.ps.512", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -261,31 +196,19 @@ Scale the packed floating-point elements in `a` using values from `b`, and
 store the results in `dst` using writemask `k` (elements are copied from src
 when the corresponding mask bit is not set).
 """
-function avx512_mask_scalef(
-    src::Value,
-    a::Value,
-    b::Value,
-    k::Value,
-    rounding::Value;
-    dst=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, a, b, k, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(dst) && push!(_results, dst)
-
-    return IR.create_operation(
-        "x86vector.avx512.mask.scalef",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_mask_scalef(src::Value, a::Value, b::Value, k::Value, rounding::Value; dst=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, a, b, k, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(dst) && push!(op_ty_results, dst)
+    
+    create_operation(
+        "x86vector.avx512.mask.scalef", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -293,31 +216,19 @@ end
 `avx512_intr_mask_scalef_pd_512`
 
 """
-function avx512_intr_mask_scalef_pd_512(
-    src::Value,
-    a::Value,
-    b::Value,
-    k::Value,
-    rounding::Value;
-    res=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, a, b, k, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.mask.scalef.pd.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_intr_mask_scalef_pd_512(src::Value, a::Value, b::Value, k::Value, rounding::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, a, b, k, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx512.intr.mask.scalef.pd.512", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -325,31 +236,19 @@ end
 `avx512_intr_mask_scalef_ps_512`
 
 """
-function avx512_intr_mask_scalef_ps_512(
-    src::Value,
-    a::Value,
-    b::Value,
-    k::Value,
-    rounding::Value;
-    res=nothing::Union{Nothing,IR.Type},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[src, a, b, k, rounding]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.mask.scalef.ps.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx512_intr_mask_scalef_ps_512(src::Value, a::Value, b::Value, k::Value, rounding::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[src, a, b, k, rounding, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx512.intr.mask.scalef.ps.512", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -357,25 +256,19 @@ end
 `avx_intr_rsqrt_ps_256`
 
 """
-function avx_intr_rsqrt_ps_256(
-    a::Value; res=nothing::Union{Nothing,IR.Type}, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[a,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(res) && push!(_results, res)
-
-    return IR.create_operation(
-        "x86vector.avx.intr.rsqrt.ps.256",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx_intr_rsqrt_ps_256(a::Value; res=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(res) && push!(op_ty_results, res)
+    
+    create_operation(
+        "x86vector.avx.intr.rsqrt.ps.256", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -383,23 +276,19 @@ end
 `avx_rsqrt`
 
 """
-function avx_rsqrt(a::Value; b=nothing::Union{Nothing,IR.Type}, location=Location())
-    _results = IR.Type[]
-    _operands = Value[a,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(b) && push!(_results, b)
-
-    return IR.create_operation(
-        "x86vector.avx.rsqrt",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function avx_rsqrt(a::Value; b=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[a, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(b) && push!(op_ty_results, b)
+    
+    create_operation(
+        "x86vector.avx.rsqrt", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -407,24 +296,18 @@ end
 `avx512_intr_vp2intersect_d_512`
 
 """
-function avx512_intr_vp2intersect_d_512(
-    a::Value, b::Value; res::IR.Type, location=Location()
-)
-    _results = IR.Type[res,]
-    _operands = Value[a, b]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.vp2intersect.d.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function avx512_intr_vp2intersect_d_512(a::Value, b::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "x86vector.avx512.intr.vp2intersect.d.512", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -444,24 +327,18 @@ specified by `k1` and `k2`. A match in corresponding elements of `a` and
 `b` is indicated by a set bit in the corresponding bit of the mask
 registers.
 """
-function avx512_vp2intersect(
-    a::Value, b::Value; k1::IR.Type, k2::IR.Type, location=Location()
-)
-    _results = IR.Type[k1, k2]
-    _operands = Value[a, b]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "x86vector.avx512.vp2intersect",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function avx512_vp2intersect(a::Value, b::Value; k1::IR.Type, k2::IR.Type, location=Location())
+    op_ty_results = IR.Type[k1, k2, ]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "x86vector.avx512.vp2intersect", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -469,24 +346,18 @@ end
 `avx512_intr_vp2intersect_q_512`
 
 """
-function avx512_intr_vp2intersect_q_512(
-    a::Value, b::Value; res::IR.Type, location=Location()
-)
-    _results = IR.Type[res,]
-    _operands = Value[a, b]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "x86vector.avx512.intr.vp2intersect.q.512",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function avx512_intr_vp2intersect_q_512(a::Value, b::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "x86vector.avx512.intr.vp2intersect.q.512", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

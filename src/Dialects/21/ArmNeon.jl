@@ -1,0 +1,207 @@
+module arm_neon
+
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
+
+"""
+`intr_bfmmla`
+
+BFMMLA: BFloat16 matrix multiply-accumulate to single-precision.
+
+The operation multiplies the 2x4 BFloat16 matrix in the first source vector
+with the 4x2 BFloat16 matrix in the second source vector, then accumulates
+this intermediate result with the 2x2 Float32 matrix in the accumulator
+vector, yielding the final 2x2 Float32 result.
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/intrinsics/vbfmmlaq_f32
+"""
+function intr_bfmmla(acc::Value, src1::Value, src2::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[acc, src1, src2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.bfmmla", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`intr_smull`
+
+Signed Multiply Long (vector). This instruction multiplies corresponding
+signed integer values in the lower or upper half of the vectors of the two
+source SIMD&FP registers, places the results in a vector, and writes the
+vector to the destination SIMD&FP register.
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
+"""
+function intr_smull(a::Value, b::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.smull", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`_2d_sdot`
+
+The two input vectors `b` and `c` have a 2D shape, consisting of either 2
+or 4 rows, each row having length 4. This operation computes the pair-wise
+dot-products of the rows of `b` and `c` and accumulates them with the
+corresponding entry of `a`:
+
+```
+res[i] := a[i] + dot_product(b[i, ...], c[i, ...])
+```
+"""
+function _2d_sdot(a::Value, b::Value, c::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.2d.sdot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`intr_sdot`
+
+Signed integer addition of dot product (vector). This instruction performs
+the following operation on signed integer vectors: res = dot(b, c) + a,
+where vector operands are partitioned into groups of four elements.
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
+"""
+function intr_sdot(a::Value, b::Value, c::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[a, b, c, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.sdot", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`intr_smmla`
+
+SMMLA: Signed integer matrix multiply-accumulate.
+
+Signed 8-bit integer matrix multiply-accumulate. This instruction multiplies
+the 2x8 matrix of signed 8-bit integer values in the first source vector by
+the 8x2 matrix of signed 8-bit integer values in the second source vector.
+The resulting 2x2 32-bit integer matrix product is destructively added to
+the 32-bit integer matrix accumulator in the destination vector. This is
+equivalent to performing an 8-way dot product per destination element.
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=smmla
+"""
+function intr_smmla(acc::Value, src1::Value, src2::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[acc, src1, src2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.smmla", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`intr_ummla`
+
+UMMLA: Signed integer matrix multiply-accumulate.
+
+Unsigned 8-bit integer matrix multiply-accumulate. This instruction
+multiplies the 2x8 matrix of unsigned 8-bit integer values in the first
+source vector by the 8x2 matrix of unsigned 8-bit integer values in the
+second source vector. The resulting 2x2 32-bit integer matrix product is
+destructively added to the 32-bit integer matrix accumulator in the
+destination vector. This is equivalent to performing an 8-way dot product
+per destination element.
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=ummla
+"""
+function intr_ummla(acc::Value, src1::Value, src2::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[acc, src1, src2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.ummla", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+"""
+`intr_usmmla`
+
+USMMLA: Signed integer matrix multiply-accumulate.
+
+Unsigned and signed 8-bit integer matrix multiply-accumulate. This
+instruction multiplies the 2x8 matrix of unsigned 8-bit integer values in
+the first source vector by the 8x2 matrix of signed 8-bit integer values in
+the second source vector. The resulting 2x2 32-bit integer matrix product is
+destructively added to the 32-bit integer matrix accumulator in the
+destination vector. This is equivalent to performing an 8-way dot product
+ per destination element.
+
+
+Source:
+https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=usmmla
+"""
+function intr_usmmla(acc::Value, src1::Value, src2::Value; res::IR.Type, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[acc, src1, src2, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_neon.intr.usmmla", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
+    )
+end
+
+end # arm_neon

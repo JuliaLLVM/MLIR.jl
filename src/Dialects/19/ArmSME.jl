@@ -1,8 +1,9 @@
 module arm_sme
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `copy_tile`
@@ -16,23 +17,19 @@ primarily intended to be used to normalize the IR prior to tile allocation.
 %copy = arm_sme.copy_tile %tile : vector<[4]x[4]xf32>
 ```
 """
-function copy_tile(tile::Value; result=nothing::Union{Nothing,IR.Type}, location=Location())
-    _results = IR.Type[]
-    _operands = Value[tile,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-
-    return IR.create_operation(
-        "arm_sme.copy_tile",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function copy_tile(tile::Value; result=nothing::Union{Nothing, IR.Type}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tile, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    
+    create_operation(
+        "arm_sme.copy_tile", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -139,43 +136,22 @@ This is implemented in the `-arm-sme-outer-product-fusion` pass.
 
 [1] https://developer.arm.com/documentation/ddi0616
 """
-function fmopa_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.fmopa_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function fmopa_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.fmopa_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -204,43 +180,22 @@ description of 2-way outer products.
 | [FMOPS (widening, 2-way, FP16 to FP32)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/FMOPS--widening---Half-precision-floating-point-sum-of-outer-products-and-subtract-) | +sme |
 | [BFMOPS (widening, 2-way, BF16 to FP32)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/BMOPS--Bitwise-exclusive-NOR-population-count-outer-product-and-subtract-) | +sme |
 """
-function fmops_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.fmops_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function fmops_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.fmops_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -272,21 +227,17 @@ Example 3:
 ```
 """
 function get_tile(; tile::IR.Type, location=Location())
-    _results = IR.Type[tile,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.get_tile",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[tile, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.get_tile", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -323,33 +274,20 @@ Example 3: Load a vector<[1]xi128> tile slice from memory into tile vertically a
 %tile_update = arm_sme.load_tile_slice %base[%c0], %mask, %tile, %tile_slice_index layout<vertical> : memref<?x?xi128>, vector<[1]xi1>, vector<[1]x[1]xi128>
 ```
 """
-function load_tile_slice(
-    base::Value,
-    mask::Value,
-    tile::Value,
-    indices::Vector{Value},
-    tile_slice_index::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[base, mask, tile, indices..., tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.load_tile_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function load_tile_slice(base::Value, mask::Value, tile::Value, indices::Vector{Value}, tile_slice_index::Value; result=nothing::Union{Nothing, IR.Type}, layout=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[base, mask, tile, indices..., tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.load_tile_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -373,30 +311,20 @@ Example 2: Extract `vector<[2]xf64>` from tile vertically at the given index.
 %slice = arm_sme.move_tile_slice_to_vector %tile[%tile_slice_index] layout<vertical> : vector<[2]xf64> from vector<[2]x[2]xf64>
 ```
 """
-function move_tile_slice_to_vector(
-    tile::Value,
-    tile_slice_index::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[tile, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.move_tile_slice_to_vector",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function move_tile_slice_to_vector(tile::Value, tile_slice_index::Value; result=nothing::Union{Nothing, IR.Type}, layout=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tile, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.move_tile_slice_to_vector", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -422,31 +350,20 @@ Example 2: Move a vector<[2]xf64> into tile vertically at given index.
 %tile_update = arm_sme.move_vector_to_tile_slice %vector, %tile, %tile_slice_index layout<vertical> : vector<[2]xf64> into vector<[2]x[2]xf64>
 ```
 """
-function move_vector_to_tile_slice(
-    vector::Value,
-    tile::Value,
-    tile_slice_index::Value;
-    result=nothing::Union{Nothing,IR.Type},
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[vector, tile, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(result) && push!(_results, result)
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.move_vector_to_tile_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function move_vector_to_tile_slice(vector::Value, tile::Value, tile_slice_index::Value; result=nothing::Union{Nothing, IR.Type}, layout=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[vector, tile, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(result) && push!(op_ty_results, result)
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.move_vector_to_tile_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -482,46 +399,24 @@ Example 4: Masked outerproduct (with accumulator)
             : vector<[4]xf32>, vector<[4]xf32>
 ```
 """
-function outerproduct(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result=nothing::Union{Nothing,IR.Type},
-    kind=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-    !isnothing(result) && push!(_results, result)
-    !isnothing(kind) && push!(_attributes, namedattribute("kind", kind))
-
-    return IR.create_operation(
-        "arm_sme.outerproduct",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function outerproduct(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result=nothing::Union{Nothing, IR.Type}, kind=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    !isnothing(result) && push!(op_ty_results, result)
+    !isnothing(kind) && push!(attributes, NamedAttribute("kind", kind))
+    
+    create_operation(
+        "arm_sme.outerproduct", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -541,43 +436,22 @@ description of 2-way outer products.
 | ---- | -------- |
 | [SMOPA (2-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SMOPA--2-way---Signed-integer-sum-of-outer-products-and-accumulate-) | +sme2 |
 """
-function smopa_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.smopa_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function smopa_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.smopa_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -709,43 +583,22 @@ This is implemented in the `-arm-sme-outer-product-fusion` pass.
 | ---- | -------- |
 | [SMOPA (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SMOPA--4-way---Signed-integer-sum-of-outer-products-and-accumulate-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function smopa_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.smopa_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function smopa_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.smopa_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -765,43 +618,22 @@ description of 2-way outer products.
 | ---- | -------- |
 | [SMOPS (2-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SMOPS--2-way---Signed-integer-sum-of-outer-products-and-subtract-) | +sme2 |
 """
-function smops_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.smops_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function smops_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.smops_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -828,43 +660,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [SMOPS (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SMOPS--4-way---Signed-integer-sum-of-outer-products-and-subtract-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function smops_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.smops_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function smops_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.smops_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -901,31 +712,19 @@ Example 3: Store a vector<[1]xi128> vertical tile slice from tile at given index
 arm_sme.store_tile_slice %tile, %tile_slice_index, %mask, %base[%c0] layout<vertical> : vector<[1]x[1]xi128>, vector<[1]xi1>, memref<?x?xi128>
 ```
 """
-function store_tile_slice(
-    tile::Value,
-    tile_slice_index::Value,
-    mask::Value,
-    base::Value,
-    indices::Vector{Value};
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[tile, tile_slice_index, mask, base, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.store_tile_slice",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function store_tile_slice(tile::Value, tile_slice_index::Value, mask::Value, base::Value, indices::Vector{Value}; layout=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tile, tile_slice_index, mask, base, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.store_tile_slice", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -949,25 +748,19 @@ streaming mode.
 %svl_d = arm_sme.streaming_vl <double>
 ```
 """
-function streaming_vl(;
-    result_0=nothing::Union{Nothing,IR.Type}, type_size, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("type_size", type_size),]
-    !isnothing(result_0) && push!(_results, result_0)
-
-    return IR.create_operation(
-        "arm_sme.streaming_vl",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=(length(_results) == 0 ? nothing : _results),
-        result_inference=(length(_results) == 0 ? true : false),
+function streaming_vl(; result_0=nothing::Union{Nothing, IR.Type}, type_size, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("type_size", type_size), ]
+    !isnothing(result_0) && push!(op_ty_results, result_0)
+    
+    create_operation(
+        "arm_sme.streaming_vl", location;
+        operands, owned_regions, successors, attributes,
+        results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
+        result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
 
@@ -991,43 +784,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [SUMOPA (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SUMOPA--Signed-by-unsigned-integer-sum-of-outer-products-and-accumulate-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function sumopa_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.sumopa_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function sumopa_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.sumopa_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1051,43 +823,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [SUMOPS (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/SUMOPS--Signed-by-unsigned-integer-sum-of-outer-products-and-subtract-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function sumops_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.sumops_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function sumops_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.sumops_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1132,39 +883,22 @@ Example 4: Masked load of int 32-bit element ZA tile with horizontal layout (def
 %tile = arm_sme.tile_load %base[%c0, %c0], %pad, %mask : memref<?x?xf32>, vector<[4]x[4]xf32>
 ```
 """
-function tile_load(
-    base::Value,
-    indices::Vector{Value},
-    padding=nothing::Union{Nothing,Value};
-    mask=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[base, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(padding) && push!(_operands, padding)
-    !isnothing(mask) && push!(_operands, mask)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1, length(indices), isnothing(padding) ? 0 : 1, isnothing(mask) ? 0 : 1
-        ]),
-    )
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.tile_load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function tile_load(base::Value, indices::Vector{Value}, padding=nothing::Union{Nothing, Value}; mask=nothing::Union{Nothing, Value}, result::IR.Type, layout=nothing, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[base, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(padding) && push!(operands, padding)
+    !isnothing(mask) && push!(operands, mask)
+    push!(attributes, operandsegmentsizes([1, length(indices), Int(!isnothing(padding)), Int(!isnothing(mask)), ]))
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.tile_load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1202,34 +936,21 @@ Example 4: Masked store a int 32-bit element ZA tile with vertical layout to mem
 arm_sme.tile_store %tile, %base[%c0, %c0], %mask layout<vertical> : vector<[4]x[4]xf32>, memref<?x?xf32>
 ```
 """
-function tile_store(
-    valueToStore::Value,
-    base::Value,
-    indices::Vector{Value},
-    mask=nothing::Union{Nothing,Value};
-    layout=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[valueToStore, base, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(mask) && push!(_operands, mask)
-    push!(
-        _attributes, operandsegmentsizes([1, 1, length(indices), isnothing(mask) ? 0 : 1])
-    )
-    !isnothing(layout) && push!(_attributes, namedattribute("layout", layout))
-
-    return IR.create_operation(
-        "arm_sme.tile_store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function tile_store(valueToStore::Value, base::Value, indices::Vector{Value}, mask=nothing::Union{Nothing, Value}; layout=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[valueToStore, base, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(mask) && push!(operands, mask)
+    push!(attributes, operandsegmentsizes([1, 1, length(indices), Int(!isnothing(mask)), ]))
+    !isnothing(layout) && push!(attributes, NamedAttribute("layout", layout))
+    
+    create_operation(
+        "arm_sme.tile_store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1249,43 +970,22 @@ description of 2-way outer products.
 | ---- | -------- |
 | [UMOPA (2-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/UMOPA--2-way---Unsigned-integer-sum-of-outer-products-and-accumulate-) | +sme2 |
 """
-function umopa_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.umopa_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function umopa_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.umopa_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1309,43 +1009,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [UMOPA (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/UMOPA--4-way---Unsigned-integer-sum-of-outer-products-and-accumulate-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function umopa_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.umopa_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function umopa_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.umopa_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1365,43 +1044,22 @@ description of 2-way outer products.
 | ---- | -------- |
 | [UMOPS (2-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/UMOPS--2-way---Unsigned-integer-sum-of-outer-products-and-subtract-) | +sme2 |
 """
-function umops_2way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.umops_2way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function umops_2way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.umops_2way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1425,43 +1083,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [UMOPS (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/UMOPS--4-way---Unsigned-integer-sum-of-outer-products-and-subtract-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function umops_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.umops_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function umops_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.umops_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1485,43 +1122,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [USMOPA (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/USMOPA--Unsigned-by-signed-integer-sum-of-outer-products-and-accumulate-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function usmopa_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.usmopa_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function usmopa_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.usmopa_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1545,43 +1161,22 @@ detailed description of 4-way outer products.
 | ---- | -------- |
 | [USMOPS (4-way)](https://developer.arm.com/documentation/ddi0602/2023-09/SME-Instructions/USMOPS--Unsigned-by-signed-integer-sum-of-outer-products-and-subtract-) | +sme (32-bit), +sme-i16i64 (64-bit)|
 """
-function usmops_4way(
-    lhs::Value,
-    rhs::Value,
-    lhsMask=nothing::Union{Nothing,Value};
-    rhsMask=nothing::Union{Nothing,Value},
-    acc=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lhsMask) && push!(_operands, lhsMask)
-    !isnothing(rhsMask) && push!(_operands, rhsMask)
-    !isnothing(acc) && push!(_operands, acc)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            1,
-            1,
-            isnothing(lhsMask) ? 0 : 1,
-            isnothing(rhsMask) ? 0 : 1,
-            isnothing(acc) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "arm_sme.usmops_4way",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function usmops_4way(lhs::Value, rhs::Value, lhsMask=nothing::Union{Nothing, Value}; rhsMask=nothing::Union{Nothing, Value}, acc=nothing::Union{Nothing, Value}, result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lhsMask) && push!(operands, lhsMask)
+    !isnothing(rhsMask) && push!(operands, rhsMask)
+    !isnothing(acc) && push!(operands, acc)
+    push!(attributes, operandsegmentsizes([1, 1, Int(!isnothing(lhsMask)), Int(!isnothing(rhsMask)), Int(!isnothing(acc)), ]))
+    
+    create_operation(
+        "arm_sme.usmops_4way", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1604,48 +1199,41 @@ Example 2: Zero a 64-bit element ZA tile.
 ```
 """
 function zero(; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.zero",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.zero", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `intr_cntsb`
 
 """
 function intr_cntsb(; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.intr.cntsb",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.intr.cntsb", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1654,21 +1242,17 @@ end
 
 """
 function intr_cntsd(; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.intr.cntsd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.intr.cntsd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1677,21 +1261,17 @@ end
 
 """
 function intr_cntsh(; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.intr.cntsh",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.intr.cntsh", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1700,21 +1280,17 @@ end
 
 """
 function intr_cntsw(; res::IR.Type, location=Location())
-    _results = IR.Type[res,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.intr.cntsw",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[res, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.intr.cntsw", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1722,28 +1298,18 @@ end
 `intr_ld1b_horiz`
 
 """
-function intr_ld1b_horiz(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1b.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1b_horiz(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1b.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1751,28 +1317,18 @@ end
 `intr_ld1b_vert`
 
 """
-function intr_ld1b_vert(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1b.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1b_vert(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1b.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1780,28 +1336,18 @@ end
 `intr_ld1d_horiz`
 
 """
-function intr_ld1d_horiz(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1d.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1d_horiz(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1d.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1809,28 +1355,18 @@ end
 `intr_ld1d_vert`
 
 """
-function intr_ld1d_vert(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1d.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1d_vert(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1d.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1838,28 +1374,18 @@ end
 `intr_ld1h_horiz`
 
 """
-function intr_ld1h_horiz(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1h.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1h_horiz(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1h.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1867,28 +1393,18 @@ end
 `intr_ld1h_vert`
 
 """
-function intr_ld1h_vert(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1h.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1h_vert(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1h.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1896,28 +1412,18 @@ end
 `intr_ld1q_horiz`
 
 """
-function intr_ld1q_horiz(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1q.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1q_horiz(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1q.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1925,28 +1431,18 @@ end
 `intr_ld1q_vert`
 
 """
-function intr_ld1q_vert(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1q.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1q_vert(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1q.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1954,28 +1450,18 @@ end
 `intr_ld1w_horiz`
 
 """
-function intr_ld1w_horiz(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1w.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1w_horiz(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1w.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1983,28 +1469,18 @@ end
 `intr_ld1w_vert`
 
 """
-function intr_ld1w_vert(
-    predicate::Value,
-    load_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, load_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.ld1w.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_ld1w_vert(predicate::Value, load_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, load_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.ld1w.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2012,29 +1488,18 @@ end
 `intr_mopa`
 
 """
-function intr_mopa(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.mopa",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_mopa(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.mopa", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2042,29 +1507,18 @@ end
 `intr_mopa_wide`
 
 """
-function intr_mopa_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.mopa.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_mopa_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.mopa.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2072,29 +1526,18 @@ end
 `intr_mops`
 
 """
-function intr_mops(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.mops",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_mops(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.mops", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2102,29 +1545,18 @@ end
 `intr_mops_wide`
 
 """
-function intr_mops_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.mops.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_mops_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.mops.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2132,29 +1564,18 @@ end
 `intr_read_horiz`
 
 """
-function intr_read_horiz(
-    vector::Value,
-    predicate::Value,
-    tile_slice_index::Value;
-    res::IR.Type,
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[res,]
-    _operands = Value[vector, predicate, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.read.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_read_horiz(vector::Value, predicate::Value, tile_slice_index::Value; res::IR.Type, tile_id, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[vector, predicate, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.read.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2162,29 +1583,18 @@ end
 `intr_read_vert`
 
 """
-function intr_read_vert(
-    vector::Value,
-    predicate::Value,
-    tile_slice_index::Value;
-    res::IR.Type,
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[res,]
-    _operands = Value[vector, predicate, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.read.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_read_vert(vector::Value, predicate::Value, tile_slice_index::Value; res::IR.Type, tile_id, location=Location())
+    op_ty_results = IR.Type[res, ]
+    operands = Value[vector, predicate, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.read.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2192,29 +1602,18 @@ end
 `intr_smopa_wide`
 
 """
-function intr_smopa_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.smopa.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_smopa_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.smopa.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2222,29 +1621,18 @@ end
 `intr_smopa_za32`
 
 """
-function intr_smopa_za32(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.smopa.za32",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_smopa_za32(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.smopa.za32", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2252,29 +1640,18 @@ end
 `intr_smops_wide`
 
 """
-function intr_smops_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.smops.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_smops_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.smops.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2282,29 +1659,18 @@ end
 `intr_smops_za32`
 
 """
-function intr_smops_za32(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.smops.za32",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_smops_za32(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.smops.za32", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2312,28 +1678,18 @@ end
 `intr_st1b_horiz`
 
 """
-function intr_st1b_horiz(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1b.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1b_horiz(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1b.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2341,28 +1697,18 @@ end
 `intr_st1b_vert`
 
 """
-function intr_st1b_vert(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1b.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1b_vert(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1b.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2370,28 +1716,18 @@ end
 `intr_st1d_horiz`
 
 """
-function intr_st1d_horiz(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1d.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1d_horiz(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1d.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2399,28 +1735,18 @@ end
 `intr_st1d_vert`
 
 """
-function intr_st1d_vert(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1d.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1d_vert(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1d.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2428,28 +1754,18 @@ end
 `intr_st1h_horiz`
 
 """
-function intr_st1h_horiz(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1h.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1h_horiz(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1h.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2457,28 +1773,18 @@ end
 `intr_st1h_vert`
 
 """
-function intr_st1h_vert(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1h.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1h_vert(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1h.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2486,28 +1792,18 @@ end
 `intr_st1q_horiz`
 
 """
-function intr_st1q_horiz(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1q.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1q_horiz(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1q.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2515,28 +1811,18 @@ end
 `intr_st1q_vert`
 
 """
-function intr_st1q_vert(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1q.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1q_vert(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1q.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2544,28 +1830,18 @@ end
 `intr_st1w_horiz`
 
 """
-function intr_st1w_horiz(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1w.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1w_horiz(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1w.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2573,28 +1849,18 @@ end
 `intr_st1w_vert`
 
 """
-function intr_st1w_vert(
-    predicate::Value,
-    store_address::Value,
-    tile_slice_index::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[predicate, store_address, tile_slice_index]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.st1w.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_st1w_vert(predicate::Value, store_address::Value, tile_slice_index::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[predicate, store_address, tile_slice_index, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.st1w.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2603,21 +1869,17 @@ end
 
 """
 function intr_str(index::Value, store_address::Value, offset::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[index, store_address, offset]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "arm_sme.intr.str",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[index, store_address, offset, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "arm_sme.intr.str", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2625,29 +1887,18 @@ end
 `intr_sumopa_wide`
 
 """
-function intr_sumopa_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.sumopa.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_sumopa_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.sumopa.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2655,29 +1906,18 @@ end
 `intr_sumops_wide`
 
 """
-function intr_sumops_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.sumops.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_sumops_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.sumops.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2685,29 +1925,18 @@ end
 `intr_umopa_wide`
 
 """
-function intr_umopa_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.umopa.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_umopa_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.umopa.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2715,29 +1944,18 @@ end
 `intr_umopa_za32`
 
 """
-function intr_umopa_za32(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.umopa.za32",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_umopa_za32(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.umopa.za32", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2745,29 +1963,18 @@ end
 `intr_umops_wide`
 
 """
-function intr_umops_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.umops.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_umops_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.umops.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2775,29 +1982,18 @@ end
 `intr_umops_za32`
 
 """
-function intr_umops_za32(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.umops.za32",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_umops_za32(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.umops.za32", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2805,29 +2001,18 @@ end
 `intr_usmopa_wide`
 
 """
-function intr_usmopa_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.usmopa.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_usmopa_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.usmopa.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2835,29 +2020,18 @@ end
 `intr_usmops_wide`
 
 """
-function intr_usmops_wide(
-    lhs_predicate::Value,
-    rhs_predicate::Value,
-    lhs_vector::Value,
-    rhs_vector::Value;
-    tile_id,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.usmops.wide",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_usmops_wide(lhs_predicate::Value, rhs_predicate::Value, lhs_vector::Value, rhs_vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[lhs_predicate, rhs_predicate, lhs_vector, rhs_vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.usmops.wide", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2865,24 +2039,18 @@ end
 `intr_write_horiz`
 
 """
-function intr_write_horiz(
-    tile_slice_index::Value, predicate::Value, vector::Value; tile_id, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[tile_slice_index, predicate, vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.write.horiz",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_write_horiz(tile_slice_index::Value, predicate::Value, vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tile_slice_index, predicate, vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.write.horiz", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2890,24 +2058,18 @@ end
 `intr_write_vert`
 
 """
-function intr_write_vert(
-    tile_slice_index::Value, predicate::Value, vector::Value; tile_id, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[tile_slice_index, predicate, vector]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_id", tile_id),]
-
-    return IR.create_operation(
-        "arm_sme.intr.write.vert",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function intr_write_vert(tile_slice_index::Value, predicate::Value, vector::Value; tile_id, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[tile_slice_index, predicate, vector, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_id", tile_id), ]
+    
+    create_operation(
+        "arm_sme.intr.write.vert", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2916,21 +2078,17 @@ end
 
 """
 function intr_zero(; tile_mask, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("tile_mask", tile_mask),]
-
-    return IR.create_operation(
-        "arm_sme.intr.zero",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("tile_mask", tile_mask), ]
+    
+    create_operation(
+        "arm_sme.intr.zero", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

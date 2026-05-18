@@ -1,8 +1,9 @@
 module builtin
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `func`
@@ -44,25 +45,18 @@ func @example_fn_attr() attributes {dialectName.attrName = false}
 ```
 """
 function func(; sym_name, type, sym_visibility=nothing, body::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("sym_name", sym_name), namedattribute("type", type)
-    ]
-    !isnothing(sym_visibility) &&
-        push!(_attributes, namedattribute("sym_visibility", sym_visibility))
-
-    return IR.create_operation(
-        "builtin.func",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
+    !isnothing(sym_visibility) && push!(attributes, NamedAttribute("sym_visibility", sym_visibility))
+    
+    create_operation(
+        "builtin.func", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -85,27 +79,20 @@ module {
 }
 ```
 """
-function module_(;
-    sym_name=nothing, sym_visibility=nothing, body::Region, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[body,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(sym_name) && push!(_attributes, namedattribute("sym_name", sym_name))
-    !isnothing(sym_visibility) &&
-        push!(_attributes, namedattribute("sym_visibility", sym_visibility))
-
-    return IR.create_operation(
-        "builtin.module",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function module_(; sym_name=nothing, sym_visibility=nothing, body::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[body, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(sym_name) && push!(attributes, NamedAttribute("sym_name", sym_name))
+    !isnothing(sym_visibility) && push!(attributes, NamedAttribute("sym_visibility", sym_visibility))
+    
+    create_operation(
+        "builtin.module", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -143,24 +130,18 @@ operands of arity 0-N.
 %result3 = unrealized_conversion_cast %operand, %operand : !foo.type, !foo.type to !bar.tuple_type<!foo.type, !foo.type>
 ```
 """
-function unrealized_conversion_cast(
-    inputs::Vector{Value}; outputs::Vector{IR.Type}, location=Location()
-)
-    _results = IR.Type[outputs...,]
-    _operands = Value[inputs...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "builtin.unrealized_conversion_cast",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function unrealized_conversion_cast(inputs::Vector{Value}; outputs::Vector{IR.Type}, location=Location())
+    op_ty_results = IR.Type[outputs..., ]
+    operands = Value[inputs..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "builtin.unrealized_conversion_cast", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

@@ -1,8 +1,9 @@
 module xegpu
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `alloc_nbarrier`
@@ -15,21 +16,17 @@ AllocNbarrier is to create a set of named barriers as
     range from 0 to N respectively.
 """
 function alloc_nbarrier(; nbarrier_num, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("nbarrier_num", nbarrier_num),]
-
-    return IR.create_operation(
-        "xegpu.alloc_nbarrier",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("nbarrier_num", nbarrier_num), ]
+    
+    create_operation(
+        "xegpu.alloc_nbarrier", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -43,24 +40,18 @@ has the same shape with `TensorDesc`, and is used to enable or disable specific
 data points of the `TensorDesc`. The `value` operand represents the new value to
 be applied during the modification.
 """
-function atomic_rmw(
-    tensorDesc::Value, mask::Value, value::Value; result::IR.Type, kind, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[tensorDesc, mask, value]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("kind", kind),]
-
-    return IR.create_operation(
-        "xegpu.atomic_rmw",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function atomic_rmw(tensorDesc::Value, mask::Value, value::Value; result::IR.Type, kind, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[tensorDesc, mask, value, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("kind", kind), ]
+    
+    create_operation(
+        "xegpu.atomic_rmw", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -101,30 +92,19 @@ Example 3. It is similar to Example 2, but there is some overlaps among workitem
 %1 = xegpu.create_tdesc %0[0, 4, 8, 12] {chunk_size = 8}: memref<1024xf32> -> TensorDesc<4x8xf32>
 ```
 """
-function create_tdesc(
-    source::Value,
-    offsets::Vector{Value};
-    TensorDesc::IR.Type,
-    const_offsets,
-    chunk_size=nothing,
-    location=Location(),
-)
-    _results = IR.Type[TensorDesc,]
-    _operands = Value[source, offsets...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("const_offsets", const_offsets),]
-    !isnothing(chunk_size) && push!(_attributes, namedattribute("chunk_size", chunk_size))
-
-    return IR.create_operation(
-        "xegpu.create_tdesc",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function create_tdesc(source::Value, offsets::Vector{Value}; TensorDesc::IR.Type, const_offsets, chunk_size=nothing, location=Location())
+    op_ty_results = IR.Type[TensorDesc, ]
+    operands = Value[source, offsets..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("const_offsets", const_offsets), ]
+    !isnothing(chunk_size) && push!(attributes, NamedAttribute("chunk_size", chunk_size))
+    
+    create_operation(
+        "xegpu.create_tdesc", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -174,40 +154,21 @@ Example 3 (suppose the tensor shape inferred by the compiler is 8x16):
 %c1 = arith.constant 1 : index
 %1 = xegpu.create_nd_tdesc %0[%c0, %c0], [%h, %w], [%w, %c1]: ui64 -> TensorDesc<8x16xf32>
 """
-function create_nd_tdesc(
-    source::Value,
-    offsets::Vector{Value},
-    shape::Vector{Value},
-    strides::Vector{Value};
-    TensorDesc::IR.Type,
-    const_offsets,
-    const_shape=nothing,
-    const_strides=nothing,
-    location=Location(),
-)
-    _results = IR.Type[TensorDesc,]
-    _operands = Value[source, offsets..., shape..., strides...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("const_offsets", const_offsets),]
-    push!(
-        _attributes,
-        operandsegmentsizes([1, length(offsets), length(shape), length(strides)]),
-    )
-    !isnothing(const_shape) &&
-        push!(_attributes, namedattribute("const_shape", const_shape))
-    !isnothing(const_strides) &&
-        push!(_attributes, namedattribute("const_strides", const_strides))
-
-    return IR.create_operation(
-        "xegpu.create_nd_tdesc",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function create_nd_tdesc(source::Value, offsets::Vector{Value}, shape::Vector{Value}, strides::Vector{Value}; TensorDesc::IR.Type, const_offsets, const_shape=nothing, const_strides=nothing, location=Location())
+    op_ty_results = IR.Type[TensorDesc, ]
+    operands = Value[source, offsets..., shape..., strides..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("const_offsets", const_offsets), ]
+    push!(attributes, operandsegmentsizes([1, length(offsets), length(shape), length(strides), ]))
+    !isnothing(const_shape) && push!(attributes, NamedAttribute("const_shape", const_shape))
+    !isnothing(const_strides) && push!(attributes, NamedAttribute("const_strides", const_strides))
+    
+    create_operation(
+        "xegpu.create_nd_tdesc", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -232,29 +193,19 @@ DPAS performs matrix multiplication on matrix A of `mxk`
           element type is 16-bit or lower precision, taking 2 or 4 elements from
           the first dimension and inserted into the newly added innermost dimension.
 """
-function dpas(
-    lhs::Value,
-    rhs::Value,
-    acc=nothing::Union{Nothing,Value};
-    result::IR.Type,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[lhs, rhs]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(acc) && push!(_operands, acc)
-
-    return IR.create_operation(
-        "xegpu.dpas",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function dpas(lhs::Value, rhs::Value, acc=nothing::Union{Nothing, Value}; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[lhs, rhs, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(acc) && push!(operands, acc)
+    
+    create_operation(
+        "xegpu.dpas", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -268,24 +219,17 @@ It synchronizes the memory access between
         within each workgroup. \"GPU\" means the scope would be across workgroups within the GPU.
 """
 function fence(; memory_kind, fence_scope, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("memory_kind", memory_kind),
-        namedattribute("fence_scope", fence_scope),
-    ]
-
-    return IR.create_operation(
-        "xegpu.fence",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("memory_kind", memory_kind), NamedAttribute("fence_scope", fence_scope), ]
+    
+    create_operation(
+        "xegpu.fence", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -297,24 +241,18 @@ InitNbarrierOp assigns the named barrier with the specified
       number of threads associated with the nbarrier. It returns an object of
       NbarrierType representing the barrier
 """
-function init_nbarrier(
-    nbarrier_id::Value, participant_thread_num::Value; result::IR.Type, location=Location()
-)
-    _results = IR.Type[result,]
-    _operands = Value[nbarrier_id, participant_thread_num]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "xegpu.init_nbarrier",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function init_nbarrier(nbarrier_id::Value, participant_thread_num::Value; result::IR.Type, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[nbarrier_id, participant_thread_num, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "xegpu.init_nbarrier", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -339,35 +277,22 @@ end
            -> vector<16xf32>
  ```
 """
-function load(
-    TensorDesc::Value,
-    mask::Value;
-    value::IR.Type,
-    transpose=nothing,
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[value,]
-    _operands = Value[TensorDesc, mask]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(transpose) && push!(_attributes, namedattribute("transpose", transpose))
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function load(TensorDesc::Value, mask::Value; value::IR.Type, transpose=nothing, l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[value, ]
+    operands = Value[TensorDesc, mask, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(transpose) && push!(attributes, NamedAttribute("transpose", transpose))
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -395,36 +320,23 @@ same time.
           : !xegpu.tensor_desc<8x16xf32> -> vector<16x8xf32>
 ```
 """
-function load_nd(
-    TensorDesc::Value;
-    value::IR.Type,
-    vnni_axis=nothing,
-    transpose=nothing,
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[value,]
-    _operands = Value[TensorDesc,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(vnni_axis) && push!(_attributes, namedattribute("vnni_axis", vnni_axis))
-    !isnothing(transpose) && push!(_attributes, namedattribute("transpose", transpose))
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.load_nd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function load_nd(TensorDesc::Value; value::IR.Type, vnni_axis=nothing, transpose=nothing, l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[value, ]
+    operands = Value[TensorDesc, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(vnni_axis) && push!(attributes, NamedAttribute("vnni_axis", vnni_axis))
+    !isnothing(transpose) && push!(attributes, NamedAttribute("transpose", transpose))
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.load_nd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -436,21 +348,17 @@ NbarrierArriveOp signals the hardware (or other threads)
     it will notify the threads waiting for the named barrier to continue their work.
 """
 function nbarrier_arrive(nbarrier::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[nbarrier,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "xegpu.nbarrier_arrive",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[nbarrier, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "xegpu.nbarrier_arrive", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -461,21 +369,17 @@ NbarrierWaitOp signals the hardware which named barrier
     named barrier is completed.
 """
 function nbarrier_wait(nbarrier::Value; location=Location())
-    _results = IR.Type[]
-    _operands = Value[nbarrier,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "xegpu.nbarrier_wait",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[nbarrier, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "xegpu.nbarrier_wait", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -493,31 +397,21 @@ memory regions to each level of the cache based on their cache policy.
     : !xegpu.tensor_desc<8x16xf16>
 ```
 """
-function prefetch_nd(
-    TensorDesc::Value;
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[TensorDesc,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.prefetch_nd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function prefetch_nd(TensorDesc::Value; l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[TensorDesc, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.prefetch_nd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -537,31 +431,21 @@ it works on scattered TensorDesc instead.
     : !xegpu.tensor_desc<16xf16>
 ```
 """
-function prefetch(
-    TensorDesc::Value;
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[TensorDesc,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.prefetch",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function prefetch(TensorDesc::Value; l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[TensorDesc, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.prefetch", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -582,32 +466,21 @@ Corresponding cache hint attribute will be masked.
                          : vector<8x16xf16>, !xegpu.tensor_desc<8x16xf16>
 ```
 """
-function store_nd(
-    value::Value,
-    TensorDesc::Value;
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, TensorDesc]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.store_nd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function store_nd(value::Value, TensorDesc::Value; l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, TensorDesc, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.store_nd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -624,33 +497,21 @@ end
          : vector<16xf32>, !xegpu.tensor_desc<16xf32, #xegpu.tdesc_attr<scattered=true>>, vector<16xi1>
  ```
 """
-function store(
-    value::Value,
-    TensorDesc::Value,
-    mask::Value;
-    l1_hint=nothing,
-    l2_hint=nothing,
-    l3_hint=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, TensorDesc, mask]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(l1_hint) && push!(_attributes, namedattribute("l1_hint", l1_hint))
-    !isnothing(l2_hint) && push!(_attributes, namedattribute("l2_hint", l2_hint))
-    !isnothing(l3_hint) && push!(_attributes, namedattribute("l3_hint", l3_hint))
-
-    return IR.create_operation(
-        "xegpu.store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function store(value::Value, TensorDesc::Value, mask::Value; l1_hint=nothing, l2_hint=nothing, l3_hint=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, TensorDesc, mask, ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(l1_hint) && push!(attributes, NamedAttribute("l1_hint", l1_hint))
+    !isnothing(l2_hint) && push!(attributes, NamedAttribute("l2_hint", l2_hint))
+    !isnothing(l3_hint) && push!(attributes, NamedAttribute("l3_hint", l3_hint))
+    
+    create_operation(
+        "xegpu.store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -665,28 +526,18 @@ The op updates the offset of the given TensorDesc.
     %2 = xegpu.update_nd_offset %1, [0, 16]: !xegpu.tensor_desc<8x16xf32>
   ```
 """
-function update_nd_offset(
-    TensorDesc::Value,
-    offsets::Vector{Value};
-    result::IR.Type,
-    const_offsets,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[TensorDesc, offsets...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("const_offsets", const_offsets),]
-
-    return IR.create_operation(
-        "xegpu.update_nd_offset",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function update_nd_offset(TensorDesc::Value, offsets::Vector{Value}; result::IR.Type, const_offsets, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[TensorDesc, offsets..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("const_offsets", const_offsets), ]
+    
+    create_operation(
+        "xegpu.update_nd_offset", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -706,28 +557,18 @@ It behaves similar to `update_nd_offset` in terms that
             : !xegpu.tensor_desc<4x2xf32, #xegpu.tdesc_attr<scattered = true>>
     ```
 """
-function update_offset(
-    TensorDesc::Value,
-    offsets::Vector{Value};
-    result::IR.Type,
-    const_offsets,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[TensorDesc, offsets...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("const_offsets", const_offsets),]
-
-    return IR.create_operation(
-        "xegpu.update_offset",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function update_offset(TensorDesc::Value, offsets::Vector{Value}; result::IR.Type, const_offsets, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[TensorDesc, offsets..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("const_offsets", const_offsets), ]
+    
+    create_operation(
+        "xegpu.update_offset", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

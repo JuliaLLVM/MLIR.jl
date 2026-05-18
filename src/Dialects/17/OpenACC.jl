@@ -1,8 +1,9 @@
 module acc
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `attach`
@@ -26,40 +27,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function attach(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.attach",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function attach(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.attach", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -85,40 +70,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function copyin(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.copyin",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function copyin(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.copyin", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -143,37 +112,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function copyout(
-    accPtr::Value,
-    varPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[accPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtr) && push!(_operands, varPtr)
-    push!(_attributes, operandsegmentsizes([1, isnothing(varPtr) ? 0 : 1, length(bounds)]))
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.copyout",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function copyout(accPtr::Value, varPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[accPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtr) && push!(operands, varPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.copyout", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -199,40 +155,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function create(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.create",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function create(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.create", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -273,48 +213,25 @@ integer :: array(1:10)
 acc.bounds lb(1) ub(9) extent(9) startIdx(1)
 ```
 """
-function bounds(
-    lowerbound=nothing::Union{Nothing,Value};
-    upperbound=nothing::Union{Nothing,Value},
-    extent=nothing::Union{Nothing,Value},
-    stride=nothing::Union{Nothing,Value},
-    startIdx=nothing::Union{Nothing,Value},
-    result::IR.Type,
-    strideInBytes=nothing,
-    location=Location(),
-)
-    _results = IR.Type[result,]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(lowerbound) && push!(_operands, lowerbound)
-    !isnothing(upperbound) && push!(_operands, upperbound)
-    !isnothing(extent) && push!(_operands, extent)
-    !isnothing(stride) && push!(_operands, stride)
-    !isnothing(startIdx) && push!(_operands, startIdx)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(lowerbound) ? 0 : 1,
-            isnothing(upperbound) ? 0 : 1,
-            isnothing(extent) ? 0 : 1,
-            isnothing(stride) ? 0 : 1,
-            isnothing(startIdx) ? 0 : 1,
-        ]),
-    )
-    !isnothing(strideInBytes) &&
-        push!(_attributes, namedattribute("strideInBytes", strideInBytes))
-
-    return IR.create_operation(
-        "acc.bounds",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function bounds(lowerbound=nothing::Union{Nothing, Value}; upperbound=nothing::Union{Nothing, Value}, extent=nothing::Union{Nothing, Value}, stride=nothing::Union{Nothing, Value}, startIdx=nothing::Union{Nothing, Value}, result::IR.Type, strideInBytes=nothing, location=Location())
+    op_ty_results = IR.Type[result, ]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(lowerbound) && push!(operands, lowerbound)
+    !isnothing(upperbound) && push!(operands, upperbound)
+    !isnothing(extent) && push!(operands, extent)
+    !isnothing(stride) && push!(operands, stride)
+    !isnothing(startIdx) && push!(operands, startIdx)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(lowerbound)), Int(!isnothing(upperbound)), Int(!isnothing(extent)), Int(!isnothing(stride)), Int(!isnothing(startIdx)), ]))
+    !isnothing(strideInBytes) && push!(attributes, NamedAttribute("strideInBytes", strideInBytes))
+    
+    create_operation(
+        "acc.bounds", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -336,50 +253,25 @@ acc.data present(%a: memref<10x10xf32>, %b: memref<10x10xf32>,
 }
 ```
 """
-function data(
-    ifCond=nothing::Union{Nothing,Value};
-    async=nothing::Union{Nothing,Value},
-    waitDevnum=nothing::Union{Nothing,Value},
-    waitOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    asyncAttr=nothing,
-    waitAttr=nothing,
-    defaultAttr=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands..., dataClauseOperands...]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(async) && push!(_operands, async)
-    !isnothing(waitDevnum) && push!(_operands, waitDevnum)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(async) ? 0 : 1,
-            isnothing(waitDevnum) ? 0 : 1,
-            length(waitOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(asyncAttr) && push!(_attributes, namedattribute("asyncAttr", asyncAttr))
-    !isnothing(waitAttr) && push!(_attributes, namedattribute("waitAttr", waitAttr))
-    !isnothing(defaultAttr) &&
-        push!(_attributes, namedattribute("defaultAttr", defaultAttr))
-
-    return IR.create_operation(
-        "acc.data",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function data(ifCond=nothing::Union{Nothing, Value}; async=nothing::Union{Nothing, Value}, waitDevnum=nothing::Union{Nothing, Value}, waitOperands::Vector{Value}, dataClauseOperands::Vector{Value}, asyncAttr=nothing, waitAttr=nothing, defaultAttr=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., dataClauseOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(async) && push!(operands, async)
+    !isnothing(waitDevnum) && push!(operands, waitDevnum)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), Int(!isnothing(async)), Int(!isnothing(waitDevnum)), length(waitOperands), length(dataClauseOperands), ]))
+    !isnothing(asyncAttr) && push!(attributes, NamedAttribute("asyncAttr", asyncAttr))
+    !isnothing(waitAttr) && push!(attributes, NamedAttribute("waitAttr", waitAttr))
+    !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
+    
+    create_operation(
+        "acc.data", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -405,40 +297,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function declare_device_resident(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.declare_device_resident",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function declare_device_resident(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.declare_device_resident", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -457,21 +333,17 @@ acc.declare_enter dataOperands(%0 : !llvm.ptr<f32>)
 ```
 """
 function declare_enter(dataClauseOperands::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[dataClauseOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "acc.declare_enter",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[dataClauseOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "acc.declare_enter", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -491,21 +363,17 @@ acc.delete accPtr(%0 : !llvm.ptr<f32>) {dataClause = #acc<data_clause declare_de
 ```
 """
 function declare_exit(dataClauseOperands::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[dataClauseOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "acc.declare_exit",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[dataClauseOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "acc.declare_exit", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -531,40 +399,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function declare_link(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.declare_link",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function declare_link(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.declare_link", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -589,37 +441,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function delete(
-    accPtr::Value,
-    varPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[accPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtr) && push!(_operands, varPtr)
-    push!(_attributes, operandsegmentsizes([1, isnothing(varPtr) ? 0 : 1, length(bounds)]))
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.delete",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function delete(accPtr::Value, varPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[accPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtr) && push!(operands, varPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.delete", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -644,37 +483,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function detach(
-    accPtr::Value,
-    varPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[accPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtr) && push!(_operands, varPtr)
-    push!(_attributes, operandsegmentsizes([1, isnothing(varPtr) ? 0 : 1, length(bounds)]))
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.detach",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function detach(accPtr::Value, varPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[accPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtr) && push!(operands, varPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.detach", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -700,40 +526,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function deviceptr(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.deviceptr",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function deviceptr(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.deviceptr", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -748,46 +558,24 @@ The \"acc.enter_data\" operation represents the OpenACC enter data directive.
 acc.enter_data create(%d1 : memref<10xf32>) attributes {async}
 ```
 """
-function enter_data(
-    ifCond=nothing::Union{Nothing,Value};
-    asyncOperand=nothing::Union{Nothing,Value},
-    waitDevnum=nothing::Union{Nothing,Value},
-    waitOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    async=nothing,
-    wait=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands..., dataClauseOperands...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(asyncOperand) && push!(_operands, asyncOperand)
-    !isnothing(waitDevnum) && push!(_operands, waitDevnum)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(asyncOperand) ? 0 : 1,
-            isnothing(waitDevnum) ? 0 : 1,
-            length(waitOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(async) && push!(_attributes, namedattribute("async", async))
-    !isnothing(wait) && push!(_attributes, namedattribute("wait", wait))
-
-    return IR.create_operation(
-        "acc.enter_data",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function enter_data(ifCond=nothing::Union{Nothing, Value}; asyncOperand=nothing::Union{Nothing, Value}, waitDevnum=nothing::Union{Nothing, Value}, waitOperands::Vector{Value}, dataClauseOperands::Vector{Value}, async=nothing, wait=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., dataClauseOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(asyncOperand) && push!(operands, asyncOperand)
+    !isnothing(waitDevnum) && push!(operands, waitDevnum)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), Int(!isnothing(asyncOperand)), Int(!isnothing(waitDevnum)), length(waitOperands), length(dataClauseOperands), ]))
+    !isnothing(async) && push!(attributes, NamedAttribute("async", async))
+    !isnothing(wait) && push!(attributes, NamedAttribute("wait", wait))
+    
+    create_operation(
+        "acc.enter_data", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -802,48 +590,25 @@ The \"acc.exit_data\" operation represents the OpenACC exit data directive.
 acc.exit_data delete(%d1 : memref<10xf32>) attributes {async}
 ```
 """
-function exit_data(
-    ifCond=nothing::Union{Nothing,Value};
-    asyncOperand=nothing::Union{Nothing,Value},
-    waitDevnum=nothing::Union{Nothing,Value},
-    waitOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    async=nothing,
-    wait=nothing,
-    finalize=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands..., dataClauseOperands...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(asyncOperand) && push!(_operands, asyncOperand)
-    !isnothing(waitDevnum) && push!(_operands, waitDevnum)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(asyncOperand) ? 0 : 1,
-            isnothing(waitDevnum) ? 0 : 1,
-            length(waitOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(async) && push!(_attributes, namedattribute("async", async))
-    !isnothing(wait) && push!(_attributes, namedattribute("wait", wait))
-    !isnothing(finalize) && push!(_attributes, namedattribute("finalize", finalize))
-
-    return IR.create_operation(
-        "acc.exit_data",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function exit_data(ifCond=nothing::Union{Nothing, Value}; asyncOperand=nothing::Union{Nothing, Value}, waitDevnum=nothing::Union{Nothing, Value}, waitOperands::Vector{Value}, dataClauseOperands::Vector{Value}, async=nothing, wait=nothing, finalize=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., dataClauseOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(asyncOperand) && push!(operands, asyncOperand)
+    !isnothing(waitDevnum) && push!(operands, waitDevnum)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), Int(!isnothing(asyncOperand)), Int(!isnothing(waitDevnum)), length(waitOperands), length(dataClauseOperands), ]))
+    !isnothing(async) && push!(attributes, NamedAttribute("async", async))
+    !isnothing(wait) && push!(attributes, NamedAttribute("wait", wait))
+    !isnothing(finalize) && push!(attributes, NamedAttribute("finalize", finalize))
+    
+    create_operation(
+        "acc.exit_data", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -869,40 +634,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function firstprivate(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.firstprivate",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function firstprivate(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.firstprivate", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -950,31 +699,18 @@ acc.parallel firstprivate(@privatization_f32 -> %a : f32) {
 }
 ```
 """
-function firstprivate_recipe(;
-    sym_name,
-    type,
-    initRegion::Region,
-    copyRegion::Region,
-    destroyRegion::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[initRegion, copyRegion, destroyRegion]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("sym_name", sym_name), namedattribute("type", type)
-    ]
-
-    return IR.create_operation(
-        "acc.firstprivate.recipe",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function firstprivate_recipe(; sym_name, type, initRegion::Region, copyRegion::Region, destroyRegion::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[initRegion, copyRegion, destroyRegion, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
+    
+    create_operation(
+        "acc.firstprivate.recipe", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1006,40 +742,24 @@ that is any of the valid `mlir::acc::DataClause` entries.
     done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
     - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function getdeviceptr(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.getdeviceptr",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function getdeviceptr(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.getdeviceptr", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1065,21 +785,17 @@ acc.global_ctor @acc_constructor {
 ```
 """
 function global_ctor(; sym_name, region::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "acc.global_ctor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "acc.global_ctor", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1106,21 +822,17 @@ acc.global_dtor @acc_destructor {
 ```
 """
 function global_dtor(; sym_name, region::Region, location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[namedattribute("sym_name", sym_name),]
-
-    return IR.create_operation(
-        "acc.global_dtor",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
+    
+    create_operation(
+        "acc.global_dtor", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1138,34 +850,21 @@ acc.host_data dataOperands(%0 : !llvm.ptr<f32>) {
 }
 ```
 """
-function host_data(
-    ifCond=nothing::Union{Nothing,Value};
-    dataClauseOperands::Vector{Value},
-    ifPresent=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[dataClauseOperands...,]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([isnothing(ifCond) ? 0 : 1, length(dataClauseOperands)]),
-    )
-    !isnothing(ifPresent) && push!(_attributes, namedattribute("ifPresent", ifPresent))
-
-    return IR.create_operation(
-        "acc.host_data",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function host_data(ifCond=nothing::Union{Nothing, Value}; dataClauseOperands::Vector{Value}, ifPresent=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[dataClauseOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(ifCond) && push!(operands, ifCond)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), length(dataClauseOperands), ]))
+    !isnothing(ifPresent) && push!(attributes, NamedAttribute("ifPresent", ifPresent))
+    
+    create_operation(
+        "acc.host_data", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1182,37 +881,21 @@ acc.init
 acc.init device_num(%dev1 : i32)
 ```
 """
-function init(
-    deviceTypeOperands::Vector{Value},
-    deviceNumOperand=nothing::Union{Nothing,Value};
-    ifCond=nothing::Union{Nothing,Value},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[deviceTypeOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(deviceNumOperand) && push!(_operands, deviceNumOperand)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            length(deviceTypeOperands),
-            isnothing(deviceNumOperand) ? 0 : 1,
-            isnothing(ifCond) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "acc.init",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function init(deviceTypeOperands::Vector{Value}, deviceNumOperand=nothing::Union{Nothing, Value}; ifCond=nothing::Union{Nothing, Value}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[deviceTypeOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(deviceNumOperand) && push!(operands, deviceNumOperand)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    push!(attributes, operandsegmentsizes([length(deviceTypeOperands), Int(!isnothing(deviceNumOperand)), Int(!isnothing(ifCond)), ]))
+    
+    create_operation(
+        "acc.init", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1232,60 +915,28 @@ acc.kernels num_gangs(%c10) num_workers(%c10)
 }
 ```
 """
-function kernels(
-    async=nothing::Union{Nothing,Value};
-    waitOperands::Vector{Value},
-    numGangs::Vector{Value},
-    numWorkers=nothing::Union{Nothing,Value},
-    vectorLength=nothing::Union{Nothing,Value},
-    ifCond=nothing::Union{Nothing,Value},
-    selfCond=nothing::Union{Nothing,Value},
-    dataClauseOperands::Vector{Value},
-    asyncAttr=nothing,
-    waitAttr=nothing,
-    selfAttr=nothing,
-    defaultAttr=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands..., numGangs..., dataClauseOperands...]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(async) && push!(_operands, async)
-    !isnothing(numWorkers) && push!(_operands, numWorkers)
-    !isnothing(vectorLength) && push!(_operands, vectorLength)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(selfCond) && push!(_operands, selfCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(async) ? 0 : 1,
-            length(waitOperands),
-            length(numGangs),
-            isnothing(numWorkers) ? 0 : 1,
-            isnothing(vectorLength) ? 0 : 1,
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(selfCond) ? 0 : 1,
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(asyncAttr) && push!(_attributes, namedattribute("asyncAttr", asyncAttr))
-    !isnothing(waitAttr) && push!(_attributes, namedattribute("waitAttr", waitAttr))
-    !isnothing(selfAttr) && push!(_attributes, namedattribute("selfAttr", selfAttr))
-    !isnothing(defaultAttr) &&
-        push!(_attributes, namedattribute("defaultAttr", defaultAttr))
-
-    return IR.create_operation(
-        "acc.kernels",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function kernels(async=nothing::Union{Nothing, Value}; waitOperands::Vector{Value}, numGangs::Vector{Value}, numWorkers=nothing::Union{Nothing, Value}, vectorLength=nothing::Union{Nothing, Value}, ifCond=nothing::Union{Nothing, Value}, selfCond=nothing::Union{Nothing, Value}, dataClauseOperands::Vector{Value}, asyncAttr=nothing, waitAttr=nothing, selfAttr=nothing, defaultAttr=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., numGangs..., dataClauseOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(async) && push!(operands, async)
+    !isnothing(numWorkers) && push!(operands, numWorkers)
+    !isnothing(vectorLength) && push!(operands, vectorLength)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(selfCond) && push!(operands, selfCond)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(async)), length(waitOperands), length(numGangs), Int(!isnothing(numWorkers)), Int(!isnothing(vectorLength)), Int(!isnothing(ifCond)), Int(!isnothing(selfCond)), length(dataClauseOperands), ]))
+    !isnothing(asyncAttr) && push!(attributes, NamedAttribute("asyncAttr", asyncAttr))
+    !isnothing(waitAttr) && push!(attributes, NamedAttribute("waitAttr", waitAttr))
+    !isnothing(selfAttr) && push!(attributes, NamedAttribute("selfAttr", selfAttr))
+    !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
+    
+    create_operation(
+        "acc.kernels", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1309,73 +960,33 @@ acc.loop gang vector {
 } attributes { collapse = 3 }
 ```
 """
-function loop(
-    gangNum=nothing::Union{Nothing,Value};
-    gangDim=nothing::Union{Nothing,Value},
-    gangStatic=nothing::Union{Nothing,Value},
-    workerNum=nothing::Union{Nothing,Value},
-    vectorLength=nothing::Union{Nothing,Value},
-    tileOperands::Vector{Value},
-    privateOperands::Vector{Value},
-    reductionOperands::Vector{Value},
-    results::Vector{IR.Type},
-    collapse=nothing,
-    seq=nothing,
-    independent=nothing,
-    auto_=nothing,
-    hasGang=nothing,
-    hasWorker=nothing,
-    hasVector=nothing,
-    privatizations=nothing,
-    reductionRecipes=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[results...,]
-    _operands = Value[tileOperands..., privateOperands..., reductionOperands...]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(gangNum) && push!(_operands, gangNum)
-    !isnothing(gangDim) && push!(_operands, gangDim)
-    !isnothing(gangStatic) && push!(_operands, gangStatic)
-    !isnothing(workerNum) && push!(_operands, workerNum)
-    !isnothing(vectorLength) && push!(_operands, vectorLength)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(gangNum) ? 0 : 1,
-            isnothing(gangDim) ? 0 : 1,
-            isnothing(gangStatic) ? 0 : 1,
-            isnothing(workerNum) ? 0 : 1,
-            isnothing(vectorLength) ? 0 : 1,
-            length(tileOperands),
-            length(privateOperands),
-            length(reductionOperands),
-        ]),
-    )
-    !isnothing(collapse) && push!(_attributes, namedattribute("collapse", collapse))
-    !isnothing(seq) && push!(_attributes, namedattribute("seq", seq))
-    !isnothing(independent) &&
-        push!(_attributes, namedattribute("independent", independent))
-    !isnothing(auto_) && push!(_attributes, namedattribute("auto_", auto_))
-    !isnothing(hasGang) && push!(_attributes, namedattribute("hasGang", hasGang))
-    !isnothing(hasWorker) && push!(_attributes, namedattribute("hasWorker", hasWorker))
-    !isnothing(hasVector) && push!(_attributes, namedattribute("hasVector", hasVector))
-    !isnothing(privatizations) &&
-        push!(_attributes, namedattribute("privatizations", privatizations))
-    !isnothing(reductionRecipes) &&
-        push!(_attributes, namedattribute("reductionRecipes", reductionRecipes))
-
-    return IR.create_operation(
-        "acc.loop",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function loop(gangNum=nothing::Union{Nothing, Value}; gangDim=nothing::Union{Nothing, Value}, gangStatic=nothing::Union{Nothing, Value}, workerNum=nothing::Union{Nothing, Value}, vectorLength=nothing::Union{Nothing, Value}, tileOperands::Vector{Value}, privateOperands::Vector{Value}, reductionOperands::Vector{Value}, results::Vector{IR.Type}, collapse=nothing, seq=nothing, independent=nothing, auto_=nothing, hasGang=nothing, hasWorker=nothing, hasVector=nothing, privatizations=nothing, reductionRecipes=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[results..., ]
+    operands = Value[tileOperands..., privateOperands..., reductionOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(gangNum) && push!(operands, gangNum)
+    !isnothing(gangDim) && push!(operands, gangDim)
+    !isnothing(gangStatic) && push!(operands, gangStatic)
+    !isnothing(workerNum) && push!(operands, workerNum)
+    !isnothing(vectorLength) && push!(operands, vectorLength)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(gangNum)), Int(!isnothing(gangDim)), Int(!isnothing(gangStatic)), Int(!isnothing(workerNum)), Int(!isnothing(vectorLength)), length(tileOperands), length(privateOperands), length(reductionOperands), ]))
+    !isnothing(collapse) && push!(attributes, NamedAttribute("collapse", collapse))
+    !isnothing(seq) && push!(attributes, NamedAttribute("seq", seq))
+    !isnothing(independent) && push!(attributes, NamedAttribute("independent", independent))
+    !isnothing(auto_) && push!(attributes, NamedAttribute("auto_", auto_))
+    !isnothing(hasGang) && push!(attributes, NamedAttribute("hasGang", hasGang))
+    !isnothing(hasWorker) && push!(attributes, NamedAttribute("hasWorker", hasWorker))
+    !isnothing(hasVector) && push!(attributes, NamedAttribute("hasVector", hasVector))
+    !isnothing(privatizations) && push!(attributes, NamedAttribute("privatizations", privatizations))
+    !isnothing(reductionRecipes) && push!(attributes, NamedAttribute("reductionRecipes", reductionRecipes))
+    
+    create_operation(
+        "acc.loop", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1401,40 +1012,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function nocreate(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.nocreate",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function nocreate(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.nocreate", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1453,82 +1048,31 @@ acc.parallel num_gangs(%c10) num_workers(%c10)
 }
 ```
 """
-function parallel(
-    async=nothing::Union{Nothing,Value};
-    waitOperands::Vector{Value},
-    numGangs::Vector{Value},
-    numWorkers=nothing::Union{Nothing,Value},
-    vectorLength=nothing::Union{Nothing,Value},
-    ifCond=nothing::Union{Nothing,Value},
-    selfCond=nothing::Union{Nothing,Value},
-    reductionOperands::Vector{Value},
-    gangPrivateOperands::Vector{Value},
-    gangFirstPrivateOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    asyncAttr=nothing,
-    waitAttr=nothing,
-    selfAttr=nothing,
-    reductionRecipes=nothing,
-    privatizations=nothing,
-    firstprivatizations=nothing,
-    defaultAttr=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[
-        waitOperands...,
-        numGangs...,
-        reductionOperands...,
-        gangPrivateOperands...,
-        gangFirstPrivateOperands...,
-        dataClauseOperands...,
-    ]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(async) && push!(_operands, async)
-    !isnothing(numWorkers) && push!(_operands, numWorkers)
-    !isnothing(vectorLength) && push!(_operands, vectorLength)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(selfCond) && push!(_operands, selfCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(async) ? 0 : 1,
-            length(waitOperands),
-            length(numGangs),
-            isnothing(numWorkers) ? 0 : 1,
-            isnothing(vectorLength) ? 0 : 1,
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(selfCond) ? 0 : 1,
-            length(reductionOperands),
-            length(gangPrivateOperands),
-            length(gangFirstPrivateOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(asyncAttr) && push!(_attributes, namedattribute("asyncAttr", asyncAttr))
-    !isnothing(waitAttr) && push!(_attributes, namedattribute("waitAttr", waitAttr))
-    !isnothing(selfAttr) && push!(_attributes, namedattribute("selfAttr", selfAttr))
-    !isnothing(reductionRecipes) &&
-        push!(_attributes, namedattribute("reductionRecipes", reductionRecipes))
-    !isnothing(privatizations) &&
-        push!(_attributes, namedattribute("privatizations", privatizations))
-    !isnothing(firstprivatizations) &&
-        push!(_attributes, namedattribute("firstprivatizations", firstprivatizations))
-    !isnothing(defaultAttr) &&
-        push!(_attributes, namedattribute("defaultAttr", defaultAttr))
-
-    return IR.create_operation(
-        "acc.parallel",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function parallel(async=nothing::Union{Nothing, Value}; waitOperands::Vector{Value}, numGangs::Vector{Value}, numWorkers=nothing::Union{Nothing, Value}, vectorLength=nothing::Union{Nothing, Value}, ifCond=nothing::Union{Nothing, Value}, selfCond=nothing::Union{Nothing, Value}, reductionOperands::Vector{Value}, gangPrivateOperands::Vector{Value}, gangFirstPrivateOperands::Vector{Value}, dataClauseOperands::Vector{Value}, asyncAttr=nothing, waitAttr=nothing, selfAttr=nothing, reductionRecipes=nothing, privatizations=nothing, firstprivatizations=nothing, defaultAttr=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., numGangs..., reductionOperands..., gangPrivateOperands..., gangFirstPrivateOperands..., dataClauseOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(async) && push!(operands, async)
+    !isnothing(numWorkers) && push!(operands, numWorkers)
+    !isnothing(vectorLength) && push!(operands, vectorLength)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(selfCond) && push!(operands, selfCond)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(async)), length(waitOperands), length(numGangs), Int(!isnothing(numWorkers)), Int(!isnothing(vectorLength)), Int(!isnothing(ifCond)), Int(!isnothing(selfCond)), length(reductionOperands), length(gangPrivateOperands), length(gangFirstPrivateOperands), length(dataClauseOperands), ]))
+    !isnothing(asyncAttr) && push!(attributes, NamedAttribute("asyncAttr", asyncAttr))
+    !isnothing(waitAttr) && push!(attributes, NamedAttribute("waitAttr", waitAttr))
+    !isnothing(selfAttr) && push!(attributes, NamedAttribute("selfAttr", selfAttr))
+    !isnothing(reductionRecipes) && push!(attributes, NamedAttribute("reductionRecipes", reductionRecipes))
+    !isnothing(privatizations) && push!(attributes, NamedAttribute("privatizations", privatizations))
+    !isnothing(firstprivatizations) && push!(attributes, NamedAttribute("firstprivatizations", firstprivatizations))
+    !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
+    
+    create_operation(
+        "acc.parallel", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1554,40 +1098,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function present(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.present",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function present(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.present", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1613,40 +1141,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function private(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.private",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function private(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.private", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1686,26 +1198,18 @@ acc.parallel private(@privatization_f32 -> %a : f32) {
 }
 ```
 """
-function private_recipe(;
-    sym_name, type, initRegion::Region, destroyRegion::Region, location=Location()
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[initRegion, destroyRegion]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("sym_name", sym_name), namedattribute("type", type)
-    ]
-
-    return IR.create_operation(
-        "acc.private.recipe",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function private_recipe(; sym_name, type, initRegion::Region, destroyRegion::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[initRegion, destroyRegion, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
+    
+    create_operation(
+        "acc.private.recipe", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1731,40 +1235,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function reduction(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.reduction",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function reduction(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.reduction", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1826,33 +1314,18 @@ according to OpenACC 3.3:
 |          |            |  .neqv.  |   .false.   |
 -------------------------------------------------|
 """
-function reduction_recipe(;
-    sym_name,
-    type,
-    reductionOperator,
-    initRegion::Region,
-    combinerRegion::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[initRegion, combinerRegion]
-    _successors = Block[]
-    _attributes = NamedAttribute[
-        namedattribute("sym_name", sym_name),
-        namedattribute("type", type),
-        namedattribute("reductionOperator", reductionOperator),
-    ]
-
-    return IR.create_operation(
-        "acc.reduction.recipe",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function reduction_recipe(; sym_name, type, reductionOperator, initRegion::Region, combinerRegion::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[initRegion, combinerRegion, ]
+    successors = Block[]
+    attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), NamedAttribute("reductionOperator", reductionOperator), ]
+    
+    create_operation(
+        "acc.reduction.recipe", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1870,73 +1343,29 @@ acc.serial private(%c : memref<10xf32>) {
 }
 ```
 """
-function serial(
-    async=nothing::Union{Nothing,Value};
-    waitOperands::Vector{Value},
-    ifCond=nothing::Union{Nothing,Value},
-    selfCond=nothing::Union{Nothing,Value},
-    reductionOperands::Vector{Value},
-    gangPrivateOperands::Vector{Value},
-    gangFirstPrivateOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    asyncAttr=nothing,
-    waitAttr=nothing,
-    selfAttr=nothing,
-    reductionRecipes=nothing,
-    privatizations=nothing,
-    firstprivatizations=nothing,
-    defaultAttr=nothing,
-    region::Region,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[
-        waitOperands...,
-        reductionOperands...,
-        gangPrivateOperands...,
-        gangFirstPrivateOperands...,
-        dataClauseOperands...,
-    ]
-    _owned_regions = Region[region,]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(async) && push!(_operands, async)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(selfCond) && push!(_operands, selfCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(async) ? 0 : 1,
-            length(waitOperands),
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(selfCond) ? 0 : 1,
-            length(reductionOperands),
-            length(gangPrivateOperands),
-            length(gangFirstPrivateOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(asyncAttr) && push!(_attributes, namedattribute("asyncAttr", asyncAttr))
-    !isnothing(waitAttr) && push!(_attributes, namedattribute("waitAttr", waitAttr))
-    !isnothing(selfAttr) && push!(_attributes, namedattribute("selfAttr", selfAttr))
-    !isnothing(reductionRecipes) &&
-        push!(_attributes, namedattribute("reductionRecipes", reductionRecipes))
-    !isnothing(privatizations) &&
-        push!(_attributes, namedattribute("privatizations", privatizations))
-    !isnothing(firstprivatizations) &&
-        push!(_attributes, namedattribute("firstprivatizations", firstprivatizations))
-    !isnothing(defaultAttr) &&
-        push!(_attributes, namedattribute("defaultAttr", defaultAttr))
-
-    return IR.create_operation(
-        "acc.serial",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function serial(async=nothing::Union{Nothing, Value}; waitOperands::Vector{Value}, ifCond=nothing::Union{Nothing, Value}, selfCond=nothing::Union{Nothing, Value}, reductionOperands::Vector{Value}, gangPrivateOperands::Vector{Value}, gangFirstPrivateOperands::Vector{Value}, dataClauseOperands::Vector{Value}, asyncAttr=nothing, waitAttr=nothing, selfAttr=nothing, reductionRecipes=nothing, privatizations=nothing, firstprivatizations=nothing, defaultAttr=nothing, region::Region, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., reductionOperands..., gangPrivateOperands..., gangFirstPrivateOperands..., dataClauseOperands..., ]
+    owned_regions = Region[region, ]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(async) && push!(operands, async)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(selfCond) && push!(operands, selfCond)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(async)), length(waitOperands), Int(!isnothing(ifCond)), Int(!isnothing(selfCond)), length(reductionOperands), length(gangPrivateOperands), length(gangFirstPrivateOperands), length(dataClauseOperands), ]))
+    !isnothing(asyncAttr) && push!(attributes, NamedAttribute("asyncAttr", asyncAttr))
+    !isnothing(waitAttr) && push!(attributes, NamedAttribute("waitAttr", waitAttr))
+    !isnothing(selfAttr) && push!(attributes, NamedAttribute("selfAttr", selfAttr))
+    !isnothing(reductionRecipes) && push!(attributes, NamedAttribute("reductionRecipes", reductionRecipes))
+    !isnothing(privatizations) && push!(attributes, NamedAttribute("privatizations", privatizations))
+    !isnothing(firstprivatizations) && push!(attributes, NamedAttribute("firstprivatizations", firstprivatizations))
+    !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
+    
+    create_operation(
+        "acc.serial", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1953,37 +1382,21 @@ acc.shutdown
 acc.shutdown device_num(%dev1 : i32)
 ```
 """
-function shutdown(
-    deviceTypeOperands::Vector{Value},
-    deviceNumOperand=nothing::Union{Nothing,Value};
-    ifCond=nothing::Union{Nothing,Value},
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[deviceTypeOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(deviceNumOperand) && push!(_operands, deviceNumOperand)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            length(deviceTypeOperands),
-            isnothing(deviceNumOperand) ? 0 : 1,
-            isnothing(ifCond) ? 0 : 1,
-        ]),
-    )
-
-    return IR.create_operation(
-        "acc.shutdown",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function shutdown(deviceTypeOperands::Vector{Value}, deviceNumOperand=nothing::Union{Nothing, Value}; ifCond=nothing::Union{Nothing, Value}, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[deviceTypeOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(deviceNumOperand) && push!(operands, deviceNumOperand)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    push!(attributes, operandsegmentsizes([length(deviceTypeOperands), Int(!isnothing(deviceNumOperand)), Int(!isnothing(ifCond)), ]))
+    
+    create_operation(
+        "acc.shutdown", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -1996,21 +1409,17 @@ value so the terminator takes no operands. The terminator op returns control
 to the enclosing op.
 """
 function terminator(; location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "acc.terminator",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "acc.terminator", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2036,40 +1445,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function update_device(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.update_device",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function update_device(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.update_device", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2094,37 +1487,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function update_host(
-    accPtr::Value,
-    varPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[accPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtr) && push!(_operands, varPtr)
-    push!(_attributes, operandsegmentsizes([1, isnothing(varPtr) ? 0 : 1, length(bounds)]))
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.update_host",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function update_host(accPtr::Value, varPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[accPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtr) && push!(operands, varPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.update_host", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2142,50 +1522,25 @@ add to \$hostOperands.
 acc.update device(%d1 : memref<10xf32>) attributes {async}
 ```
 """
-function update(
-    ifCond=nothing::Union{Nothing,Value};
-    asyncOperand=nothing::Union{Nothing,Value},
-    waitDevnum=nothing::Union{Nothing,Value},
-    waitOperands::Vector{Value},
-    deviceTypeOperands::Vector{Value},
-    dataClauseOperands::Vector{Value},
-    async=nothing,
-    wait=nothing,
-    ifPresent=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands..., deviceTypeOperands..., dataClauseOperands...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    !isnothing(asyncOperand) && push!(_operands, asyncOperand)
-    !isnothing(waitDevnum) && push!(_operands, waitDevnum)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            isnothing(ifCond) ? 0 : 1,
-            isnothing(asyncOperand) ? 0 : 1,
-            isnothing(waitDevnum) ? 0 : 1,
-            length(waitOperands),
-            length(deviceTypeOperands),
-            length(dataClauseOperands),
-        ]),
-    )
-    !isnothing(async) && push!(_attributes, namedattribute("async", async))
-    !isnothing(wait) && push!(_attributes, namedattribute("wait", wait))
-    !isnothing(ifPresent) && push!(_attributes, namedattribute("ifPresent", ifPresent))
-
-    return IR.create_operation(
-        "acc.update",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function update(ifCond=nothing::Union{Nothing, Value}; asyncOperand=nothing::Union{Nothing, Value}, waitDevnum=nothing::Union{Nothing, Value}, waitOperands::Vector{Value}, deviceTypeOperands::Vector{Value}, dataClauseOperands::Vector{Value}, async=nothing, wait=nothing, ifPresent=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., deviceTypeOperands..., dataClauseOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(ifCond) && push!(operands, ifCond)
+    !isnothing(asyncOperand) && push!(operands, asyncOperand)
+    !isnothing(waitDevnum) && push!(operands, waitDevnum)
+    push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), Int(!isnothing(asyncOperand)), Int(!isnothing(waitDevnum)), length(waitOperands), length(deviceTypeOperands), length(dataClauseOperands), ]))
+    !isnothing(async) && push!(attributes, NamedAttribute("async", async))
+    !isnothing(wait) && push!(attributes, NamedAttribute("wait", wait))
+    !isnothing(ifPresent) && push!(attributes, NamedAttribute("ifPresent", ifPresent))
+    
+    create_operation(
+        "acc.update", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2211,40 +1566,24 @@ counters (2.6.7).
 done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.
 - `name`: Holds the name of variable as specified in user clause (including bounds).
 """
-function use_device(
-    varPtr::Value,
-    varPtrPtr=nothing::Union{Nothing,Value};
-    bounds::Vector{Value},
-    accPtr::IR.Type,
-    dataClause=nothing,
-    structured=nothing,
-    implicit=nothing,
-    name=nothing,
-    location=Location(),
-)
-    _results = IR.Type[accPtr,]
-    _operands = Value[varPtr, bounds...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(varPtrPtr) && push!(_operands, varPtrPtr)
-    push!(
-        _attributes, operandsegmentsizes([1, isnothing(varPtrPtr) ? 0 : 1, length(bounds)])
-    )
-    !isnothing(dataClause) && push!(_attributes, namedattribute("dataClause", dataClause))
-    !isnothing(structured) && push!(_attributes, namedattribute("structured", structured))
-    !isnothing(implicit) && push!(_attributes, namedattribute("implicit", implicit))
-    !isnothing(name) && push!(_attributes, namedattribute("name", name))
-
-    return IR.create_operation(
-        "acc.use_device",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function use_device(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::Vector{Value}, accPtr::IR.Type, dataClause=nothing, structured=nothing, implicit=nothing, name=nothing, location=Location())
+    op_ty_results = IR.Type[accPtr, ]
+    operands = Value[varPtr, bounds..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(varPtrPtr) && push!(operands, varPtrPtr)
+    push!(attributes, operandsegmentsizes([1, Int(!isnothing(varPtrPtr)), length(bounds), ]))
+    !isnothing(dataClause) && push!(attributes, NamedAttribute("dataClause", dataClause))
+    !isnothing(structured) && push!(attributes, NamedAttribute("structured", structured))
+    !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
+    !isnothing(name) && push!(attributes, NamedAttribute("name", name))
+    
+    create_operation(
+        "acc.use_device", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2261,42 +1600,23 @@ acc.wait(%value1: index)
 acc.wait() async(%async1: i32)
 ```
 """
-function wait(
-    waitOperands::Vector{Value},
-    asyncOperand=nothing::Union{Nothing,Value};
-    waitDevnum=nothing::Union{Nothing,Value},
-    ifCond=nothing::Union{Nothing,Value},
-    async=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[waitOperands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(asyncOperand) && push!(_operands, asyncOperand)
-    !isnothing(waitDevnum) && push!(_operands, waitDevnum)
-    !isnothing(ifCond) && push!(_operands, ifCond)
-    push!(
-        _attributes,
-        operandsegmentsizes([
-            length(waitOperands),
-            isnothing(asyncOperand) ? 0 : 1,
-            isnothing(waitDevnum) ? 0 : 1,
-            isnothing(ifCond) ? 0 : 1,
-        ]),
-    )
-    !isnothing(async) && push!(_attributes, namedattribute("async", async))
-
-    return IR.create_operation(
-        "acc.wait",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function wait(waitOperands::Vector{Value}, asyncOperand=nothing::Union{Nothing, Value}; waitDevnum=nothing::Union{Nothing, Value}, ifCond=nothing::Union{Nothing, Value}, async=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[waitOperands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(asyncOperand) && push!(operands, asyncOperand)
+    !isnothing(waitDevnum) && push!(operands, waitDevnum)
+    !isnothing(ifCond) && push!(operands, ifCond)
+    push!(attributes, operandsegmentsizes([length(waitOperands), Int(!isnothing(asyncOperand)), Int(!isnothing(waitDevnum)), Int(!isnothing(ifCond)), ]))
+    !isnothing(async) && push!(attributes, NamedAttribute("async", async))
+    
+    create_operation(
+        "acc.wait", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -2308,21 +1628,17 @@ acc ops (parallel and loop). It returns values to the immediately enclosing
 acc op.
 """
 function yield(operands::Vector{Value}; location=Location())
-    _results = IR.Type[]
-    _operands = Value[operands...,]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "acc.yield",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[operands..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "acc.yield", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 

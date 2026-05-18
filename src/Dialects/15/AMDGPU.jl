@@ -1,8 +1,9 @@
 module amdgpu
 
-import ...IR:
-    IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
-import ..Dialects: namedattribute, operandsegmentsizes
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ..Dialects: operandsegmentsizes, resultsegmentsizes
+import ...API
+
 
 """
 `lds_barrier`
@@ -20,21 +21,17 @@ operations on global memory can be issued far in advance of when their results
 are used (for example, by writing them to LDS).
 """
 function lds_barrier(; location=Location())
-    _results = IR.Type[]
-    _operands = Value[]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-
-    return IR.create_operation(
-        "amdgpu.lds_barrier",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+    op_ty_results = IR.Type[]
+    operands = Value[]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    
+    create_operation(
+        "amdgpu.lds_barrier", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -58,39 +55,22 @@ Out of bounds atomic operations are ignored in hardware.
 See `amdgpu.raw_buffer_load` for a description of how the underlying
 instruction is constructed.
 """
-function raw_buffer_atomic_fadd(
-    value::Value,
-    memref::Value,
-    indices::Vector{Value},
-    sgprOffset=nothing::Union{Nothing,Value};
-    boundsCheck=nothing,
-    indexOffset=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(sgprOffset) && push!(_operands, sgprOffset)
-    push!(
-        _attributes,
-        operandsegmentsizes([1, 1, length(indices), isnothing(sgprOffset) ? 0 : 1]),
-    )
-    !isnothing(boundsCheck) &&
-        push!(_attributes, namedattribute("boundsCheck", boundsCheck))
-    !isnothing(indexOffset) &&
-        push!(_attributes, namedattribute("indexOffset", indexOffset))
-
-    return IR.create_operation(
-        "amdgpu.raw_buffer_atomic_fadd",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function raw_buffer_atomic_fadd(value::Value, memref::Value, indices::Vector{Value}, sgprOffset=nothing::Union{Nothing, Value}; boundsCheck=nothing, indexOffset=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(sgprOffset) && push!(operands, sgprOffset)
+    push!(attributes, operandsegmentsizes([1, 1, length(indices), Int(!isnothing(sgprOffset)), ]))
+    !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
+    !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
+    
+    create_operation(
+        "amdgpu.raw_buffer_atomic_fadd", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -126,39 +106,22 @@ are translated to intrinsic arguments as follows:
   to 2 to disable bounds checks, otherwise it is 3
 - The cache coherency bits are off
 """
-function raw_buffer_load(
-    memref::Value,
-    indices::Vector{Value},
-    sgprOffset=nothing::Union{Nothing,Value};
-    value::IR.Type,
-    boundsCheck=nothing,
-    indexOffset=nothing,
-    location=Location(),
-)
-    _results = IR.Type[value,]
-    _operands = Value[memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(sgprOffset) && push!(_operands, sgprOffset)
-    push!(
-        _attributes,
-        operandsegmentsizes([1, length(indices), isnothing(sgprOffset) ? 0 : 1]),
-    )
-    !isnothing(boundsCheck) &&
-        push!(_attributes, namedattribute("boundsCheck", boundsCheck))
-    !isnothing(indexOffset) &&
-        push!(_attributes, namedattribute("indexOffset", indexOffset))
-
-    return IR.create_operation(
-        "amdgpu.raw_buffer_load",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function raw_buffer_load(memref::Value, indices::Vector{Value}, sgprOffset=nothing::Union{Nothing, Value}; value::IR.Type, boundsCheck=nothing, indexOffset=nothing, location=Location())
+    op_ty_results = IR.Type[value, ]
+    operands = Value[memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(sgprOffset) && push!(operands, sgprOffset)
+    push!(attributes, operandsegmentsizes([1, length(indices), Int(!isnothing(sgprOffset)), ]))
+    !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
+    !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
+    
+    create_operation(
+        "amdgpu.raw_buffer_load", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
@@ -182,39 +145,22 @@ components is partically completed is chipset-dependent.
 See `amdgpu.raw_buffer_load` for a description of how the underlying
 instruction is constructed.
 """
-function raw_buffer_store(
-    value::Value,
-    memref::Value,
-    indices::Vector{Value},
-    sgprOffset=nothing::Union{Nothing,Value};
-    boundsCheck=nothing,
-    indexOffset=nothing,
-    location=Location(),
-)
-    _results = IR.Type[]
-    _operands = Value[value, memref, indices...]
-    _owned_regions = Region[]
-    _successors = Block[]
-    _attributes = NamedAttribute[]
-    !isnothing(sgprOffset) && push!(_operands, sgprOffset)
-    push!(
-        _attributes,
-        operandsegmentsizes([1, 1, length(indices), isnothing(sgprOffset) ? 0 : 1]),
-    )
-    !isnothing(boundsCheck) &&
-        push!(_attributes, namedattribute("boundsCheck", boundsCheck))
-    !isnothing(indexOffset) &&
-        push!(_attributes, namedattribute("indexOffset", indexOffset))
-
-    return IR.create_operation(
-        "amdgpu.raw_buffer_store",
-        location;
-        operands=_operands,
-        owned_regions=_owned_regions,
-        successors=_successors,
-        attributes=_attributes,
-        results=_results,
-        result_inference=false,
+function raw_buffer_store(value::Value, memref::Value, indices::Vector{Value}, sgprOffset=nothing::Union{Nothing, Value}; boundsCheck=nothing, indexOffset=nothing, location=Location())
+    op_ty_results = IR.Type[]
+    operands = Value[value, memref, indices..., ]
+    owned_regions = Region[]
+    successors = Block[]
+    attributes = NamedAttribute[]
+    !isnothing(sgprOffset) && push!(operands, sgprOffset)
+    push!(attributes, operandsegmentsizes([1, 1, length(indices), Int(!isnothing(sgprOffset)), ]))
+    !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
+    !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
+    
+    create_operation(
+        "amdgpu.raw_buffer_store", location;
+        operands, owned_regions, successors, attributes,
+        results=op_ty_results,
+        result_inference=false
     )
 end
 
