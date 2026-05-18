@@ -8,7 +8,7 @@ const tracked_objects = Dict{Any,Any}()
 
 # the most basic check is asserting that we don't use a null pointer
 @inline function refcheck(::Type, ref::Ptr)
-    ref==C_NULL && throw(UndefRefError())
+    return ref == C_NULL && throw(UndefRefError())
 end
 
 function mark_alloc(obj; allow_overwrite::Bool=false)
@@ -19,7 +19,9 @@ function mark_alloc(obj; allow_overwrite::Bool=false)
         if haskey(tracked_objects, obj) && !allow_overwrite
             old_alloc_bt, dispose_bt = tracked_objects[obj]
             if dispose_bt == nothing
-                print("\nWARNING: An instance of $(typeof(obj)) was not properly disposed of, and a new allocation will overwrite it.")
+                print(
+                    "\nWARNING: An instance of $(typeof(obj)) was not properly disposed of, and a new allocation will overwrite it.",
+                )
                 print("\nThe original allocation was at:")
                 Base.show_backtrace(io, old_alloc_bt)
                 print("\nThe new allocation is at:")
@@ -45,7 +47,9 @@ function mark_use(obj::Any)
 
         alloc_bt, dispose_bt = tracked_objects[obj]
         if dispose_bt !== nothing
-            print("\nWARNING: An instance of $(typeof(obj)) is being used after it was disposed of.")
+            print(
+                "\nWARNING: An instance of $(typeof(obj)) is being used after it was disposed of.",
+            )
             print("\nThe object was allocated at:")
             Base.show_backtrace(io, alloc_bt)
             print("\nThe object was disposed of at:")
@@ -66,13 +70,17 @@ function mark_dispose(f, obj)
         new_dispose_bt = backtrace()[2:end]
 
         if !haskey(tracked_objects, obj)
-            print(io, "\nWARNING: An unknown instance of $(typeof(obj)) is being disposed of.")
+            print(
+                io, "\nWARNING: An unknown instance of $(typeof(obj)) is being disposed of."
+            )
             Base.show_backtrace(io, new_dispose_bt)
             nothing
         else
             alloc_bt, old_dispose_bt = tracked_objects[obj]
             if old_dispose_bt !== nothing
-                print("\nWARNING: An instance of $(typeof(obj)) is being disposed of twice.")
+                print(
+                    "\nWARNING: An instance of $(typeof(obj)) is being disposed of twice."
+                )
                 print("\nThe object was allocated at:")
                 Base.show_backtrace(io, alloc_bt)
                 print("\nThe object was already disposed of at:")
@@ -91,7 +99,7 @@ function mark_dispose(f, obj)
             tracked_objects[obj] = data
         end
     end
-    return
+    return nothing
 end
 
 # we could potentially track ownership here
@@ -131,14 +139,17 @@ end
 function report_leaks(code=0)
     # if we errored, we can't trust the memory state
     if code != 0
-        return
+        return nothing
     end
 
     @static if MEMCHECK_ENABLED
         io = Core.stdout
         for (obj, (alloc_bt, dispose_bt)) in tracked_objects
             if dispose_bt === nothing
-                print(io, "\nWARNING: An instance of $(typeof(obj)) was not properly disposed of.")
+                print(
+                    io,
+                    "\nWARNING: An instance of $(typeof(obj)) was not properly disposed of.",
+                )
                 print("\nThe object was allocated at:")
                 Base.show_backtrace(io, alloc_bt)
                 println(io)
@@ -162,7 +173,7 @@ macro checked(typedef)
         typename = structure
     elseif Meta.isexpr(structure, :<:)
         # typename <: parentname
-        all(e->isa(e,Symbol), structure.args) ||
+        all(e -> isa(e, Symbol), structure.args) ||
             error("typedef should consist of plain types, ie. not parametric ones")
         typename = structure.args[1]
     else
@@ -186,9 +197,14 @@ macro checked(typedef)
     :ref in field_names || error("structure definition should contain 'ref' field")
 
     # insert checked constructor
-    push!(body.args, :(
-        $typename($(field_defs...)) = ($refcheck($typename, ref); new($(field_names...)))
-    ))
+    push!(
+        body.args,
+        :(
+            function $typename($(field_defs...))
+                ($refcheck($typename, ref); new($(field_names...)))
+            end
+        ),
+    )
 
     return esc(typedef)
 end
