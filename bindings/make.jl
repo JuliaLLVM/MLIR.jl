@@ -364,7 +364,7 @@ for (julia_version, llvm_version) in julia_llvm
                 tempfile, _ = mktemp()
                 tdpath = joinpath(include_dir, "mlir", "Dialect", td)
                 flags = [
-                    "--generator=jl-op-defs",
+                    "--generator=emit-op-table-defs",
                     "--disable-module-wrap",
                     tdpath,
                     "-I",
