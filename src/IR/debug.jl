@@ -197,14 +197,9 @@ macro checked(typedef)
     :ref in field_names || error("structure definition should contain 'ref' field")
 
     # insert checked constructor
-    push!(
-        body.args,
-        :(
-            function $typename($(field_defs...))
-                ($refcheck($typename, ref); new($(field_names...)))
-            end
-        ),
-    )
+    push!(body.args, :(function $typename($(field_defs...))
+        return ($refcheck($typename, ref); new($(field_names...)))
+    end))
 
     return esc(typedef)
 end
