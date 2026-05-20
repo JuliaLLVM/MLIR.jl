@@ -1,8 +1,8 @@
 [general]
 library_name = "MLIR_C_PATH[]"
 output_file_path = "libMLIR_h.jl"
-prologue_file_path = ""
-epilogue_file_path = ""
+prologue_file_path = "prologue.jl"
+epilogue_file_path = "epilogue.jl"
 use_julia_native_enum_type = false
 use_deterministic_symbol = true
 smart_de_anonymize = true
@@ -14,41 +14,8 @@ printer_blacklist = [
     "MAKE_MLIR_PYTHON_QUALNAME",
 ]
 output_ignorelist = [
-    "MlirTypeID",
-    "MlirTypeIDAllocator",
-    "MlirLlvmThreadPool",
-    "MlirStringRef",
-    "MlirLogicalResult",
-    "MlirContext",
-    "MlirDialect",
-    "MlirDialectHandle",
-    "MlirDialectRegistry",
-    "MlirOperation",
-    "MlirOpOperand",
-    "MlirOpPrintingFlags",
-    "MlirBlock",
-    "MlirRegion",
-    "MlirSymbolTable",
-    "MlirAttribute",
-    "MlirIdentifier",
-    "MlirLocation",
-    "MlirModule",
-    "MlirType",
-    "MlirValue",
-    "MlirNamedAttribute",
-    "MlirOperationState",
-    "MlirAffineExpr",
-    "MlirAffineMap",
-    "MlirPass",
-    "MlirExternalPass",
-    "MlirPassManager",
-    "MlirOpPassManager",
-    "MlirExternalPassCallbacks",
-    "MlirDiagnostic",
-    "MlirExecutionEngine",
-    "MlirIntegerSet",
-    "MlirAsmState",
-    "MlirBytecodeWriterConfig",
+    "MLIR_PYTHON_API_EXPORTED",
+    "MLIR_CAPI_EXPORTED",
 ]
 
 [codegen]

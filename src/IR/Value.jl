@@ -115,7 +115,7 @@ function type!(value, type)
 end
 
 function Base.show(io::IO, value::Value)
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     return API.mlirValuePrint(value, c_print_callback, ref)
 end

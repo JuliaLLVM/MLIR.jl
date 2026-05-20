@@ -113,7 +113,7 @@ OpPassManager(opm::OpPassManager, opname) =
 Base.convert(::Core.Type{API.MlirOpPassManager}, op_pass::OpPassManager) = op_pass.op_pass
 
 function Base.show(io::IO, op_pass::OpPassManager)
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     println(io, "OpPassManager(\"\"\"")
     API.mlirPrintPassPipeline(op_pass, c_print_callback, ref)
@@ -159,7 +159,7 @@ function Base.parse(opm::OpPassManager, pipeline::String)
     result = LogicalResult(
         if MLIR_VERSION[] >= v"16"
             io = IOBuffer()
-            c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+            c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
             API.mlirParsePassPipeline(opm, pipeline, c_print_callback, Ref(io))
         else
             API.mlirParsePassPipeline(opm, pipeline)
@@ -180,7 +180,7 @@ Parse a sequence of textual MLIR pass pipeline elements and add them to the prov
 function add_pipeline!(op_pass::OpPassManager, pipeline)
     if MLIR_VERSION[] >= v"16"
         io = IOBuffer()
-        c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+        c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
         result = LogicalResult(
             API.mlirOpPassManagerAddPipeline(op_pass, pipeline, c_print_callback, Ref(io))
         )

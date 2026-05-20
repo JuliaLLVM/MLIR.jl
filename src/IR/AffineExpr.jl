@@ -231,7 +231,7 @@ rhs(expr::AffineExpr) = AffineExpr(API.mlirAffineBinaryOpExprGetRHS(expr))
 
 function Base.show(io::IO, affineExpr::AffineExpr)
     print(io, "AffineExpr(#= ")
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirAffineExprPrint(affineExpr, c_print_callback, ref)
     return print(io, " =#)")

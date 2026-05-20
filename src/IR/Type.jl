@@ -773,7 +773,7 @@ end
 
 function Base.show(io::IO, type::Type)
     print(io, "Type(#= ")
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirTypePrint(type, c_print_callback, ref)
     return print(io, " =#)")

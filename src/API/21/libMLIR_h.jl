@@ -498,6 +498,26 @@ function mlirContextSetThreadPool(context, threadPool)
 end
 
 """
+    mlirContextGetNumThreads(context)
+
+Gets the number of threads of the thread pool of the context when multithreading is enabled. Returns 1 if no multithreading.
+"""
+function mlirContextGetNumThreads(context)
+    @ccall (MLIR_C_PATH[]).mlirContextGetNumThreads(context::MlirContext)::Cuint
+end
+
+"""
+    mlirContextGetThreadPool(context)
+
+Gets the thread pool of the context when enabled multithreading, otherwise an assertion is raised.
+"""
+function mlirContextGetThreadPool(context)
+    @ccall (MLIR_C_PATH[]).mlirContextGetThreadPool(
+        context::MlirContext
+    )::MlirLlvmThreadPool
+end
+
+"""
     mlirDialectGetContext(dialect)
 
 Returns the context that owns the dialect.
@@ -636,6 +656,97 @@ function mlirLocationFileLineColGet(context, filename, line, col)
 end
 
 """
+    mlirLocationFileLineColRangeGet(context, filename, start_line, start_col, end_line, end_col)
+
+Creates an File/Line/Column range location owned by the given context.
+"""
+function mlirLocationFileLineColRangeGet(
+    context, filename, start_line, start_col, end_line, end_col
+)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGet(
+        context::MlirContext,
+        filename::MlirStringRef,
+        start_line::Cuint,
+        start_col::Cuint,
+        end_line::Cuint,
+        end_col::Cuint,
+    )::MlirLocation
+end
+
+"""
+    mlirLocationFileLineColRangeGetFilename(location)
+
+Getter for filename of FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetFilename(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetFilename(
+        location::MlirLocation
+    )::MlirIdentifier
+end
+
+"""
+    mlirLocationFileLineColRangeGetStartLine(location)
+
+Getter for start\\_line of FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetStartLine(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetStartLine(
+        location::MlirLocation
+    )::Cint
+end
+
+"""
+    mlirLocationFileLineColRangeGetStartColumn(location)
+
+Getter for start\\_column of FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetStartColumn(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetStartColumn(
+        location::MlirLocation
+    )::Cint
+end
+
+"""
+    mlirLocationFileLineColRangeGetEndLine(location)
+
+Getter for end\\_line of FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetEndLine(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetEndLine(
+        location::MlirLocation
+    )::Cint
+end
+
+"""
+    mlirLocationFileLineColRangeGetEndColumn(location)
+
+Getter for end\\_column of FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetEndColumn(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetEndColumn(
+        location::MlirLocation
+    )::Cint
+end
+
+"""
+    mlirLocationFileLineColRangeGetTypeID()
+
+TypeID Getter for FileLineColRange.
+"""
+function mlirLocationFileLineColRangeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirLocationFileLineColRangeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirLocationIsAFileLineColRange(location)
+
+Checks whether the given location is an FileLineColRange.
+"""
+function mlirLocationIsAFileLineColRange(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationIsAFileLineColRange(location::MlirLocation)::Bool
+end
+
+"""
     mlirLocationCallSiteGet(callee, caller)
 
 Creates a call site location with a callee and a caller.
@@ -644,6 +755,46 @@ function mlirLocationCallSiteGet(callee, caller)
     @ccall (MLIR_C_PATH[]).mlirLocationCallSiteGet(
         callee::MlirLocation, caller::MlirLocation
     )::MlirLocation
+end
+
+"""
+    mlirLocationCallSiteGetCallee(location)
+
+Getter for callee of CallSite.
+"""
+function mlirLocationCallSiteGetCallee(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationCallSiteGetCallee(
+        location::MlirLocation
+    )::MlirLocation
+end
+
+"""
+    mlirLocationCallSiteGetCaller(location)
+
+Getter for caller of CallSite.
+"""
+function mlirLocationCallSiteGetCaller(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationCallSiteGetCaller(
+        location::MlirLocation
+    )::MlirLocation
+end
+
+"""
+    mlirLocationCallSiteGetTypeID()
+
+TypeID Getter for CallSite.
+"""
+function mlirLocationCallSiteGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirLocationCallSiteGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirLocationIsACallSite(location)
+
+Checks whether the given location is an CallSite.
+"""
+function mlirLocationIsACallSite(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationIsACallSite(location::MlirLocation)::Bool
 end
 
 """
@@ -661,6 +812,55 @@ function mlirLocationFusedGet(ctx, nLocations, locations, metadata)
 end
 
 """
+    mlirLocationFusedGetNumLocations(location)
+
+Getter for number of locations fused together.
+"""
+function mlirLocationFusedGetNumLocations(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFusedGetNumLocations(location::MlirLocation)::Cuint
+end
+
+"""
+    mlirLocationFusedGetLocations(location, locationsCPtr)
+
+Getter for locations of Fused. Requires pre-allocated memory of #fusedLocations X sizeof([`MlirLocation`](@ref)).
+"""
+function mlirLocationFusedGetLocations(location, locationsCPtr)
+    @ccall (MLIR_C_PATH[]).mlirLocationFusedGetLocations(
+        location::MlirLocation, locationsCPtr::Ptr{MlirLocation}
+    )::Cvoid
+end
+
+"""
+    mlirLocationFusedGetMetadata(location)
+
+Getter for metadata of Fused.
+"""
+function mlirLocationFusedGetMetadata(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationFusedGetMetadata(
+        location::MlirLocation
+    )::MlirAttribute
+end
+
+"""
+    mlirLocationFusedGetTypeID()
+
+TypeID Getter for Fused.
+"""
+function mlirLocationFusedGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirLocationFusedGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirLocationIsAFused(location)
+
+Checks whether the given location is an Fused.
+"""
+function mlirLocationIsAFused(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationIsAFused(location::MlirLocation)::Bool
+end
+
+"""
     mlirLocationNameGet(context, name, childLoc)
 
 Creates a name location owned by the given context. Providing null location for childLoc is allowed and if childLoc is null location, then the behavior is the same as having unknown child location.
@@ -669,6 +869,42 @@ function mlirLocationNameGet(context, name, childLoc)
     @ccall (MLIR_C_PATH[]).mlirLocationNameGet(
         context::MlirContext, name::MlirStringRef, childLoc::MlirLocation
     )::MlirLocation
+end
+
+"""
+    mlirLocationNameGetName(location)
+
+Getter for name of Name.
+"""
+function mlirLocationNameGetName(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationNameGetName(location::MlirLocation)::MlirIdentifier
+end
+
+"""
+    mlirLocationNameGetChildLoc(location)
+
+Getter for childLoc of Name.
+"""
+function mlirLocationNameGetChildLoc(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationNameGetChildLoc(location::MlirLocation)::MlirLocation
+end
+
+"""
+    mlirLocationNameGetTypeID()
+
+TypeID Getter for Name.
+"""
+function mlirLocationNameGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirLocationNameGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirLocationIsAName(location)
+
+Checks whether the given location is an Name.
+"""
+function mlirLocationIsAName(location)
+    @ccall (MLIR_C_PATH[]).mlirLocationIsAName(location::MlirLocation)::Bool
 end
 
 """
@@ -735,6 +971,17 @@ Parses a module from the string and transfers ownership to the caller.
 function mlirModuleCreateParse(context, _module)
     @ccall (MLIR_C_PATH[]).mlirModuleCreateParse(
         context::MlirContext, _module::MlirStringRef
+    )::MlirModule
+end
+
+"""
+    mlirModuleCreateParseFromFile(context, fileName)
+
+Parses a module from file and transfers ownership to the caller.
+"""
+function mlirModuleCreateParseFromFile(context, fileName)
+    @ccall (MLIR_C_PATH[]).mlirModuleCreateParseFromFile(
+        context::MlirContext, fileName::MlirStringRef
     )::MlirModule
 end
 
@@ -961,6 +1208,17 @@ Always print operations in the generic form.
 """
 function mlirOpPrintingFlagsPrintGenericOpForm(flags)
     @ccall (MLIR_C_PATH[]).mlirOpPrintingFlagsPrintGenericOpForm(
+        flags::MlirOpPrintingFlags
+    )::Cvoid
+end
+
+"""
+    mlirOpPrintingFlagsPrintNameLocAsPrefix(flags)
+
+Print the name and location, if NamedLoc, as a prefix to the SSA ID.
+"""
+function mlirOpPrintingFlagsPrintNameLocAsPrefix(flags)
+    @ccall (MLIR_C_PATH[]).mlirOpPrintingFlagsPrintNameLocAsPrefix(
         flags::MlirOpPrintingFlags
     )::Cvoid
 end
@@ -1875,6 +2133,48 @@ function mlirBlockPrint(block, callback, userData)
 end
 
 """
+    mlirBlockGetNumSuccessors(block)
+
+Returns the number of successor blocks of the block.
+"""
+function mlirBlockGetNumSuccessors(block)
+    @ccall (MLIR_C_PATH[]).mlirBlockGetNumSuccessors(block::MlirBlock)::Cptrdiff_t
+end
+
+"""
+    mlirBlockGetSuccessor(block, pos)
+
+Returns `pos`-th successor of the block.
+"""
+function mlirBlockGetSuccessor(block, pos)
+    @ccall (MLIR_C_PATH[]).mlirBlockGetSuccessor(
+        block::MlirBlock, pos::Cptrdiff_t
+    )::MlirBlock
+end
+
+"""
+    mlirBlockGetNumPredecessors(block)
+
+Returns the number of predecessor blocks of the block.
+"""
+function mlirBlockGetNumPredecessors(block)
+    @ccall (MLIR_C_PATH[]).mlirBlockGetNumPredecessors(block::MlirBlock)::Cptrdiff_t
+end
+
+"""
+    mlirBlockGetPredecessor(block, pos)
+
+Returns `pos`-th predecessor of the block.
+
+WARNING: This getter is more expensive than the others here because the impl actually iterates the use-def chain (of block operands) anew for each indexed access.
+"""
+function mlirBlockGetPredecessor(block, pos)
+    @ccall (MLIR_C_PATH[]).mlirBlockGetPredecessor(
+        block::MlirBlock, pos::Cptrdiff_t
+    )::MlirBlock
+end
+
+"""
     mlirValueIsNull(value)
 
 Returns whether the value is null.
@@ -2025,6 +2325,38 @@ function mlirValueReplaceAllUsesOfWith(of, with)
     @ccall (MLIR_C_PATH[]).mlirValueReplaceAllUsesOfWith(
         of::MlirValue, with::MlirValue
     )::Cvoid
+end
+
+"""
+    mlirValueReplaceAllUsesExcept(of, with, numExceptions, exceptions)
+
+Replace all uses of 'of' value with 'with' value, updating anything in the IR that uses 'of' to use 'with' instead, except if the user is listed in 'exceptions'. The 'exceptions' parameter is an array of [`MlirOperation`](@ref) pointers with a length of 'numExceptions'.
+"""
+function mlirValueReplaceAllUsesExcept(of, with, numExceptions, exceptions)
+    @ccall (MLIR_C_PATH[]).mlirValueReplaceAllUsesExcept(
+        of::MlirValue,
+        with::MlirValue,
+        numExceptions::Cptrdiff_t,
+        exceptions::Ptr{MlirOperation},
+    )::Cvoid
+end
+
+"""
+    mlirValueGetLocation(v)
+
+Gets the location of the value.
+"""
+function mlirValueGetLocation(v)
+    @ccall (MLIR_C_PATH[]).mlirValueGetLocation(v::MlirValue)::MlirLocation
+end
+
+"""
+    mlirValueGetContext(v)
+
+Gets the context that a value was created with.
+"""
+function mlirValueGetContext(v)
+    @ccall (MLIR_C_PATH[]).mlirValueGetContext(v::MlirValue)::MlirContext
 end
 
 """
@@ -2505,6 +2837,39 @@ Composes the given map with the given expression.
 function mlirAffineExprCompose(affineExpr, affineMap)
     @ccall (MLIR_C_PATH[]).mlirAffineExprCompose(
         affineExpr::MlirAffineExpr, affineMap::MlirAffineMap
+    )::MlirAffineExpr
+end
+
+"""
+    mlirAffineExprShiftDims(affineExpr, numDims, shift, offset)
+
+Replace dims[offset ... numDims) by dims[offset + shift ... shift + numDims).
+"""
+function mlirAffineExprShiftDims(affineExpr, numDims, shift, offset)
+    @ccall (MLIR_C_PATH[]).mlirAffineExprShiftDims(
+        affineExpr::MlirAffineExpr, numDims::UInt32, shift::UInt32, offset::UInt32
+    )::MlirAffineExpr
+end
+
+"""
+    mlirAffineExprShiftSymbols(affineExpr, numSymbols, shift, offset)
+
+Replace symbols[offset ... numSymbols) by symbols[offset + shift ... shift + numSymbols).
+"""
+function mlirAffineExprShiftSymbols(affineExpr, numSymbols, shift, offset)
+    @ccall (MLIR_C_PATH[]).mlirAffineExprShiftSymbols(
+        affineExpr::MlirAffineExpr, numSymbols::UInt32, shift::UInt32, offset::UInt32
+    )::MlirAffineExpr
+end
+
+"""
+    mlirSimplifyAffineExpr(expr, numDims, numSymbols)
+
+Simplify an affine expression by flattening and some amount of simple analysis. This has complexity linear in the number of nodes in 'expr'. Returns the simplified expression, which is the same as the input expression if it can't be simplified. When `expr` is semi-affine, a simplified semi-affine expression is constructed in the sorted order of dimension and symbol positions.
+"""
+function mlirSimplifyAffineExpr(expr, numDims, numSymbols)
+    @ccall (MLIR_C_PATH[]).mlirSimplifyAffineExpr(
+        expr::MlirAffineExpr, numDims::UInt32, numSymbols::UInt32
     )::MlirAffineExpr
 end
 
@@ -3034,6 +3399,188 @@ function mlirAffineMapCompressUnusedSymbols(affineMaps, size, result, populateRe
     )::Cvoid
 end
 
+struct MlirIntegerSet
+    ptr::Ptr{Cvoid}
+end
+
+"""
+    mlirIntegerSetGetContext(set)
+
+Gets the context in which the given integer set lives.
+"""
+function mlirIntegerSetGetContext(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetContext(set::MlirIntegerSet)::MlirContext
+end
+
+"""
+    mlirIntegerSetIsNull(set)
+
+Checks whether an integer set is a null object.
+"""
+function mlirIntegerSetIsNull(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsNull(set::MlirIntegerSet)::Bool
+end
+
+"""
+    mlirIntegerSetEqual(s1, s2)
+
+Checks if two integer set objects are equal. This is a "shallow" comparison of two objects. Only the sets with some small number of constraints are uniqued and compare equal here. Set objects that represent the same integer set with different constraints may be considered non-equal by this check. Set difference followed by an (expensive) emptiness check should be used to check equivalence of the underlying integer sets.
+"""
+function mlirIntegerSetEqual(s1, s2)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetEqual(s1::MlirIntegerSet, s2::MlirIntegerSet)::Bool
+end
+
+"""
+    mlirIntegerSetPrint(set, callback, userData)
+
+Prints an integer set by sending chunks of the string representation and forwarding `userData to `callback`. Note that the callback may be called several times with consecutive chunks of the string.
+"""
+function mlirIntegerSetPrint(set, callback, userData)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetPrint(
+        set::MlirIntegerSet, callback::MlirStringCallback, userData::Ptr{Cvoid}
+    )::Cvoid
+end
+
+"""
+    mlirIntegerSetDump(set)
+
+Prints an integer set to the standard error stream.
+"""
+function mlirIntegerSetDump(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetDump(set::MlirIntegerSet)::Cvoid
+end
+
+"""
+    mlirIntegerSetEmptyGet(context, numDims, numSymbols)
+
+Gets or creates a new canonically empty integer set with the give number of dimensions and symbols in the given context.
+"""
+function mlirIntegerSetEmptyGet(context, numDims, numSymbols)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetEmptyGet(
+        context::MlirContext, numDims::Cptrdiff_t, numSymbols::Cptrdiff_t
+    )::MlirIntegerSet
+end
+
+"""
+    mlirIntegerSetGet(context, numDims, numSymbols, numConstraints, constraints, eqFlags)
+
+Gets or creates a new integer set in the given context. The set is defined by a list of affine constraints, with the given number of input dimensions and symbols, which are treated as either equalities (eqFlags is 1) or inequalities (eqFlags is 0). Both `constraints` and `eqFlags` are expected to point to at least `numConstraint` consecutive values.
+"""
+function mlirIntegerSetGet(
+    context, numDims, numSymbols, numConstraints, constraints, eqFlags
+)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGet(
+        context::MlirContext,
+        numDims::Cptrdiff_t,
+        numSymbols::Cptrdiff_t,
+        numConstraints::Cptrdiff_t,
+        constraints::Ptr{MlirAffineExpr},
+        eqFlags::Ptr{Bool},
+    )::MlirIntegerSet
+end
+
+"""
+    mlirIntegerSetReplaceGet(set, dimReplacements, symbolReplacements, numResultDims, numResultSymbols)
+
+Gets or creates a new integer set in which the values and dimensions of the given set are replaced with the given affine expressions. `dimReplacements` and `symbolReplacements` are expected to point to at least as many consecutive expressions as the given set has dimensions and symbols, respectively. The new set will have `numResultDims` and `numResultSymbols` dimensions and symbols, respectively.
+"""
+function mlirIntegerSetReplaceGet(
+    set, dimReplacements, symbolReplacements, numResultDims, numResultSymbols
+)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetReplaceGet(
+        set::MlirIntegerSet,
+        dimReplacements::Ptr{MlirAffineExpr},
+        symbolReplacements::Ptr{MlirAffineExpr},
+        numResultDims::Cptrdiff_t,
+        numResultSymbols::Cptrdiff_t,
+    )::MlirIntegerSet
+end
+
+"""
+    mlirIntegerSetIsCanonicalEmpty(set)
+
+Checks whether the given set is a canonical empty set, e.g., the set returned by [`mlirIntegerSetEmptyGet`](@ref).
+"""
+function mlirIntegerSetIsCanonicalEmpty(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsCanonicalEmpty(set::MlirIntegerSet)::Bool
+end
+
+"""
+    mlirIntegerSetGetNumDims(set)
+
+Returns the number of dimensions in the given set.
+"""
+function mlirIntegerSetGetNumDims(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumDims(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetNumSymbols(set)
+
+Returns the number of symbols in the given set.
+"""
+function mlirIntegerSetGetNumSymbols(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumSymbols(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetNumInputs(set)
+
+Returns the number of inputs (dimensions + symbols) in the given set.
+"""
+function mlirIntegerSetGetNumInputs(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumInputs(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetNumConstraints(set)
+
+Returns the number of constraints (equalities + inequalities) in the given set.
+"""
+function mlirIntegerSetGetNumConstraints(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumConstraints(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetNumEqualities(set)
+
+Returns the number of equalities in the given set.
+"""
+function mlirIntegerSetGetNumEqualities(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumEqualities(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetNumInequalities(set)
+
+Returns the number of inequalities in the given set.
+"""
+function mlirIntegerSetGetNumInequalities(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumInequalities(set::MlirIntegerSet)::Cptrdiff_t
+end
+
+"""
+    mlirIntegerSetGetConstraint(set, pos)
+
+Returns `pos`-th constraint of the set.
+"""
+function mlirIntegerSetGetConstraint(set, pos)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetConstraint(
+        set::MlirIntegerSet, pos::Cptrdiff_t
+    )::MlirAffineExpr
+end
+
+"""
+    mlirIntegerSetIsConstraintEq(set, pos)
+
+Returns `true` of the `pos`-th constraint of the set is an equality constraint, `false` otherwise.
+"""
+function mlirIntegerSetIsConstraintEq(set, pos)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsConstraintEq(
+        set::MlirIntegerSet, pos::Cptrdiff_t
+    )::Bool
+end
+
 """
     mlirAttributeGetNull()
 
@@ -3329,6 +3876,24 @@ Checks whether the given attribute is an integer set attribute.
 """
 function mlirAttributeIsAIntegerSet(attr)
     @ccall (MLIR_C_PATH[]).mlirAttributeIsAIntegerSet(attr::MlirAttribute)::Bool
+end
+
+"""
+    mlirIntegerSetAttrGet(set)
+
+Creates an integer set attribute wrapping the given set. The attribute belongs to the same context as the integer set.
+"""
+function mlirIntegerSetAttrGet(set)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetAttrGet(set::MlirIntegerSet)::MlirAttribute
+end
+
+"""
+    mlirIntegerSetAttrGetValue(attr)
+
+Returns the integer set wrapped in the given integer set attribute.
+"""
+function mlirIntegerSetAttrGetValue(attr)
+    @ccall (MLIR_C_PATH[]).mlirIntegerSetAttrGetValue(attr::MlirAttribute)::MlirIntegerSet
 end
 
 """
@@ -4158,6 +4723,12 @@ function mlirDenseElementsAttrGetUInt64Value(attr, pos)
     )::UInt64
 end
 
+function mlirDenseElementsAttrGetIndexValue(attr, pos)
+    @ccall (MLIR_C_PATH[]).mlirDenseElementsAttrGetIndexValue(
+        attr::MlirAttribute, pos::Cptrdiff_t
+    )::UInt64
+end
+
 function mlirDenseElementsAttrGetFloatValue(attr, pos)
     @ccall (MLIR_C_PATH[]).mlirDenseElementsAttrGetFloatValue(
         attr::MlirAttribute, pos::Cptrdiff_t
@@ -4618,6 +5189,87 @@ function mlirFloatTypeGetWidth(type)
 end
 
 """
+    mlirFloat4E2M1FNTypeGetTypeID()
+
+Returns the typeID of an Float4E2M1FN type.
+"""
+function mlirFloat4E2M1FNTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirFloat4E2M1FNTypeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirTypeIsAFloat4E2M1FN(type)
+
+Checks whether the given type is an f4E2M1FN type.
+"""
+function mlirTypeIsAFloat4E2M1FN(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAFloat4E2M1FN(type::MlirType)::Bool
+end
+
+"""
+    mlirFloat4E2M1FNTypeGet(ctx)
+
+Creates an f4E2M1FN type in the given context. The type is owned by the context.
+"""
+function mlirFloat4E2M1FNTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirFloat4E2M1FNTypeGet(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirFloat6E2M3FNTypeGetTypeID()
+
+Returns the typeID of an Float6E2M3FN type.
+"""
+function mlirFloat6E2M3FNTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirFloat6E2M3FNTypeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirTypeIsAFloat6E2M3FN(type)
+
+Checks whether the given type is an f6E2M3FN type.
+"""
+function mlirTypeIsAFloat6E2M3FN(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAFloat6E2M3FN(type::MlirType)::Bool
+end
+
+"""
+    mlirFloat6E2M3FNTypeGet(ctx)
+
+Creates an f6E2M3FN type in the given context. The type is owned by the context.
+"""
+function mlirFloat6E2M3FNTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirFloat6E2M3FNTypeGet(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirFloat6E3M2FNTypeGetTypeID()
+
+Returns the typeID of an Float6E3M2FN type.
+"""
+function mlirFloat6E3M2FNTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirFloat6E3M2FNTypeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirTypeIsAFloat6E3M2FN(type)
+
+Checks whether the given type is an f6E3M2FN type.
+"""
+function mlirTypeIsAFloat6E3M2FN(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAFloat6E3M2FN(type::MlirType)::Bool
+end
+
+"""
+    mlirFloat6E3M2FNTypeGet(ctx)
+
+Creates an f6E3M2FN type in the given context. The type is owned by the context.
+"""
+function mlirFloat6E3M2FNTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirFloat6E3M2FNTypeGet(ctx::MlirContext)::MlirType
+end
+
+"""
     mlirFloat8E5M2TypeGetTypeID()
 
 Returns the typeID of an Float8E5M2 type.
@@ -4777,6 +5429,60 @@ Creates an f8E4M3B11FNUZ type in the given context. The type is owned by the con
 """
 function mlirFloat8E4M3B11FNUZTypeGet(ctx)
     @ccall (MLIR_C_PATH[]).mlirFloat8E4M3B11FNUZTypeGet(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirFloat8E3M4TypeGetTypeID()
+
+Returns the typeID of an Float8E3M4 type.
+"""
+function mlirFloat8E3M4TypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirFloat8E3M4TypeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirTypeIsAFloat8E3M4(type)
+
+Checks whether the given type is an f8E3M4 type.
+"""
+function mlirTypeIsAFloat8E3M4(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAFloat8E3M4(type::MlirType)::Bool
+end
+
+"""
+    mlirFloat8E3M4TypeGet(ctx)
+
+Creates an f8E3M4 type in the given context. The type is owned by the context.
+"""
+function mlirFloat8E3M4TypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirFloat8E3M4TypeGet(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirFloat8E8M0FNUTypeGetTypeID()
+
+Returns the typeID of an Float8E8M0FNU type.
+"""
+function mlirFloat8E8M0FNUTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirFloat8E8M0FNUTypeGetTypeID()::MlirTypeID
+end
+
+"""
+    mlirTypeIsAFloat8E8M0FNU(type)
+
+Checks whether the given type is an f8E8M0FNU type.
+"""
+function mlirTypeIsAFloat8E8M0FNU(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAFloat8E8M0FNU(type::MlirType)::Bool
+end
+
+"""
+    mlirFloat8E8M0FNUTypeGet(ctx)
+
+Creates an f8E8M0FNU type in the given context. The type is owned by the context.
+"""
+function mlirFloat8E8M0FNUTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirFloat8E8M0FNUTypeGet(ctx::MlirContext)::MlirType
 end
 
 """
@@ -5025,10 +5731,19 @@ end
 """
     mlirShapedTypeIsDynamicDim(type, dim)
 
-Checks wither the dim-th dimension of the given shaped type is dynamic.
+Checks whether the dim-th dimension of the given shaped type is dynamic.
 """
 function mlirShapedTypeIsDynamicDim(type, dim)
     @ccall (MLIR_C_PATH[]).mlirShapedTypeIsDynamicDim(type::MlirType, dim::Cptrdiff_t)::Bool
+end
+
+"""
+    mlirShapedTypeIsStaticDim(type, dim)
+
+Checks whether the dim-th dimension of the given shaped type is static.
+"""
+function mlirShapedTypeIsStaticDim(type, dim)
+    @ccall (MLIR_C_PATH[]).mlirShapedTypeIsStaticDim(type::MlirType, dim::Cptrdiff_t)::Bool
 end
 
 """
@@ -5050,9 +5765,18 @@ function mlirShapedTypeIsDynamicSize(size)
 end
 
 """
+    mlirShapedTypeIsStaticSize(size)
+
+Checks whether the given shaped type dimension value is statically-sized.
+"""
+function mlirShapedTypeIsStaticSize(size)
+    @ccall (MLIR_C_PATH[]).mlirShapedTypeIsStaticSize(size::Int64)::Bool
+end
+
+"""
     mlirShapedTypeGetDynamicSize()
 
-Returns the value indicating a dynamic size in a shaped type. Prefer [`mlirShapedTypeIsDynamicSize`](@ref) to direct comparisons with this value.
+Returns the value indicating a dynamic size in a shaped type. Prefer [`mlirShapedTypeIsDynamicSize`](@ref) and [`mlirShapedTypeIsStaticSize`](@ref) to direct comparisons with this value.
 """
 function mlirShapedTypeGetDynamicSize()
     @ccall (MLIR_C_PATH[]).mlirShapedTypeGetDynamicSize()::Int64
@@ -5068,9 +5792,18 @@ function mlirShapedTypeIsDynamicStrideOrOffset(val)
 end
 
 """
+    mlirShapedTypeIsStaticStrideOrOffset(val)
+
+Checks whether the given dimension value of a stride or an offset is statically-sized.
+"""
+function mlirShapedTypeIsStaticStrideOrOffset(val)
+    @ccall (MLIR_C_PATH[]).mlirShapedTypeIsStaticStrideOrOffset(val::Int64)::Bool
+end
+
+"""
     mlirShapedTypeGetDynamicStrideOrOffset()
 
-Returns the value indicating a dynamic stride or offset in a shaped type. Prefer [`mlirShapedTypeGetDynamicStrideOrOffset`](@ref) to direct comparisons with this value.
+Returns the value indicating a dynamic stride or offset in a shaped type. Prefer [`mlirShapedTypeIsDynamicStrideOrOffset`](@ref) and [`mlirShapedTypeIsStaticStrideOrOffset`](@ref) to direct comparisons with this value.
 """
 function mlirShapedTypeGetDynamicStrideOrOffset()
     @ccall (MLIR_C_PATH[]).mlirShapedTypeGetDynamicStrideOrOffset()::Int64
@@ -5671,13 +6404,29 @@ function mlirPassManagerRunOnOp(passManager, op)
 end
 
 """
-    mlirPassManagerEnableIRPrinting(passManager)
+    mlirPassManagerEnableIRPrinting(passManager, printBeforeAll, printAfterAll, printModuleScope, printAfterOnlyOnChange, printAfterOnlyOnFailure, flags, treePrintingPath)
 
-Enable mlir-print-ir-after-all.
+Enable IR printing. The treePrintingPath argument is an optional path to a directory where the dumps will be produced. If it isn't provided then dumps are produced to stderr.
 """
-function mlirPassManagerEnableIRPrinting(passManager)
+function mlirPassManagerEnableIRPrinting(
+    passManager,
+    printBeforeAll,
+    printAfterAll,
+    printModuleScope,
+    printAfterOnlyOnChange,
+    printAfterOnlyOnFailure,
+    flags,
+    treePrintingPath,
+)
     @ccall (MLIR_C_PATH[]).mlirPassManagerEnableIRPrinting(
-        passManager::MlirPassManager
+        passManager::MlirPassManager,
+        printBeforeAll::Bool,
+        printAfterAll::Bool,
+        printModuleScope::Bool,
+        printAfterOnlyOnChange::Bool,
+        printAfterOnlyOnFailure::Bool,
+        flags::MlirOpPrintingFlags,
+        treePrintingPath::MlirStringRef,
     )::Cvoid
 end
 
@@ -5862,28 +6611,20 @@ function mlirRegisterConversionArithToLLVMConversionPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionArithToLLVMConversionPass()::Cvoid
 end
 
-function mlirCreateConversionConvertAMDGPUToROCDL()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertAMDGPUToROCDL()::MlirPass
+function mlirCreateConversionConvertAMDGPUToROCDLPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertAMDGPUToROCDLPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertAMDGPUToROCDL()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAMDGPUToROCDL()::Cvoid
+function mlirRegisterConversionConvertAMDGPUToROCDLPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAMDGPUToROCDLPass()::Cvoid
 end
 
-function mlirCreateConversionConvertAffineForToGPU()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertAffineForToGPU()::MlirPass
+function mlirCreateConversionConvertAffineForToGPUPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertAffineForToGPUPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertAffineForToGPU()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAffineForToGPU()::Cvoid
-end
-
-function mlirCreateConversionConvertAffineToStandard()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertAffineToStandard()::MlirPass
-end
-
-function mlirRegisterConversionConvertAffineToStandard()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAffineToStandard()::Cvoid
+function mlirRegisterConversionConvertAffineForToGPUPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAffineForToGPUPass()::Cvoid
 end
 
 function mlirCreateConversionConvertArithToEmitC()
@@ -5894,20 +6635,20 @@ function mlirRegisterConversionConvertArithToEmitC()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArithToEmitC()::Cvoid
 end
 
-function mlirCreateConversionConvertArithToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArithToSPIRV()::MlirPass
+function mlirCreateConversionConvertArithToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArithToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertArithToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArithToSPIRV()::Cvoid
+function mlirRegisterConversionConvertArithToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArithToSPIRVPass()::Cvoid
 end
 
-function mlirCreateConversionConvertArmNeon2dToIntr()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArmNeon2dToIntr()::MlirPass
+function mlirCreateConversionConvertArmNeon2dToIntrPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArmNeon2dToIntrPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertArmNeon2dToIntr()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArmNeon2dToIntr()::Cvoid
+function mlirRegisterConversionConvertArmNeon2dToIntrPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArmNeon2dToIntrPass()::Cvoid
 end
 
 function mlirCreateConversionConvertArmSMEToLLVM()
@@ -5918,12 +6659,12 @@ function mlirRegisterConversionConvertArmSMEToLLVM()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArmSMEToLLVM()::Cvoid
 end
 
-function mlirCreateConversionConvertArmSMEToSCF()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArmSMEToSCF()::MlirPass
+function mlirCreateConversionConvertArmSMEToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertArmSMEToSCFPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertArmSMEToSCF()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArmSMEToSCF()::Cvoid
+function mlirRegisterConversionConvertArmSMEToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertArmSMEToSCFPass()::Cvoid
 end
 
 function mlirCreateConversionConvertAsyncToLLVMPass()
@@ -5934,12 +6675,12 @@ function mlirRegisterConversionConvertAsyncToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertAsyncToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertBufferizationToMemRef()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertBufferizationToMemRef()::MlirPass
+function mlirCreateConversionConvertBufferizationToMemRefPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertBufferizationToMemRefPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertBufferizationToMemRef()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertBufferizationToMemRef()::Cvoid
+function mlirRegisterConversionConvertBufferizationToMemRefPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertBufferizationToMemRefPass()::Cvoid
 end
 
 function mlirCreateConversionConvertComplexToLLVMPass()
@@ -5966,12 +6707,12 @@ function mlirRegisterConversionConvertComplexToSPIRVPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertComplexToSPIRVPass()::Cvoid
 end
 
-function mlirCreateConversionConvertComplexToStandard()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertComplexToStandard()::MlirPass
+function mlirCreateConversionConvertComplexToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertComplexToStandardPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertComplexToStandard()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertComplexToStandard()::Cvoid
+function mlirRegisterConversionConvertComplexToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertComplexToStandardPass()::Cvoid
 end
 
 function mlirCreateConversionConvertControlFlowToLLVMPass()
@@ -5982,12 +6723,12 @@ function mlirRegisterConversionConvertControlFlowToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertControlFlowToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertControlFlowToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertControlFlowToSPIRV()::MlirPass
+function mlirCreateConversionConvertControlFlowToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertControlFlowToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertControlFlowToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertControlFlowToSPIRV()::Cvoid
+function mlirRegisterConversionConvertControlFlowToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertControlFlowToSPIRVPass()::Cvoid
 end
 
 function mlirCreateConversionConvertFuncToEmitC()
@@ -6006,12 +6747,12 @@ function mlirRegisterConversionConvertFuncToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertFuncToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertFuncToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertFuncToSPIRV()::MlirPass
+function mlirCreateConversionConvertFuncToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertFuncToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertFuncToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertFuncToSPIRV()::Cvoid
+function mlirRegisterConversionConvertFuncToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertFuncToSPIRVPass()::Cvoid
 end
 
 function mlirCreateConversionConvertGPUToSPIRV()
@@ -6020,14 +6761,6 @@ end
 
 function mlirRegisterConversionConvertGPUToSPIRV()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertGPUToSPIRV()::Cvoid
-end
-
-function mlirCreateConversionConvertGpuLaunchFuncToVulkanLaunchFunc()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertGpuLaunchFuncToVulkanLaunchFunc()::MlirPass
-end
-
-function mlirRegisterConversionConvertGpuLaunchFuncToVulkanLaunchFunc()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertGpuLaunchFuncToVulkanLaunchFunc()::Cvoid
 end
 
 function mlirCreateConversionConvertGpuOpsToLLVMSPVOps()
@@ -6070,12 +6803,20 @@ function mlirRegisterConversionConvertIndexToSPIRVPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertIndexToSPIRVPass()::Cvoid
 end
 
-function mlirCreateConversionConvertLinalgToStandard()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertLinalgToStandard()::MlirPass
+function mlirCreateConversionConvertLinalgToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertLinalgToStandardPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertLinalgToStandard()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertLinalgToStandard()::Cvoid
+function mlirRegisterConversionConvertLinalgToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertLinalgToStandardPass()::Cvoid
+end
+
+function mlirCreateConversionConvertMathToEmitC()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMathToEmitC()::MlirPass
+end
+
+function mlirRegisterConversionConvertMathToEmitC()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToEmitC()::Cvoid
 end
 
 function mlirCreateConversionConvertMathToFuncs()
@@ -6094,12 +6835,12 @@ function mlirRegisterConversionConvertMathToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertMathToLibm()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMathToLibm()::MlirPass
+function mlirCreateConversionConvertMathToLibmPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMathToLibmPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertMathToLibm()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToLibm()::Cvoid
+function mlirRegisterConversionConvertMathToLibmPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToLibmPass()::Cvoid
 end
 
 function mlirCreateConversionConvertMathToROCDL()
@@ -6110,12 +6851,12 @@ function mlirRegisterConversionConvertMathToROCDL()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToROCDL()::Cvoid
 end
 
-function mlirCreateConversionConvertMathToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMathToSPIRV()::MlirPass
+function mlirCreateConversionConvertMathToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMathToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertMathToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToSPIRV()::Cvoid
+function mlirRegisterConversionConvertMathToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMathToSPIRVPass()::Cvoid
 end
 
 function mlirCreateConversionConvertMemRefToEmitC()
@@ -6126,12 +6867,20 @@ function mlirRegisterConversionConvertMemRefToEmitC()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMemRefToEmitC()::Cvoid
 end
 
-function mlirCreateConversionConvertMemRefToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMemRefToSPIRV()::MlirPass
+function mlirCreateConversionConvertMemRefToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMemRefToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertMemRefToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMemRefToSPIRV()::Cvoid
+function mlirRegisterConversionConvertMemRefToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMemRefToSPIRVPass()::Cvoid
+end
+
+function mlirCreateConversionConvertMeshToMPIPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertMeshToMPIPass()::MlirPass
+end
+
+function mlirRegisterConversionConvertMeshToMPIPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertMeshToMPIPass()::Cvoid
 end
 
 function mlirCreateConversionConvertNVGPUToNVVMPass()
@@ -6150,12 +6899,12 @@ function mlirRegisterConversionConvertNVVMToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertNVVMToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertOpenACCToSCF()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertOpenACCToSCF()::MlirPass
+function mlirCreateConversionConvertOpenACCToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertOpenACCToSCFPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertOpenACCToSCF()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertOpenACCToSCF()::Cvoid
+function mlirRegisterConversionConvertOpenACCToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertOpenACCToSCFPass()::Cvoid
 end
 
 function mlirCreateConversionConvertOpenMPToLLVMPass()
@@ -6166,20 +6915,20 @@ function mlirRegisterConversionConvertOpenMPToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertOpenMPToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertPDLToPDLInterp()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertPDLToPDLInterp()::MlirPass
+function mlirCreateConversionConvertPDLToPDLInterpPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertPDLToPDLInterpPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertPDLToPDLInterp()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertPDLToPDLInterp()::Cvoid
+function mlirRegisterConversionConvertPDLToPDLInterpPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertPDLToPDLInterpPass()::Cvoid
 end
 
-function mlirCreateConversionConvertParallelLoopToGpu()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertParallelLoopToGpu()::MlirPass
+function mlirCreateConversionConvertParallelLoopToGpuPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertParallelLoopToGpuPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertParallelLoopToGpu()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertParallelLoopToGpu()::Cvoid
+function mlirRegisterConversionConvertParallelLoopToGpuPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertParallelLoopToGpuPass()::Cvoid
 end
 
 function mlirCreateConversionConvertSCFToOpenMPPass()
@@ -6198,36 +6947,44 @@ function mlirRegisterConversionConvertSPIRVToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertSPIRVToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertShapeConstraints()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertShapeConstraints()::MlirPass
+function mlirCreateConversionConvertShapeConstraintsPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertShapeConstraintsPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertShapeConstraints()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertShapeConstraints()::Cvoid
+function mlirRegisterConversionConvertShapeConstraintsPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertShapeConstraintsPass()::Cvoid
 end
 
-function mlirCreateConversionConvertShapeToStandard()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertShapeToStandard()::MlirPass
+function mlirCreateConversionConvertShapeToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertShapeToStandardPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertShapeToStandard()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertShapeToStandard()::Cvoid
+function mlirRegisterConversionConvertShapeToStandardPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertShapeToStandardPass()::Cvoid
 end
 
-function mlirCreateConversionConvertTensorToLinalg()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertTensorToLinalg()::MlirPass
+function mlirCreateConversionConvertTensorToLinalgPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertTensorToLinalgPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertTensorToLinalg()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertTensorToLinalg()::Cvoid
+function mlirRegisterConversionConvertTensorToLinalgPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertTensorToLinalgPass()::Cvoid
 end
 
-function mlirCreateConversionConvertTensorToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertTensorToSPIRV()::MlirPass
+function mlirCreateConversionConvertTensorToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertTensorToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertTensorToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertTensorToSPIRV()::Cvoid
+function mlirRegisterConversionConvertTensorToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertTensorToSPIRVPass()::Cvoid
+end
+
+function mlirCreateConversionConvertToEmitC()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertToEmitC()::MlirPass
+end
+
+function mlirRegisterConversionConvertToEmitC()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertToEmitC()::Cvoid
 end
 
 function mlirCreateConversionConvertToLLVMPass()
@@ -6238,20 +6995,12 @@ function mlirRegisterConversionConvertToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertToLLVMPass()::Cvoid
 end
 
-function mlirCreateConversionConvertToSPIRVPass()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertToSPIRVPass()::MlirPass
+function mlirCreateConversionConvertVectorToArmSMEPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVectorToArmSMEPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertToSPIRVPass()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertToSPIRVPass()::Cvoid
-end
-
-function mlirCreateConversionConvertVectorToArmSME()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVectorToArmSME()::MlirPass
-end
-
-function mlirRegisterConversionConvertVectorToArmSME()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToArmSME()::Cvoid
+function mlirRegisterConversionConvertVectorToArmSMEPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToArmSMEPass()::Cvoid
 end
 
 function mlirCreateConversionConvertVectorToGPU()
@@ -6278,20 +7027,28 @@ function mlirRegisterConversionConvertVectorToSCF()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToSCF()::Cvoid
 end
 
-function mlirCreateConversionConvertVectorToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVectorToSPIRV()::MlirPass
+function mlirCreateConversionConvertVectorToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVectorToSPIRVPass()::MlirPass
 end
 
-function mlirRegisterConversionConvertVectorToSPIRV()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToSPIRV()::Cvoid
+function mlirRegisterConversionConvertVectorToSPIRVPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToSPIRVPass()::Cvoid
 end
 
-function mlirCreateConversionConvertVulkanLaunchFuncToVulkanCallsPass()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVulkanLaunchFuncToVulkanCallsPass()::MlirPass
+function mlirCreateConversionConvertVectorToXeGPU()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertVectorToXeGPU()::MlirPass
 end
 
-function mlirRegisterConversionConvertVulkanLaunchFuncToVulkanCallsPass()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVulkanLaunchFuncToVulkanCallsPass()::Cvoid
+function mlirRegisterConversionConvertVectorToXeGPU()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertVectorToXeGPU()::Cvoid
+end
+
+function mlirCreateConversionConvertXeVMToLLVMPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionConvertXeVMToLLVMPass()::MlirPass
+end
+
+function mlirRegisterConversionConvertXeVMToLLVMPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionConvertXeVMToLLVMPass()::Cvoid
 end
 
 function mlirCreateConversionFinalizeMemRefToLLVMConversionPass()
@@ -6318,6 +7075,14 @@ function mlirRegisterConversionLiftControlFlowToSCFPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionLiftControlFlowToSCFPass()::Cvoid
 end
 
+function mlirCreateConversionLowerAffinePass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionLowerAffinePass()::MlirPass
+end
+
+function mlirRegisterConversionLowerAffinePass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionLowerAffinePass()::Cvoid
+end
+
 function mlirCreateConversionLowerHostCodeToLLVMPass()
     @ccall (MLIR_C_PATH[]).mlirCreateConversionLowerHostCodeToLLVMPass()::MlirPass
 end
@@ -6334,20 +7099,20 @@ function mlirRegisterConversionMapMemRefStorageClass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionMapMemRefStorageClass()::Cvoid
 end
 
-function mlirCreateConversionReconcileUnrealizedCasts()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionReconcileUnrealizedCasts()::MlirPass
+function mlirCreateConversionReconcileUnrealizedCastsPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionReconcileUnrealizedCastsPass()::MlirPass
 end
 
-function mlirRegisterConversionReconcileUnrealizedCasts()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionReconcileUnrealizedCasts()::Cvoid
+function mlirRegisterConversionReconcileUnrealizedCastsPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionReconcileUnrealizedCastsPass()::Cvoid
 end
 
-function mlirCreateConversionSCFToControlFlow()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionSCFToControlFlow()::MlirPass
+function mlirCreateConversionSCFToControlFlowPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionSCFToControlFlowPass()::MlirPass
 end
 
-function mlirRegisterConversionSCFToControlFlow()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionSCFToControlFlow()::Cvoid
+function mlirRegisterConversionSCFToControlFlowPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionSCFToControlFlowPass()::Cvoid
 end
 
 function mlirCreateConversionSCFToEmitC()
@@ -6374,12 +7139,12 @@ function mlirRegisterConversionSetLLVMModuleDataLayoutPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionSetLLVMModuleDataLayoutPass()::Cvoid
 end
 
-function mlirCreateConversionTosaToArith()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToArith()::MlirPass
+function mlirCreateConversionTosaToArithPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToArithPass()::MlirPass
 end
 
-function mlirRegisterConversionTosaToArith()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToArith()::Cvoid
+function mlirRegisterConversionTosaToArithPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToArithPass()::Cvoid
 end
 
 function mlirCreateConversionTosaToLinalg()
@@ -6406,20 +7171,20 @@ function mlirRegisterConversionTosaToMLProgram()
     @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToMLProgram()::Cvoid
 end
 
-function mlirCreateConversionTosaToSCF()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToSCF()::MlirPass
+function mlirCreateConversionTosaToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToSCFPass()::MlirPass
 end
 
-function mlirRegisterConversionTosaToSCF()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToSCF()::Cvoid
+function mlirRegisterConversionTosaToSCFPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToSCFPass()::Cvoid
 end
 
-function mlirCreateConversionTosaToTensor()
-    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToTensor()::MlirPass
+function mlirCreateConversionTosaToTensorPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateConversionTosaToTensorPass()::MlirPass
 end
 
-function mlirRegisterConversionTosaToTensor()
-    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToTensor()::Cvoid
+function mlirRegisterConversionTosaToTensorPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterConversionTosaToTensorPass()::Cvoid
 end
 
 function mlirCreateConversionUBToLLVMConversionPass()
@@ -6620,56 +7385,196 @@ function mlirRegisterAsyncPasses()
     @ccall (MLIR_C_PATH[]).mlirRegisterAsyncPasses()::Cvoid
 end
 
-function mlirCreateAsyncAsyncFuncToAsyncRuntime()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncFuncToAsyncRuntime()::MlirPass
+function mlirCreateAsyncAsyncFuncToAsyncRuntimePass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncFuncToAsyncRuntimePass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncFuncToAsyncRuntime()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncFuncToAsyncRuntime()::Cvoid
+function mlirRegisterAsyncAsyncFuncToAsyncRuntimePass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncFuncToAsyncRuntimePass()::Cvoid
 end
 
-function mlirCreateAsyncAsyncParallelFor()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncParallelFor()::MlirPass
+function mlirCreateAsyncAsyncParallelForPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncParallelForPass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncParallelFor()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncParallelFor()::Cvoid
+function mlirRegisterAsyncAsyncParallelForPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncParallelForPass()::Cvoid
 end
 
-function mlirCreateAsyncAsyncRuntimePolicyBasedRefCounting()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimePolicyBasedRefCounting()::MlirPass
+function mlirCreateAsyncAsyncRuntimePolicyBasedRefCountingPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimePolicyBasedRefCountingPass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncRuntimePolicyBasedRefCounting()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimePolicyBasedRefCounting()::Cvoid
+function mlirRegisterAsyncAsyncRuntimePolicyBasedRefCountingPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimePolicyBasedRefCountingPass()::Cvoid
 end
 
-function mlirCreateAsyncAsyncRuntimeRefCounting()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimeRefCounting()::MlirPass
+function mlirCreateAsyncAsyncRuntimeRefCountingOptPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimeRefCountingOptPass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncRuntimeRefCounting()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimeRefCounting()::Cvoid
+function mlirRegisterAsyncAsyncRuntimeRefCountingOptPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimeRefCountingOptPass()::Cvoid
 end
 
-function mlirCreateAsyncAsyncRuntimeRefCountingOpt()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimeRefCountingOpt()::MlirPass
+function mlirCreateAsyncAsyncRuntimeRefCountingPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncRuntimeRefCountingPass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncRuntimeRefCountingOpt()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimeRefCountingOpt()::Cvoid
+function mlirRegisterAsyncAsyncRuntimeRefCountingPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncRuntimeRefCountingPass()::Cvoid
 end
 
-function mlirCreateAsyncAsyncToAsyncRuntime()
-    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncToAsyncRuntime()::MlirPass
+function mlirCreateAsyncAsyncToAsyncRuntimePass()
+    @ccall (MLIR_C_PATH[]).mlirCreateAsyncAsyncToAsyncRuntimePass()::MlirPass
 end
 
-function mlirRegisterAsyncAsyncToAsyncRuntime()
-    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncToAsyncRuntime()::Cvoid
+function mlirRegisterAsyncAsyncToAsyncRuntimePass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterAsyncAsyncToAsyncRuntimePass()::Cvoid
 end
 
 function mlirGetDialectHandle__cf__()
     @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__cf__()::MlirDialectHandle
+end
+
+function mlirGetDialectHandle__emitc__()
+    @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__emitc__()::MlirDialectHandle
+end
+
+@cenum MlirEmitCCmpPredicate::UInt64 begin
+    MLIR_EMITC_CMP_PREDICATE_EQ = 0x0000000000000000
+    MLIR_EMITC_CMP_PREDICATE_NE = 0x0000000000000001
+    MLIR_EMITC_CMP_PREDICATE_LT = 0x0000000000000002
+    MLIR_EMITC_CMP_PREDICATE_LE = 0x0000000000000003
+    MLIR_EMITC_CMP_PREDICATE_GT = 0x0000000000000004
+    MLIR_EMITC_CMP_PREDICATE_GE = 0x0000000000000005
+    MLIR_EMITC_CMP_PREDICATE_THREE_WAY = 0x0000000000000006
+end
+
+function mlirTypeIsAEmitCArrayType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCArrayType(type::MlirType)::Bool
+end
+
+function mlirEmitCArrayTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCArrayTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCArrayTypeGet(nDims, shape, elementType)
+    @ccall (MLIR_C_PATH[]).mlirEmitCArrayTypeGet(
+        nDims::Cptrdiff_t, shape::Ptr{Int64}, elementType::MlirType
+    )::MlirType
+end
+
+function mlirTypeIsAEmitCLValueType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCLValueType(type::MlirType)::Bool
+end
+
+function mlirEmitCLValueTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCLValueTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCLValueTypeGet(valueType)
+    @ccall (MLIR_C_PATH[]).mlirEmitCLValueTypeGet(valueType::MlirType)::MlirType
+end
+
+function mlirTypeIsAEmitCOpaqueType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCOpaqueType(type::MlirType)::Bool
+end
+
+function mlirEmitCOpaqueTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCOpaqueTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCOpaqueTypeGet(ctx, value)
+    @ccall (MLIR_C_PATH[]).mlirEmitCOpaqueTypeGet(
+        ctx::MlirContext, value::MlirStringRef
+    )::MlirType
+end
+
+function mlirTypeIsAEmitCPointerType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCPointerType(type::MlirType)::Bool
+end
+
+function mlirEmitCPointerTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCPointerTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCPointerTypeGet(pointee)
+    @ccall (MLIR_C_PATH[]).mlirEmitCPointerTypeGet(pointee::MlirType)::MlirType
+end
+
+function mlirTypeIsAEmitCPtrDiffTType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCPtrDiffTType(type::MlirType)::Bool
+end
+
+function mlirEmitCPtrDiffTTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCPtrDiffTTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCPtrDiffTTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirEmitCPtrDiffTTypeGet(ctx::MlirContext)::MlirType
+end
+
+function mlirTypeIsAEmitCSignedSizeTType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCSignedSizeTType(type::MlirType)::Bool
+end
+
+function mlirEmitCSignedSizeTTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCSignedSizeTTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCSignedSizeTTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirEmitCSignedSizeTTypeGet(ctx::MlirContext)::MlirType
+end
+
+function mlirTypeIsAEmitCSizeTType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAEmitCSizeTType(type::MlirType)::Bool
+end
+
+function mlirEmitCSizeTTypeGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCSizeTTypeGetTypeID()::MlirTypeID
+end
+
+function mlirEmitCSizeTTypeGet(ctx)
+    @ccall (MLIR_C_PATH[]).mlirEmitCSizeTTypeGet(ctx::MlirContext)::MlirType
+end
+
+function mlirAttributeIsAEmitCCmpPredicate(attr)
+    @ccall (MLIR_C_PATH[]).mlirAttributeIsAEmitCCmpPredicate(attr::MlirAttribute)::Bool
+end
+
+function mlirEmitCCmpPredicateAttrGet(ctx, val)
+    @ccall (MLIR_C_PATH[]).mlirEmitCCmpPredicateAttrGet(
+        ctx::MlirContext, val::MlirEmitCCmpPredicate
+    )::MlirAttribute
+end
+
+function mlirEmitCCmpPredicateAttrGetValue(attr)
+    @ccall (MLIR_C_PATH[]).mlirEmitCCmpPredicateAttrGetValue(
+        attr::MlirAttribute
+    )::MlirEmitCCmpPredicate
+end
+
+function mlirEmitCCmpPredicateAttrGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCCmpPredicateAttrGetTypeID()::MlirTypeID
+end
+
+function mlirAttributeIsAEmitCOpaque(attr)
+    @ccall (MLIR_C_PATH[]).mlirAttributeIsAEmitCOpaque(attr::MlirAttribute)::Bool
+end
+
+function mlirEmitCOpaqueAttrGet(ctx, value)
+    @ccall (MLIR_C_PATH[]).mlirEmitCOpaqueAttrGet(
+        ctx::MlirContext, value::MlirStringRef
+    )::MlirAttribute
+end
+
+function mlirEmitCOpaqueAttrGetValue(attr)
+    @ccall (MLIR_C_PATH[]).mlirEmitCOpaqueAttrGetValue(attr::MlirAttribute)::MlirStringRef
+end
+
+function mlirEmitCOpaqueAttrGetTypeID()
+    @ccall (MLIR_C_PATH[]).mlirEmitCOpaqueAttrGetTypeID()::MlirTypeID
 end
 
 function mlirGetDialectHandle__func__()
@@ -6683,6 +7588,12 @@ Sets the argument attribute 'name' of an argument at index 'pos'. Asserts that t
 """
 function mlirFuncSetArgAttr(op, pos, name, attr)
     @ccall (MLIR_C_PATH[]).mlirFuncSetArgAttr(
+        op::MlirOperation, pos::Cptrdiff_t, name::MlirStringRef, attr::MlirAttribute
+    )::Cvoid
+end
+
+function mlirFuncSetResultAttr(op, pos, name, attr)
+    @ccall (MLIR_C_PATH[]).mlirFuncSetResultAttr(
         op::MlirOperation, pos::Cptrdiff_t, name::MlirStringRef, attr::MlirAttribute
     )::Cvoid
 end
@@ -6713,6 +7624,19 @@ function mlirGPUObjectAttrGet(mlirCtx, target, format, objectStrRef, mlirObjectP
     )::MlirAttribute
 end
 
+function mlirGPUObjectAttrGetWithKernels(
+    mlirCtx, target, format, objectStrRef, mlirObjectProps, mlirKernelsAttr
+)
+    @ccall (MLIR_C_PATH[]).mlirGPUObjectAttrGetWithKernels(
+        mlirCtx::MlirContext,
+        target::MlirAttribute,
+        format::UInt32,
+        objectStrRef::MlirStringRef,
+        mlirObjectProps::MlirAttribute,
+        mlirKernelsAttr::MlirAttribute,
+    )::MlirAttribute
+end
+
 function mlirGPUObjectAttrGetTarget(mlirObjectAttr)
     @ccall (MLIR_C_PATH[]).mlirGPUObjectAttrGetTarget(
         mlirObjectAttr::MlirAttribute
@@ -6737,6 +7661,16 @@ end
 
 function mlirGPUObjectAttrGetProperties(mlirObjectAttr)
     @ccall (MLIR_C_PATH[]).mlirGPUObjectAttrGetProperties(
+        mlirObjectAttr::MlirAttribute
+    )::MlirAttribute
+end
+
+function mlirGPUObjectAttrHasKernels(mlirObjectAttr)
+    @ccall (MLIR_C_PATH[]).mlirGPUObjectAttrHasKernels(mlirObjectAttr::MlirAttribute)::Bool
+end
+
+function mlirGPUObjectAttrGetKernels(mlirObjectAttr)
+    @ccall (MLIR_C_PATH[]).mlirGPUObjectAttrGetKernels(
         mlirObjectAttr::MlirAttribute
     )::MlirAttribute
 end
@@ -6769,20 +7703,20 @@ function mlirRegisterGPUGpuEliminateBarriers()
     @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuEliminateBarriers()::Cvoid
 end
 
-function mlirCreateGPUGpuKernelOutlining()
-    @ccall (MLIR_C_PATH[]).mlirCreateGPUGpuKernelOutlining()::MlirPass
+function mlirCreateGPUGpuKernelOutliningPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateGPUGpuKernelOutliningPass()::MlirPass
 end
 
-function mlirRegisterGPUGpuKernelOutlining()
-    @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuKernelOutlining()::Cvoid
+function mlirRegisterGPUGpuKernelOutliningPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuKernelOutliningPass()::Cvoid
 end
 
-function mlirCreateGPUGpuLaunchSinkIndexComputations()
-    @ccall (MLIR_C_PATH[]).mlirCreateGPUGpuLaunchSinkIndexComputations()::MlirPass
+function mlirCreateGPUGpuLaunchSinkIndexComputationsPass()
+    @ccall (MLIR_C_PATH[]).mlirCreateGPUGpuLaunchSinkIndexComputationsPass()::MlirPass
 end
 
-function mlirRegisterGPUGpuLaunchSinkIndexComputations()
-    @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuLaunchSinkIndexComputations()::Cvoid
+function mlirRegisterGPUGpuLaunchSinkIndexComputationsPass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuLaunchSinkIndexComputationsPass()::Cvoid
 end
 
 function mlirCreateGPUGpuMapParallelLoopsPass()
@@ -6825,6 +7759,14 @@ function mlirRegisterGPUGpuSPIRVAttachTarget()
     @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuSPIRVAttachTarget()::Cvoid
 end
 
+function mlirCreateGPUGpuXeVMAttachTarget()
+    @ccall (MLIR_C_PATH[]).mlirCreateGPUGpuXeVMAttachTarget()::MlirPass
+end
+
+function mlirRegisterGPUGpuXeVMAttachTarget()
+    @ccall (MLIR_C_PATH[]).mlirRegisterGPUGpuXeVMAttachTarget()::Cvoid
+end
+
 function mlirGetDialectHandle__irdl__()
     @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__irdl__()::MlirDialectHandle
 end
@@ -6836,6 +7778,10 @@ Loads all IRDL dialects in the provided module, registering the dialects in the 
 """
 function mlirLoadIRDLDialects(_module)
     @ccall (MLIR_C_PATH[]).mlirLoadIRDLDialects(_module::MlirModule)::MlirLogicalResult
+end
+
+function mlirGetDialectHandle__index__()
+    @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__index__()::MlirDialectHandle
 end
 
 function mlirGetDialectHandle__llvm__()
@@ -6892,6 +7838,15 @@ function mlirLLVMArrayTypeGet(elementType, numElements)
 end
 
 """
+    mlirLLVMArrayTypeGetElementType(type)
+
+Returns the element type of the llvm.array type.
+"""
+function mlirLLVMArrayTypeGetElementType(type)
+    @ccall (MLIR_C_PATH[]).mlirLLVMArrayTypeGetElementType(type::MlirType)::MlirType
+end
+
+"""
     mlirLLVMFunctionTypeGet(resultType, nArgumentTypes, argumentTypes, isVarArg)
 
 Creates an llvm.func type.
@@ -6903,6 +7858,35 @@ function mlirLLVMFunctionTypeGet(resultType, nArgumentTypes, argumentTypes, isVa
         argumentTypes::Ptr{MlirType},
         isVarArg::Bool,
     )::MlirType
+end
+
+"""
+    mlirLLVMFunctionTypeGetNumInputs(type)
+
+Returns the number of input types.
+"""
+function mlirLLVMFunctionTypeGetNumInputs(type)
+    @ccall (MLIR_C_PATH[]).mlirLLVMFunctionTypeGetNumInputs(type::MlirType)::Cptrdiff_t
+end
+
+"""
+    mlirLLVMFunctionTypeGetInput(type, pos)
+
+Returns the pos-th input type.
+"""
+function mlirLLVMFunctionTypeGetInput(type, pos)
+    @ccall (MLIR_C_PATH[]).mlirLLVMFunctionTypeGetInput(
+        type::MlirType, pos::Cptrdiff_t
+    )::MlirType
+end
+
+"""
+    mlirLLVMFunctionTypeGetReturnType(type)
+
+Returns the return type of the function type.
+"""
+function mlirLLVMFunctionTypeGetReturnType(type)
+    @ccall (MLIR_C_PATH[]).mlirLLVMFunctionTypeGetReturnType(type::MlirType)::MlirType
 end
 
 """
@@ -7122,17 +8106,17 @@ function mlirLLVMComdatAttrGet(ctx, comdat)
 end
 
 @cenum MlirLLVMLinkage::UInt32 begin
-    MlirLLVMLinkagePrivate = 0x0000000000000000
-    MlirLLVMLinkageInternal = 0x0000000000000001
-    MlirLLVMLinkageAvailableExternally = 0x0000000000000002
-    MlirLLVMLinkageLinkonce = 0x0000000000000003
+    MlirLLVMLinkageExternal = 0x0000000000000000
+    MlirLLVMLinkageAvailableExternally = 0x0000000000000001
+    MlirLLVMLinkageLinkonce = 0x0000000000000002
+    MlirLLVMLinkageLinkonceODR = 0x0000000000000003
     MlirLLVMLinkageWeak = 0x0000000000000004
-    MlirLLVMLinkageCommon = 0x0000000000000005
+    MlirLLVMLinkageWeakODR = 0x0000000000000005
     MlirLLVMLinkageAppending = 0x0000000000000006
-    MlirLLVMLinkageExternWeak = 0x0000000000000007
-    MlirLLVMLinkageLinkonceODR = 0x0000000000000008
-    MlirLLVMLinkageWeakODR = 0x0000000000000009
-    MlirLLVMLinkageExternal = 0x000000000000000a
+    MlirLLVMLinkageInternal = 0x0000000000000007
+    MlirLLVMLinkagePrivate = 0x0000000000000008
+    MlirLLVMLinkageExternWeak = 0x0000000000000009
+    MlirLLVMLinkageCommon = 0x000000000000000a
 end
 
 """
@@ -7216,14 +8200,26 @@ function mlirLLVMDIBasicTypeAttrGet(ctx, tag, name, sizeInBits, encoding)
 end
 
 """
-    mlirLLVMDICompositeTypeAttrGet(ctx, tag, recId, name, file, line, scope, baseType, flags, sizeInBits, alignInBits, nElements, elements, dataLocation, rank, allocated, associated)
+    mlirLLVMDICompositeTypeAttrGetRecSelf(recId)
+
+Creates a self-referencing LLVM DICompositeType attribute.
+"""
+function mlirLLVMDICompositeTypeAttrGetRecSelf(recId)
+    @ccall (MLIR_C_PATH[]).mlirLLVMDICompositeTypeAttrGetRecSelf(
+        recId::MlirAttribute
+    )::MlirAttribute
+end
+
+"""
+    mlirLLVMDICompositeTypeAttrGet(ctx, recId, isRecSelf, tag, name, file, line, scope, baseType, flags, sizeInBits, alignInBits, nElements, elements, dataLocation, rank, allocated, associated)
 
 Creates a LLVM DICompositeType attribute.
 """
 function mlirLLVMDICompositeTypeAttrGet(
     ctx,
-    tag,
     recId,
+    isRecSelf,
+    tag,
     name,
     file,
     line,
@@ -7241,8 +8237,9 @@ function mlirLLVMDICompositeTypeAttrGet(
 )
     @ccall (MLIR_C_PATH[]).mlirLLVMDICompositeTypeAttrGet(
         ctx::MlirContext,
-        tag::Cuint,
         recId::MlirAttribute,
+        isRecSelf::Bool,
+        tag::Cuint,
         name::MlirAttribute,
         file::MlirAttribute,
         line::UInt32,
@@ -7407,12 +8404,12 @@ function mlirLLVMDILexicalBlockFileAttrGet(ctx, scope, file, discriminator)
 end
 
 """
-    mlirLLVMDILocalVariableAttrGet(ctx, scope, name, diFile, line, arg, alignInBits, diType)
+    mlirLLVMDILocalVariableAttrGet(ctx, scope, name, diFile, line, arg, alignInBits, diType, flags)
 
 Creates a LLVM DILocalVariableAttr attribute.
 """
 function mlirLLVMDILocalVariableAttrGet(
-    ctx, scope, name, diFile, line, arg, alignInBits, diType
+    ctx, scope, name, diFile, line, arg, alignInBits, diType, flags
 )
     @ccall (MLIR_C_PATH[]).mlirLLVMDILocalVariableAttrGet(
         ctx::MlirContext,
@@ -7423,16 +8420,30 @@ function mlirLLVMDILocalVariableAttrGet(
         arg::Cuint,
         alignInBits::Cuint,
         diType::MlirAttribute,
+        flags::Int64,
     )::MlirAttribute
 end
 
 """
-    mlirLLVMDISubprogramAttrGet(ctx, id, compileUnit, scope, name, linkageName, file, line, scopeLine, subprogramFlags, type)
+    mlirLLVMDISubprogramAttrGetRecSelf(recId)
+
+Creates a self-referencing LLVM DISubprogramAttr attribute.
+"""
+function mlirLLVMDISubprogramAttrGetRecSelf(recId)
+    @ccall (MLIR_C_PATH[]).mlirLLVMDISubprogramAttrGetRecSelf(
+        recId::MlirAttribute
+    )::MlirAttribute
+end
+
+"""
+    mlirLLVMDISubprogramAttrGet(ctx, recId, isRecSelf, id, compileUnit, scope, name, linkageName, file, line, scopeLine, subprogramFlags, type, nRetainedNodes, retainedNodes, nAnnotations, annotations)
 
 Creates a LLVM DISubprogramAttr attribute.
 """
 function mlirLLVMDISubprogramAttrGet(
     ctx,
+    recId,
+    isRecSelf,
     id,
     compileUnit,
     scope,
@@ -7443,9 +8454,15 @@ function mlirLLVMDISubprogramAttrGet(
     scopeLine,
     subprogramFlags,
     type,
+    nRetainedNodes,
+    retainedNodes,
+    nAnnotations,
+    annotations,
 )
     @ccall (MLIR_C_PATH[]).mlirLLVMDISubprogramAttrGet(
         ctx::MlirContext,
+        recId::MlirAttribute,
+        isRecSelf::Bool,
         id::MlirAttribute,
         compileUnit::MlirAttribute,
         scope::MlirAttribute,
@@ -7456,6 +8473,21 @@ function mlirLLVMDISubprogramAttrGet(
         scopeLine::Cuint,
         subprogramFlags::UInt64,
         type::MlirAttribute,
+        nRetainedNodes::Cptrdiff_t,
+        retainedNodes::Ptr{MlirAttribute},
+        nAnnotations::Cptrdiff_t,
+        annotations::Ptr{MlirAttribute},
+    )::MlirAttribute
+end
+
+"""
+    mlirLLVMDIAnnotationAttrGet(ctx, name, value)
+
+Creates a LLVM DIAnnotation attribute.
+"""
+function mlirLLVMDIAnnotationAttrGet(ctx, name, value)
+    @ccall (MLIR_C_PATH[]).mlirLLVMDIAnnotationAttrGet(
+        ctx::MlirContext, name::MlirAttribute, value::MlirAttribute
     )::MlirAttribute
 end
 
@@ -7561,6 +8593,27 @@ function mlirLLVMDIModuleAttrGet(
 end
 
 """
+    mlirLLVMDIImportedEntityAttrGet(ctx, tag, scope, entity, file, line, name, nElements, elements)
+
+Creates a LLVM DIImportedEntityAttr attribute.
+"""
+function mlirLLVMDIImportedEntityAttrGet(
+    ctx, tag, scope, entity, file, line, name, nElements, elements
+)
+    @ccall (MLIR_C_PATH[]).mlirLLVMDIImportedEntityAttrGet(
+        ctx::MlirContext,
+        tag::Cuint,
+        scope::MlirAttribute,
+        entity::MlirAttribute,
+        file::MlirAttribute,
+        line::Cuint,
+        name::MlirAttribute,
+        nElements::Cptrdiff_t,
+        elements::Ptr{MlirAttribute},
+    )::MlirAttribute
+end
+
+"""
     mlirLLVMDIModuleAttrGetScope(diModule)
 
 Gets the scope of this DIModuleAttr.
@@ -7578,6 +8631,50 @@ Apply the special region builder for the builtin named Linalg op. Assert that `m
 """
 function mlirLinalgFillBuiltinNamedOpRegion(mlirOp)
     @ccall (MLIR_C_PATH[]).mlirLinalgFillBuiltinNamedOpRegion(mlirOp::MlirOperation)::Cvoid
+end
+
+function mlirLinalgIsAContractionOp(op)
+    @ccall (MLIR_C_PATH[]).mlirLinalgIsAContractionOp(op::MlirOperation)::Bool
+end
+
+struct MlirLinalgContractionDimensions
+    batch::MlirAttribute
+    m::MlirAttribute
+    n::MlirAttribute
+    k::MlirAttribute
+end
+
+function mlirLinalgInferContractionDimensions(op)
+    @ccall (MLIR_C_PATH[]).mlirLinalgInferContractionDimensions(
+        op::MlirOperation
+    )::MlirLinalgContractionDimensions
+end
+
+function mlirLinalgIsAConvolutionOp(op)
+    @ccall (MLIR_C_PATH[]).mlirLinalgIsAConvolutionOp(op::MlirOperation)::Bool
+end
+
+struct MlirLinalgConvolutionDimensions
+    batch::MlirAttribute
+    outputImage::MlirAttribute
+    outputChannel::MlirAttribute
+    filterLoop::MlirAttribute
+    inputChannel::MlirAttribute
+    depth::MlirAttribute
+    strides::MlirAttribute
+    dilations::MlirAttribute
+end
+
+function mlirLinalgInferConvolutionDimensions(op)
+    @ccall (MLIR_C_PATH[]).mlirLinalgInferConvolutionDimensions(
+        op::MlirOperation
+    )::MlirLinalgConvolutionDimensions
+end
+
+function mlirLinalgGetIndexingMapsAttribute(op)
+    @ccall (MLIR_C_PATH[]).mlirLinalgGetIndexingMapsAttribute(
+        op::MlirOperation
+    )::MlirAttribute
 end
 
 function mlirGetDialectHandle__linalg__()
@@ -7642,6 +8739,14 @@ end
 
 function mlirRegisterLinalgLinalgElementwiseOpFusionPass()
     @ccall (MLIR_C_PATH[]).mlirRegisterLinalgLinalgElementwiseOpFusionPass()::Cvoid
+end
+
+function mlirCreateLinalgLinalgFoldIntoElementwisePass()
+    @ccall (MLIR_C_PATH[]).mlirCreateLinalgLinalgFoldIntoElementwisePass()::MlirPass
+end
+
+function mlirRegisterLinalgLinalgFoldIntoElementwisePass()
+    @ccall (MLIR_C_PATH[]).mlirRegisterLinalgLinalgFoldIntoElementwisePass()::Cvoid
 end
 
 function mlirCreateLinalgLinalgFoldUnitExtentDimsPass()
@@ -8132,6 +9237,103 @@ function mlirUniformQuantizedPerAxisTypeIsFixedPoint(type)
 end
 
 """
+    mlirTypeIsAUniformQuantizedSubChannelType(type)
+
+Returns `true` if the given type is a UniformQuantizedSubChannel.
+"""
+function mlirTypeIsAUniformQuantizedSubChannelType(type)
+    @ccall (MLIR_C_PATH[]).mlirTypeIsAUniformQuantizedSubChannelType(type::MlirType)::Bool
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGet(flags, storageType, expressedType, scalesAttr, zeroPointsAttr, blockSizeInfoLength, quantizedDimensions, blockSizes, storageTypeMin, storageTypeMax)
+
+Creates a UniformQuantizedSubChannelType with the given parameters.
+
+The type is owned by the context. `scalesAttr` and `zeroPointsAttr` must be DenseElementsAttrs. `quantizedDimensions` and `blockSizes` point to `blockSizeInfoLength` number of elements, describing respectively the quantization axis and corresponding block size.
+"""
+function mlirUniformQuantizedSubChannelTypeGet(
+    flags,
+    storageType,
+    expressedType,
+    scalesAttr,
+    zeroPointsAttr,
+    blockSizeInfoLength,
+    quantizedDimensions,
+    blockSizes,
+    storageTypeMin,
+    storageTypeMax,
+)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGet(
+        flags::Cuint,
+        storageType::MlirType,
+        expressedType::MlirType,
+        scalesAttr::MlirAttribute,
+        zeroPointsAttr::MlirAttribute,
+        blockSizeInfoLength::Cptrdiff_t,
+        quantizedDimensions::Ptr{Int32},
+        blockSizes::Ptr{Int64},
+        storageTypeMin::Int64,
+        storageTypeMax::Int64,
+    )::MlirType
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGetNumBlockSizes(type)
+
+Returns the number of block sizes provided in type.
+"""
+function mlirUniformQuantizedSubChannelTypeGetNumBlockSizes(type)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGetNumBlockSizes(
+        type::MlirType
+    )::Cptrdiff_t
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGetQuantizedDimension(type, pos)
+
+Returns the quantized dimension at the given position.
+"""
+function mlirUniformQuantizedSubChannelTypeGetQuantizedDimension(type, pos)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGetQuantizedDimension(
+        type::MlirType, pos::Cptrdiff_t
+    )::Int32
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGetBlockSize(type, pos)
+
+Returns the block size at the given position.
+"""
+function mlirUniformQuantizedSubChannelTypeGetBlockSize(type, pos)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGetBlockSize(
+        type::MlirType, pos::Cptrdiff_t
+    )::Int64
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGetScales(type)
+
+Returns the scales of the quantized type.
+"""
+function mlirUniformQuantizedSubChannelTypeGetScales(type)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGetScales(
+        type::MlirType
+    )::MlirAttribute
+end
+
+"""
+    mlirUniformQuantizedSubChannelTypeGetZeroPoints(type)
+
+Returns the zero-points of the quantized type.
+"""
+function mlirUniformQuantizedSubChannelTypeGetZeroPoints(type)
+    @ccall (MLIR_C_PATH[]).mlirUniformQuantizedSubChannelTypeGetZeroPoints(
+        type::MlirType
+    )::MlirAttribute
+end
+
+"""
     mlirTypeIsACalibratedQuantizedType(type)
 
 Returns `true` if the given type is a CalibratedQuantizedType.
@@ -8177,6 +9379,212 @@ function mlirGetDialectHandle__scf__()
     @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__scf__()::MlirDialectHandle
 end
 
+function mlirGetDialectHandle__smt__()
+    @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__smt__()::MlirDialectHandle
+end
+
+"""
+    mlirSMTTypeIsAnyNonFuncSMTValueType(type)
+
+Checks if the given type is any non-func SMT value type.
+"""
+function mlirSMTTypeIsAnyNonFuncSMTValueType(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsAnyNonFuncSMTValueType(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeIsAnySMTValueType(type)
+
+Checks if the given type is any SMT value type.
+"""
+function mlirSMTTypeIsAnySMTValueType(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsAnySMTValueType(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeIsAArray(type)
+
+Checks if the given type is a smt::ArrayType.
+"""
+function mlirSMTTypeIsAArray(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsAArray(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetArray(ctx, domainType, rangeType)
+
+Creates an array type with the given domain and range types.
+"""
+function mlirSMTTypeGetArray(ctx, domainType, rangeType)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetArray(
+        ctx::MlirContext, domainType::MlirType, rangeType::MlirType
+    )::MlirType
+end
+
+"""
+    mlirSMTTypeIsABitVector(type)
+
+Checks if the given type is a smt::BitVectorType.
+"""
+function mlirSMTTypeIsABitVector(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsABitVector(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetBitVector(ctx, width)
+
+Creates a smt::BitVectorType with the given width.
+"""
+function mlirSMTTypeGetBitVector(ctx, width)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetBitVector(ctx::MlirContext, width::Int32)::MlirType
+end
+
+"""
+    mlirSMTTypeIsABool(type)
+
+Checks if the given type is a smt::BoolType.
+"""
+function mlirSMTTypeIsABool(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsABool(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetBool(ctx)
+
+Creates a smt::BoolType.
+"""
+function mlirSMTTypeGetBool(ctx)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetBool(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirSMTTypeIsAInt(type)
+
+Checks if the given type is a smt::IntType.
+"""
+function mlirSMTTypeIsAInt(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsAInt(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetInt(ctx)
+
+Creates a smt::IntType.
+"""
+function mlirSMTTypeGetInt(ctx)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetInt(ctx::MlirContext)::MlirType
+end
+
+"""
+    mlirSMTTypeIsASMTFunc(type)
+
+Checks if the given type is a smt::FuncType.
+"""
+function mlirSMTTypeIsASMTFunc(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsASMTFunc(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetSMTFunc(ctx, numberOfDomainTypes, domainTypes, rangeType)
+
+Creates a smt::FuncType with the given domain and range types.
+"""
+function mlirSMTTypeGetSMTFunc(ctx, numberOfDomainTypes, domainTypes, rangeType)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetSMTFunc(
+        ctx::MlirContext,
+        numberOfDomainTypes::Csize_t,
+        domainTypes::Ptr{MlirType},
+        rangeType::MlirType,
+    )::MlirType
+end
+
+"""
+    mlirSMTTypeIsASort(type)
+
+Checks if the given type is a smt::SortType.
+"""
+function mlirSMTTypeIsASort(type)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeIsASort(type::MlirType)::Bool
+end
+
+"""
+    mlirSMTTypeGetSort(ctx, identifier, numberOfSortParams, sortParams)
+
+Creates a smt::SortType with the given identifier and sort parameters.
+"""
+function mlirSMTTypeGetSort(ctx, identifier, numberOfSortParams, sortParams)
+    @ccall (MLIR_C_PATH[]).mlirSMTTypeGetSort(
+        ctx::MlirContext,
+        identifier::MlirIdentifier,
+        numberOfSortParams::Csize_t,
+        sortParams::Ptr{MlirType},
+    )::MlirType
+end
+
+"""
+    mlirSMTAttrCheckBVCmpPredicate(ctx, str)
+
+Checks if the given string is a valid smt::BVCmpPredicate.
+"""
+function mlirSMTAttrCheckBVCmpPredicate(ctx, str)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrCheckBVCmpPredicate(
+        ctx::MlirContext, str::MlirStringRef
+    )::Bool
+end
+
+"""
+    mlirSMTAttrCheckIntPredicate(ctx, str)
+
+Checks if the given string is a valid smt::IntPredicate.
+"""
+function mlirSMTAttrCheckIntPredicate(ctx, str)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrCheckIntPredicate(
+        ctx::MlirContext, str::MlirStringRef
+    )::Bool
+end
+
+"""
+    mlirSMTAttrIsASMTAttribute(attr)
+
+Checks if the given attribute is a smt::SMTAttribute.
+"""
+function mlirSMTAttrIsASMTAttribute(attr)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrIsASMTAttribute(attr::MlirAttribute)::Bool
+end
+
+"""
+    mlirSMTAttrGetBitVector(ctx, value, width)
+
+Creates a smt::BitVectorAttr with the given value and width.
+"""
+function mlirSMTAttrGetBitVector(ctx, value, width)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrGetBitVector(
+        ctx::MlirContext, value::UInt64, width::Cuint
+    )::MlirAttribute
+end
+
+"""
+    mlirSMTAttrGetBVCmpPredicate(ctx, str)
+
+Creates a smt::BVCmpPredicateAttr with the given string.
+"""
+function mlirSMTAttrGetBVCmpPredicate(ctx, str)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrGetBVCmpPredicate(
+        ctx::MlirContext, str::MlirStringRef
+    )::MlirAttribute
+end
+
+"""
+    mlirSMTAttrGetIntPredicate(ctx, str)
+
+Creates a smt::IntPredicateAttr with the given string.
+"""
+function mlirSMTAttrGetIntPredicate(ctx, str)
+    @ccall (MLIR_C_PATH[]).mlirSMTAttrGetIntPredicate(
+        ctx::MlirContext, str::MlirStringRef
+    )::MlirAttribute
+end
+
 function mlirGetDialectHandle__spirv__()
     @ccall (MLIR_C_PATH[]).mlirGetDialectHandle__spirv__()::MlirDialectHandle
 end
@@ -8208,6 +9616,7 @@ end
 @cenum MlirSparseTensorLevelPropertyNondefault::UInt32 begin
     MLIR_SPARSE_PROPERTY_NON_UNIQUE = 0x0000000000000001
     MLIR_SPARSE_PROPERTY_NON_ORDERED = 0x0000000000000002
+    MLIR_SPARSE_PROPERTY_SOA = 0x0000000000000004
 end
 
 """
@@ -8768,188 +10177,6 @@ function mlirExecutionEngineDumpToObjectFile(jit, fileName)
     @ccall (MLIR_C_PATH[]).mlirExecutionEngineDumpToObjectFile(
         jit::MlirExecutionEngine, fileName::MlirStringRef
     )::Cvoid
-end
-
-struct MlirIntegerSet
-    ptr::Ptr{Cvoid}
-end
-
-"""
-    mlirIntegerSetGetContext(set)
-
-Gets the context in which the given integer set lives.
-"""
-function mlirIntegerSetGetContext(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetContext(set::MlirIntegerSet)::MlirContext
-end
-
-"""
-    mlirIntegerSetIsNull(set)
-
-Checks whether an integer set is a null object.
-"""
-function mlirIntegerSetIsNull(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsNull(set::MlirIntegerSet)::Bool
-end
-
-"""
-    mlirIntegerSetEqual(s1, s2)
-
-Checks if two integer set objects are equal. This is a "shallow" comparison of two objects. Only the sets with some small number of constraints are uniqued and compare equal here. Set objects that represent the same integer set with different constraints may be considered non-equal by this check. Set difference followed by an (expensive) emptiness check should be used to check equivalence of the underlying integer sets.
-"""
-function mlirIntegerSetEqual(s1, s2)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetEqual(s1::MlirIntegerSet, s2::MlirIntegerSet)::Bool
-end
-
-"""
-    mlirIntegerSetPrint(set, callback, userData)
-
-Prints an integer set by sending chunks of the string representation and forwarding `userData to `callback`. Note that the callback may be called several times with consecutive chunks of the string.
-"""
-function mlirIntegerSetPrint(set, callback, userData)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetPrint(
-        set::MlirIntegerSet, callback::MlirStringCallback, userData::Ptr{Cvoid}
-    )::Cvoid
-end
-
-"""
-    mlirIntegerSetDump(set)
-
-Prints an integer set to the standard error stream.
-"""
-function mlirIntegerSetDump(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetDump(set::MlirIntegerSet)::Cvoid
-end
-
-"""
-    mlirIntegerSetEmptyGet(context, numDims, numSymbols)
-
-Gets or creates a new canonically empty integer set with the give number of dimensions and symbols in the given context.
-"""
-function mlirIntegerSetEmptyGet(context, numDims, numSymbols)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetEmptyGet(
-        context::MlirContext, numDims::Cptrdiff_t, numSymbols::Cptrdiff_t
-    )::MlirIntegerSet
-end
-
-"""
-    mlirIntegerSetGet(context, numDims, numSymbols, numConstraints, constraints, eqFlags)
-
-Gets or creates a new integer set in the given context. The set is defined by a list of affine constraints, with the given number of input dimensions and symbols, which are treated as either equalities (eqFlags is 1) or inequalities (eqFlags is 0). Both `constraints` and `eqFlags` are expected to point to at least `numConstraint` consecutive values.
-"""
-function mlirIntegerSetGet(
-    context, numDims, numSymbols, numConstraints, constraints, eqFlags
-)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGet(
-        context::MlirContext,
-        numDims::Cptrdiff_t,
-        numSymbols::Cptrdiff_t,
-        numConstraints::Cptrdiff_t,
-        constraints::Ptr{MlirAffineExpr},
-        eqFlags::Ptr{Bool},
-    )::MlirIntegerSet
-end
-
-"""
-    mlirIntegerSetReplaceGet(set, dimReplacements, symbolReplacements, numResultDims, numResultSymbols)
-
-Gets or creates a new integer set in which the values and dimensions of the given set are replaced with the given affine expressions. `dimReplacements` and `symbolReplacements` are expected to point to at least as many consecutive expressions as the given set has dimensions and symbols, respectively. The new set will have `numResultDims` and `numResultSymbols` dimensions and symbols, respectively.
-"""
-function mlirIntegerSetReplaceGet(
-    set, dimReplacements, symbolReplacements, numResultDims, numResultSymbols
-)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetReplaceGet(
-        set::MlirIntegerSet,
-        dimReplacements::Ptr{MlirAffineExpr},
-        symbolReplacements::Ptr{MlirAffineExpr},
-        numResultDims::Cptrdiff_t,
-        numResultSymbols::Cptrdiff_t,
-    )::MlirIntegerSet
-end
-
-"""
-    mlirIntegerSetIsCanonicalEmpty(set)
-
-Checks whether the given set is a canonical empty set, e.g., the set returned by [`mlirIntegerSetEmptyGet`](@ref).
-"""
-function mlirIntegerSetIsCanonicalEmpty(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsCanonicalEmpty(set::MlirIntegerSet)::Bool
-end
-
-"""
-    mlirIntegerSetGetNumDims(set)
-
-Returns the number of dimensions in the given set.
-"""
-function mlirIntegerSetGetNumDims(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumDims(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetNumSymbols(set)
-
-Returns the number of symbols in the given set.
-"""
-function mlirIntegerSetGetNumSymbols(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumSymbols(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetNumInputs(set)
-
-Returns the number of inputs (dimensions + symbols) in the given set.
-"""
-function mlirIntegerSetGetNumInputs(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumInputs(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetNumConstraints(set)
-
-Returns the number of constraints (equalities + inequalities) in the given set.
-"""
-function mlirIntegerSetGetNumConstraints(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumConstraints(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetNumEqualities(set)
-
-Returns the number of equalities in the given set.
-"""
-function mlirIntegerSetGetNumEqualities(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumEqualities(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetNumInequalities(set)
-
-Returns the number of inequalities in the given set.
-"""
-function mlirIntegerSetGetNumInequalities(set)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetNumInequalities(set::MlirIntegerSet)::Cptrdiff_t
-end
-
-"""
-    mlirIntegerSetGetConstraint(set, pos)
-
-Returns `pos`-th constraint of the set.
-"""
-function mlirIntegerSetGetConstraint(set, pos)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetGetConstraint(
-        set::MlirIntegerSet, pos::Cptrdiff_t
-    )::MlirAffineExpr
-end
-
-"""
-    mlirIntegerSetIsConstraintEq(set, pos)
-
-Returns `true` of the `pos`-th constraint of the set is an equality constraint, `false` otherwise.
-"""
-function mlirIntegerSetIsConstraintEq(set, pos)
-    @ccall (MLIR_C_PATH[]).mlirIntegerSetIsConstraintEq(
-        set::MlirIntegerSet, pos::Cptrdiff_t
-    )::Bool
 end
 
 """
@@ -9580,6 +10807,81 @@ function mlirRewritePatternSetFromPDLPatternModule(op)
 end
 
 """
+    mlirTranslateModuleToSMTLIB(arg1, arg2, userData, inlineSingleUseValues, indentLetBody)
+
+Emits SMTLIB for the specified module using the provided callback and user data
+"""
+function mlirTranslateModuleToSMTLIB(
+    arg1, arg2, userData, inlineSingleUseValues, indentLetBody
+)
+    @ccall (MLIR_C_PATH[]).mlirTranslateModuleToSMTLIB(
+        arg1::MlirModule,
+        arg2::MlirStringCallback,
+        userData::Ptr{Cvoid},
+        inlineSingleUseValues::Bool,
+        indentLetBody::Bool,
+    )::MlirLogicalResult
+end
+
+function mlirTranslateOperationToSMTLIB(
+    arg1, arg2, userData, inlineSingleUseValues, indentLetBody
+)
+    @ccall (MLIR_C_PATH[]).mlirTranslateOperationToSMTLIB(
+        arg1::MlirOperation,
+        arg2::MlirStringCallback,
+        userData::Ptr{Cvoid},
+        inlineSingleUseValues::Bool,
+        indentLetBody::Bool,
+    )::MlirLogicalResult
+end
+
+mutable struct LLVMOpaqueValue end
+
+"""
+Represents an individual value in LLVM IR.
+
+This models llvm::Value.
+"""
+const LLVMValueRef = Ptr{LLVMOpaqueValue}
+
+# typedef void ( * LLVMFatalErrorHandler ) ( const char * Reason )
+"""
+` LLVMCError`
+
+@{
+"""
+const LLVMFatalErrorHandler = Ptr{Cvoid}
+
+"""
+    LLVMInstallFatalErrorHandler(Handler)
+
+Install a fatal error handler. By default, if LLVM detects a fatal error, it will call exit(1). This may not be appropriate in many contexts. For example, doing exit(1) will bypass many crash reporting/tracing system tools. This function allows you to install a callback that will be invoked prior to the call to exit(1).
+"""
+function LLVMInstallFatalErrorHandler(Handler)
+    @ccall (MLIR_C_PATH[]).LLVMInstallFatalErrorHandler(
+        Handler::LLVMFatalErrorHandler
+    )::Cvoid
+end
+
+"""
+    LLVMResetFatalErrorHandler()
+
+Reset the fatal error handler. This resets LLVM's fatal error handling behavior to the default.
+"""
+function LLVMResetFatalErrorHandler()
+    @ccall (MLIR_C_PATH[]).LLVMResetFatalErrorHandler()::Cvoid
+end
+
+"""
+    LLVMEnablePrettyStackTrace()
+
+Enable LLVM's built-in stack trace code. This intercepts the OS's crash signals and prints which component of LLVM you were in at the time if the crash.
+"""
+function LLVMEnablePrettyStackTrace()
+    @ccall (MLIR_C_PATH[]).LLVMEnablePrettyStackTrace()::Cvoid
+end
+
+"""
 ` LLVMCSupportTypes Types and Enumerations`
 
 @{
@@ -9622,15 +10924,6 @@ Each value in the LLVM IR has a type, an [`LLVMTypeRef`](@ref).
 llvm::Type
 """
 const LLVMTypeRef = Ptr{LLVMOpaqueType}
-
-mutable struct LLVMOpaqueValue end
-
-"""
-Represents an individual value in LLVM IR.
-
-This models llvm::Value.
-"""
-const LLVMValueRef = Ptr{LLVMOpaqueValue}
 
 mutable struct LLVMOpaqueBasicBlock end
 
@@ -9778,6 +11071,7608 @@ llvm::DbgRecord
 const LLVMDbgRecordRef = Ptr{LLVMOpaqueDbgRecord}
 
 """
+    LLVMOpcode
+
+External users depend on the following values being stable. It is not safe to reorder them.
+"""
+@cenum LLVMOpcode::UInt32 begin
+    LLVMRet = 0x0000000000000001
+    LLVMBr = 0x0000000000000002
+    LLVMSwitch = 0x0000000000000003
+    LLVMIndirectBr = 0x0000000000000004
+    LLVMInvoke = 0x0000000000000005
+    LLVMUnreachable = 0x0000000000000007
+    LLVMCallBr = 0x0000000000000043
+    LLVMFNeg = 0x0000000000000042
+    LLVMAdd = 0x0000000000000008
+    LLVMFAdd = 0x0000000000000009
+    LLVMSub = 0x000000000000000a
+    LLVMFSub = 0x000000000000000b
+    LLVMMul = 0x000000000000000c
+    LLVMFMul = 0x000000000000000d
+    LLVMUDiv = 0x000000000000000e
+    LLVMSDiv = 0x000000000000000f
+    LLVMFDiv = 0x0000000000000010
+    LLVMURem = 0x0000000000000011
+    LLVMSRem = 0x0000000000000012
+    LLVMFRem = 0x0000000000000013
+    LLVMShl = 0x0000000000000014
+    LLVMLShr = 0x0000000000000015
+    LLVMAShr = 0x0000000000000016
+    LLVMAnd = 0x0000000000000017
+    LLVMOr = 0x0000000000000018
+    LLVMXor = 0x0000000000000019
+    LLVMAlloca = 0x000000000000001a
+    LLVMLoad = 0x000000000000001b
+    LLVMStore = 0x000000000000001c
+    LLVMGetElementPtr = 0x000000000000001d
+    LLVMTrunc = 0x000000000000001e
+    LLVMZExt = 0x000000000000001f
+    LLVMSExt = 0x0000000000000020
+    LLVMFPToUI = 0x0000000000000021
+    LLVMFPToSI = 0x0000000000000022
+    LLVMUIToFP = 0x0000000000000023
+    LLVMSIToFP = 0x0000000000000024
+    LLVMFPTrunc = 0x0000000000000025
+    LLVMFPExt = 0x0000000000000026
+    LLVMPtrToInt = 0x0000000000000027
+    LLVMIntToPtr = 0x0000000000000028
+    LLVMBitCast = 0x0000000000000029
+    LLVMAddrSpaceCast = 0x000000000000003c
+    LLVMICmp = 0x000000000000002a
+    LLVMFCmp = 0x000000000000002b
+    LLVMPHI = 0x000000000000002c
+    LLVMCall = 0x000000000000002d
+    LLVMSelect = 0x000000000000002e
+    LLVMUserOp1 = 0x000000000000002f
+    LLVMUserOp2 = 0x0000000000000030
+    LLVMVAArg = 0x0000000000000031
+    LLVMExtractElement = 0x0000000000000032
+    LLVMInsertElement = 0x0000000000000033
+    LLVMShuffleVector = 0x0000000000000034
+    LLVMExtractValue = 0x0000000000000035
+    LLVMInsertValue = 0x0000000000000036
+    LLVMFreeze = 0x0000000000000044
+    LLVMFence = 0x0000000000000037
+    LLVMAtomicCmpXchg = 0x0000000000000038
+    LLVMAtomicRMW = 0x0000000000000039
+    LLVMResume = 0x000000000000003a
+    LLVMLandingPad = 0x000000000000003b
+    LLVMCleanupRet = 0x000000000000003d
+    LLVMCatchRet = 0x000000000000003e
+    LLVMCatchPad = 0x000000000000003f
+    LLVMCleanupPad = 0x0000000000000040
+    LLVMCatchSwitch = 0x0000000000000041
+end
+
+@cenum LLVMTypeKind::UInt32 begin
+    LLVMVoidTypeKind = 0x0000000000000000
+    LLVMHalfTypeKind = 0x0000000000000001
+    LLVMFloatTypeKind = 0x0000000000000002
+    LLVMDoubleTypeKind = 0x0000000000000003
+    LLVMX86_FP80TypeKind = 0x0000000000000004
+    LLVMFP128TypeKind = 0x0000000000000005
+    LLVMPPC_FP128TypeKind = 0x0000000000000006
+    LLVMLabelTypeKind = 0x0000000000000007
+    LLVMIntegerTypeKind = 0x0000000000000008
+    LLVMFunctionTypeKind = 0x0000000000000009
+    LLVMStructTypeKind = 0x000000000000000a
+    LLVMArrayTypeKind = 0x000000000000000b
+    LLVMPointerTypeKind = 0x000000000000000c
+    LLVMVectorTypeKind = 0x000000000000000d
+    LLVMMetadataTypeKind = 0x000000000000000e
+    LLVMTokenTypeKind = 0x0000000000000010
+    LLVMScalableVectorTypeKind = 0x0000000000000011
+    LLVMBFloatTypeKind = 0x0000000000000012
+    LLVMX86_AMXTypeKind = 0x0000000000000013
+    LLVMTargetExtTypeKind = 0x0000000000000014
+end
+
+@cenum LLVMLinkage::UInt32 begin
+    LLVMExternalLinkage = 0x0000000000000000
+    LLVMAvailableExternallyLinkage = 0x0000000000000001
+    LLVMLinkOnceAnyLinkage = 0x0000000000000002
+    LLVMLinkOnceODRLinkage = 0x0000000000000003
+    LLVMLinkOnceODRAutoHideLinkage = 0x0000000000000004
+    LLVMWeakAnyLinkage = 0x0000000000000005
+    LLVMWeakODRLinkage = 0x0000000000000006
+    LLVMAppendingLinkage = 0x0000000000000007
+    LLVMInternalLinkage = 0x0000000000000008
+    LLVMPrivateLinkage = 0x0000000000000009
+    LLVMDLLImportLinkage = 0x000000000000000a
+    LLVMDLLExportLinkage = 0x000000000000000b
+    LLVMExternalWeakLinkage = 0x000000000000000c
+    LLVMGhostLinkage = 0x000000000000000d
+    LLVMCommonLinkage = 0x000000000000000e
+    LLVMLinkerPrivateLinkage = 0x000000000000000f
+    LLVMLinkerPrivateWeakLinkage = 0x0000000000000010
+end
+
+@cenum LLVMVisibility::UInt32 begin
+    LLVMDefaultVisibility = 0x0000000000000000
+    LLVMHiddenVisibility = 0x0000000000000001
+    LLVMProtectedVisibility = 0x0000000000000002
+end
+
+@cenum LLVMUnnamedAddr::UInt32 begin
+    LLVMNoUnnamedAddr = 0x0000000000000000
+    LLVMLocalUnnamedAddr = 0x0000000000000001
+    LLVMGlobalUnnamedAddr = 0x0000000000000002
+end
+
+@cenum LLVMDLLStorageClass::UInt32 begin
+    LLVMDefaultStorageClass = 0x0000000000000000
+    LLVMDLLImportStorageClass = 0x0000000000000001
+    LLVMDLLExportStorageClass = 0x0000000000000002
+end
+
+@cenum LLVMCallConv::UInt32 begin
+    LLVMCCallConv = 0x0000000000000000
+    LLVMFastCallConv = 0x0000000000000008
+    LLVMColdCallConv = 0x0000000000000009
+    LLVMGHCCallConv = 0x000000000000000a
+    LLVMHiPECallConv = 0x000000000000000b
+    LLVMAnyRegCallConv = 0x000000000000000d
+    LLVMPreserveMostCallConv = 0x000000000000000e
+    LLVMPreserveAllCallConv = 0x000000000000000f
+    LLVMSwiftCallConv = 0x0000000000000010
+    LLVMCXXFASTTLSCallConv = 0x0000000000000011
+    LLVMX86StdcallCallConv = 0x0000000000000040
+    LLVMX86FastcallCallConv = 0x0000000000000041
+    LLVMARMAPCSCallConv = 0x0000000000000042
+    LLVMARMAAPCSCallConv = 0x0000000000000043
+    LLVMARMAAPCSVFPCallConv = 0x0000000000000044
+    LLVMMSP430INTRCallConv = 0x0000000000000045
+    LLVMX86ThisCallCallConv = 0x0000000000000046
+    LLVMPTXKernelCallConv = 0x0000000000000047
+    LLVMPTXDeviceCallConv = 0x0000000000000048
+    LLVMSPIRFUNCCallConv = 0x000000000000004b
+    LLVMSPIRKERNELCallConv = 0x000000000000004c
+    LLVMIntelOCLBICallConv = 0x000000000000004d
+    LLVMX8664SysVCallConv = 0x000000000000004e
+    LLVMWin64CallConv = 0x000000000000004f
+    LLVMX86VectorCallCallConv = 0x0000000000000050
+    LLVMHHVMCallConv = 0x0000000000000051
+    LLVMHHVMCCallConv = 0x0000000000000052
+    LLVMX86INTRCallConv = 0x0000000000000053
+    LLVMAVRINTRCallConv = 0x0000000000000054
+    LLVMAVRSIGNALCallConv = 0x0000000000000055
+    LLVMAVRBUILTINCallConv = 0x0000000000000056
+    LLVMAMDGPUVSCallConv = 0x0000000000000057
+    LLVMAMDGPUGSCallConv = 0x0000000000000058
+    LLVMAMDGPUPSCallConv = 0x0000000000000059
+    LLVMAMDGPUCSCallConv = 0x000000000000005a
+    LLVMAMDGPUKERNELCallConv = 0x000000000000005b
+    LLVMX86RegCallCallConv = 0x000000000000005c
+    LLVMAMDGPUHSCallConv = 0x000000000000005d
+    LLVMMSP430BUILTINCallConv = 0x000000000000005e
+    LLVMAMDGPULSCallConv = 0x000000000000005f
+    LLVMAMDGPUESCallConv = 0x0000000000000060
+end
+
+@cenum LLVMValueKind::UInt32 begin
+    LLVMArgumentValueKind = 0x0000000000000000
+    LLVMBasicBlockValueKind = 0x0000000000000001
+    LLVMMemoryUseValueKind = 0x0000000000000002
+    LLVMMemoryDefValueKind = 0x0000000000000003
+    LLVMMemoryPhiValueKind = 0x0000000000000004
+    LLVMFunctionValueKind = 0x0000000000000005
+    LLVMGlobalAliasValueKind = 0x0000000000000006
+    LLVMGlobalIFuncValueKind = 0x0000000000000007
+    LLVMGlobalVariableValueKind = 0x0000000000000008
+    LLVMBlockAddressValueKind = 0x0000000000000009
+    LLVMConstantExprValueKind = 0x000000000000000a
+    LLVMConstantArrayValueKind = 0x000000000000000b
+    LLVMConstantStructValueKind = 0x000000000000000c
+    LLVMConstantVectorValueKind = 0x000000000000000d
+    LLVMUndefValueValueKind = 0x000000000000000e
+    LLVMConstantAggregateZeroValueKind = 0x000000000000000f
+    LLVMConstantDataArrayValueKind = 0x0000000000000010
+    LLVMConstantDataVectorValueKind = 0x0000000000000011
+    LLVMConstantIntValueKind = 0x0000000000000012
+    LLVMConstantFPValueKind = 0x0000000000000013
+    LLVMConstantPointerNullValueKind = 0x0000000000000014
+    LLVMConstantTokenNoneValueKind = 0x0000000000000015
+    LLVMMetadataAsValueValueKind = 0x0000000000000016
+    LLVMInlineAsmValueKind = 0x0000000000000017
+    LLVMInstructionValueKind = 0x0000000000000018
+    LLVMPoisonValueValueKind = 0x0000000000000019
+    LLVMConstantTargetNoneValueKind = 0x000000000000001a
+    LLVMConstantPtrAuthValueKind = 0x000000000000001b
+end
+
+@cenum LLVMIntPredicate::UInt32 begin
+    LLVMIntEQ = 0x0000000000000020
+    LLVMIntNE = 0x0000000000000021
+    LLVMIntUGT = 0x0000000000000022
+    LLVMIntUGE = 0x0000000000000023
+    LLVMIntULT = 0x0000000000000024
+    LLVMIntULE = 0x0000000000000025
+    LLVMIntSGT = 0x0000000000000026
+    LLVMIntSGE = 0x0000000000000027
+    LLVMIntSLT = 0x0000000000000028
+    LLVMIntSLE = 0x0000000000000029
+end
+
+@cenum LLVMRealPredicate::UInt32 begin
+    LLVMRealPredicateFalse = 0x0000000000000000
+    LLVMRealOEQ = 0x0000000000000001
+    LLVMRealOGT = 0x0000000000000002
+    LLVMRealOGE = 0x0000000000000003
+    LLVMRealOLT = 0x0000000000000004
+    LLVMRealOLE = 0x0000000000000005
+    LLVMRealONE = 0x0000000000000006
+    LLVMRealORD = 0x0000000000000007
+    LLVMRealUNO = 0x0000000000000008
+    LLVMRealUEQ = 0x0000000000000009
+    LLVMRealUGT = 0x000000000000000a
+    LLVMRealUGE = 0x000000000000000b
+    LLVMRealULT = 0x000000000000000c
+    LLVMRealULE = 0x000000000000000d
+    LLVMRealUNE = 0x000000000000000e
+    LLVMRealPredicateTrue = 0x000000000000000f
+end
+
+@cenum LLVMThreadLocalMode::UInt32 begin
+    LLVMNotThreadLocal = 0x0000000000000000
+    LLVMGeneralDynamicTLSModel = 0x0000000000000001
+    LLVMLocalDynamicTLSModel = 0x0000000000000002
+    LLVMInitialExecTLSModel = 0x0000000000000003
+    LLVMLocalExecTLSModel = 0x0000000000000004
+end
+
+@cenum LLVMAtomicOrdering::UInt32 begin
+    LLVMAtomicOrderingNotAtomic = 0x0000000000000000
+    LLVMAtomicOrderingUnordered = 0x0000000000000001
+    LLVMAtomicOrderingMonotonic = 0x0000000000000002
+    LLVMAtomicOrderingAcquire = 0x0000000000000004
+    LLVMAtomicOrderingRelease = 0x0000000000000005
+    LLVMAtomicOrderingAcquireRelease = 0x0000000000000006
+    LLVMAtomicOrderingSequentiallyConsistent = 0x0000000000000007
+end
+
+@cenum LLVMAtomicRMWBinOp::UInt32 begin
+    LLVMAtomicRMWBinOpXchg = 0x0000000000000000
+    LLVMAtomicRMWBinOpAdd = 0x0000000000000001
+    LLVMAtomicRMWBinOpSub = 0x0000000000000002
+    LLVMAtomicRMWBinOpAnd = 0x0000000000000003
+    LLVMAtomicRMWBinOpNand = 0x0000000000000004
+    LLVMAtomicRMWBinOpOr = 0x0000000000000005
+    LLVMAtomicRMWBinOpXor = 0x0000000000000006
+    LLVMAtomicRMWBinOpMax = 0x0000000000000007
+    LLVMAtomicRMWBinOpMin = 0x0000000000000008
+    LLVMAtomicRMWBinOpUMax = 0x0000000000000009
+    LLVMAtomicRMWBinOpUMin = 0x000000000000000a
+    LLVMAtomicRMWBinOpFAdd = 0x000000000000000b
+    LLVMAtomicRMWBinOpFSub = 0x000000000000000c
+    LLVMAtomicRMWBinOpFMax = 0x000000000000000d
+    LLVMAtomicRMWBinOpFMin = 0x000000000000000e
+    LLVMAtomicRMWBinOpUIncWrap = 0x000000000000000f
+    LLVMAtomicRMWBinOpUDecWrap = 0x0000000000000010
+    LLVMAtomicRMWBinOpUSubCond = 0x0000000000000011
+    LLVMAtomicRMWBinOpUSubSat = 0x0000000000000012
+    LLVMAtomicRMWBinOpFMaximum = 0x0000000000000013
+    LLVMAtomicRMWBinOpFMinimum = 0x0000000000000014
+end
+
+@cenum LLVMDiagnosticSeverity::UInt32 begin
+    LLVMDSError = 0x0000000000000000
+    LLVMDSWarning = 0x0000000000000001
+    LLVMDSRemark = 0x0000000000000002
+    LLVMDSNote = 0x0000000000000003
+end
+
+@cenum LLVMInlineAsmDialect::UInt32 begin
+    LLVMInlineAsmDialectATT = 0x0000000000000000
+    LLVMInlineAsmDialectIntel = 0x0000000000000001
+end
+
+@cenum LLVMModuleFlagBehavior::UInt32 begin
+    LLVMModuleFlagBehaviorError = 0x0000000000000000
+    LLVMModuleFlagBehaviorWarning = 0x0000000000000001
+    LLVMModuleFlagBehaviorRequire = 0x0000000000000002
+    LLVMModuleFlagBehaviorOverride = 0x0000000000000003
+    LLVMModuleFlagBehaviorAppend = 0x0000000000000004
+    LLVMModuleFlagBehaviorAppendUnique = 0x0000000000000005
+end
+
+const LLVMAttributeIndex = Cuint
+
+"""
+    LLVMTailCallKind
+
+Tail call kind for [`LLVMSetTailCallKind`](@ref) and [`LLVMGetTailCallKind`](@ref).
+
+Note that 'musttail' implies 'tail'.
+
+# See also
+CallInst::TailCallKind
+"""
+@cenum LLVMTailCallKind::UInt32 begin
+    LLVMTailCallKindNone = 0x0000000000000000
+    LLVMTailCallKindTail = 0x0000000000000001
+    LLVMTailCallKindMustTail = 0x0000000000000002
+    LLVMTailCallKindNoTail = 0x0000000000000003
+end
+
+"""
+Flags to indicate what fast-math-style optimizations are allowed on operations.
+
+See https://llvm.org/docs/LangRef.html#fast-math-flags
+"""
+const LLVMFastMathFlags = Cuint
+
+"""
+Flags that constrain the allowed wrap semantics of a getelementptr instruction.
+
+See https://llvm.org/docs/LangRef.html#getelementptr-instruction
+"""
+const LLVMGEPNoWrapFlags = Cuint
+
+"""
+    LLVMShutdown()
+
+Deallocate and destroy all ManagedStatic variables.
+
+# See also
+llvm::llvm\\_shutdown, ManagedStatic
+"""
+function LLVMShutdown()
+    @ccall (MLIR_C_PATH[]).LLVMShutdown()::Cvoid
+end
+
+"""
+    LLVMGetVersion(Major, Minor, Patch)
+
+Return the major, minor, and patch version of LLVM
+
+The version components are returned via the function's three output parameters or skipped if a NULL pointer was supplied.
+"""
+function LLVMGetVersion(Major, Minor, Patch)
+    @ccall (MLIR_C_PATH[]).LLVMGetVersion(
+        Major::Ptr{Cuint}, Minor::Ptr{Cuint}, Patch::Ptr{Cuint}
+    )::Cvoid
+end
+
+function LLVMCreateMessage(Message)
+    @ccall (MLIR_C_PATH[]).LLVMCreateMessage(Message::Cstring)::Cstring
+end
+
+function LLVMDisposeMessage(Message)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeMessage(Message::Cstring)::Cvoid
+end
+
+# typedef void ( * LLVMDiagnosticHandler ) ( LLVMDiagnosticInfoRef , void * )
+"""
+` LLVMCCoreContext Contexts`
+
+Contexts are execution states for the core LLVM IR system.
+
+Most types are tied to a context instance. Multiple contexts can exist simultaneously. A single context is not thread safe. However, different contexts can execute on different threads simultaneously.
+
+@{
+"""
+const LLVMDiagnosticHandler = Ptr{Cvoid}
+
+# typedef void ( * LLVMYieldCallback ) ( LLVMContextRef , void * )
+const LLVMYieldCallback = Ptr{Cvoid}
+
+"""
+    LLVMContextCreate()
+
+Create a new context.
+
+Every call to this function should be paired with a call to [`LLVMContextDispose`](@ref)() or the context will leak memory.
+"""
+function LLVMContextCreate()
+    @ccall (MLIR_C_PATH[]).LLVMContextCreate()::LLVMContextRef
+end
+
+"""
+    LLVMGetGlobalContext()
+
+Obtain the global context instance.
+"""
+function LLVMGetGlobalContext()
+    @ccall (MLIR_C_PATH[]).LLVMGetGlobalContext()::LLVMContextRef
+end
+
+"""
+    LLVMContextSetDiagnosticHandler(C, Handler, DiagnosticContext)
+
+Set the diagnostic handler for this context.
+"""
+function LLVMContextSetDiagnosticHandler(C, Handler, DiagnosticContext)
+    @ccall (MLIR_C_PATH[]).LLVMContextSetDiagnosticHandler(
+        C::LLVMContextRef, Handler::LLVMDiagnosticHandler, DiagnosticContext::Ptr{Cvoid}
+    )::Cvoid
+end
+
+"""
+    LLVMContextGetDiagnosticHandler(C)
+
+Get the diagnostic handler of this context.
+"""
+function LLVMContextGetDiagnosticHandler(C)
+    @ccall (MLIR_C_PATH[]).LLVMContextGetDiagnosticHandler(
+        C::LLVMContextRef
+    )::LLVMDiagnosticHandler
+end
+
+"""
+    LLVMContextGetDiagnosticContext(C)
+
+Get the diagnostic context of this context.
+"""
+function LLVMContextGetDiagnosticContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMContextGetDiagnosticContext(C::LLVMContextRef)::Ptr{Cvoid}
+end
+
+"""
+    LLVMContextSetYieldCallback(C, Callback, OpaqueHandle)
+
+Set the yield callback function for this context.
+
+# See also
+LLVMContext::setYieldCallback()
+"""
+function LLVMContextSetYieldCallback(C, Callback, OpaqueHandle)
+    @ccall (MLIR_C_PATH[]).LLVMContextSetYieldCallback(
+        C::LLVMContextRef, Callback::LLVMYieldCallback, OpaqueHandle::Ptr{Cvoid}
+    )::Cvoid
+end
+
+"""
+    LLVMContextShouldDiscardValueNames(C)
+
+Retrieve whether the given context is set to discard all value names.
+
+# See also
+LLVMContext::shouldDiscardValueNames()
+"""
+function LLVMContextShouldDiscardValueNames(C)
+    @ccall (MLIR_C_PATH[]).LLVMContextShouldDiscardValueNames(C::LLVMContextRef)::LLVMBool
+end
+
+"""
+    LLVMContextSetDiscardValueNames(C, Discard)
+
+Set whether the given context discards all value names.
+
+If true, only the names of GlobalValue objects will be available in the IR. This can be used to save memory and runtime, especially in release mode.
+
+# See also
+LLVMContext::setDiscardValueNames()
+"""
+function LLVMContextSetDiscardValueNames(C, Discard)
+    @ccall (MLIR_C_PATH[]).LLVMContextSetDiscardValueNames(
+        C::LLVMContextRef, Discard::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMContextDispose(C)
+
+Destroy a context instance.
+
+This should be called for every call to [`LLVMContextCreate`](@ref)() or memory will be leaked.
+"""
+function LLVMContextDispose(C)
+    @ccall (MLIR_C_PATH[]).LLVMContextDispose(C::LLVMContextRef)::Cvoid
+end
+
+"""
+    LLVMGetDiagInfoDescription(DI)
+
+Return a string representation of the DiagnosticInfo. Use [`LLVMDisposeMessage`](@ref) to free the string.
+
+# See also
+DiagnosticInfo::print()
+"""
+function LLVMGetDiagInfoDescription(DI)
+    @ccall (MLIR_C_PATH[]).LLVMGetDiagInfoDescription(DI::LLVMDiagnosticInfoRef)::Cstring
+end
+
+"""
+    LLVMGetDiagInfoSeverity(DI)
+
+Return an enum [`LLVMDiagnosticSeverity`](@ref).
+
+# See also
+DiagnosticInfo::getSeverity()
+"""
+function LLVMGetDiagInfoSeverity(DI)
+    @ccall (MLIR_C_PATH[]).LLVMGetDiagInfoSeverity(
+        DI::LLVMDiagnosticInfoRef
+    )::LLVMDiagnosticSeverity
+end
+
+function LLVMGetMDKindIDInContext(C, Name, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetMDKindIDInContext(
+        C::LLVMContextRef, Name::Cstring, SLen::Cuint
+    )::Cuint
+end
+
+function LLVMGetMDKindID(Name, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetMDKindID(Name::Cstring, SLen::Cuint)::Cuint
+end
+
+"""
+    LLVMGetSyncScopeID(C, Name, SLen)
+
+Maps a synchronization scope name to a ID unique within this context.
+"""
+function LLVMGetSyncScopeID(C, Name, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetSyncScopeID(
+        C::LLVMContextRef, Name::Cstring, SLen::Csize_t
+    )::Cuint
+end
+
+"""
+    LLVMGetEnumAttributeKindForName(Name, SLen)
+
+Return an unique id given the name of a enum attribute, or 0 if no attribute by that name exists.
+
+See http://llvm.org/docs/LangRef.html#parameter-attributes and http://llvm.org/docs/LangRef.html#function-attributes for the list of available attributes.
+
+NB: Attribute names and/or id are subject to change without going through the C API deprecation cycle.
+"""
+function LLVMGetEnumAttributeKindForName(Name, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetEnumAttributeKindForName(
+        Name::Cstring, SLen::Csize_t
+    )::Cuint
+end
+
+function LLVMGetLastEnumAttributeKind()
+    @ccall (MLIR_C_PATH[]).LLVMGetLastEnumAttributeKind()::Cuint
+end
+
+"""
+    LLVMCreateEnumAttribute(C, KindID, Val)
+
+Create an enum attribute.
+"""
+function LLVMCreateEnumAttribute(C, KindID, Val)
+    @ccall (MLIR_C_PATH[]).LLVMCreateEnumAttribute(
+        C::LLVMContextRef, KindID::Cuint, Val::UInt64
+    )::LLVMAttributeRef
+end
+
+"""
+    LLVMGetEnumAttributeKind(A)
+
+Get the unique id corresponding to the enum attribute passed as argument.
+"""
+function LLVMGetEnumAttributeKind(A)
+    @ccall (MLIR_C_PATH[]).LLVMGetEnumAttributeKind(A::LLVMAttributeRef)::Cuint
+end
+
+"""
+    LLVMGetEnumAttributeValue(A)
+
+Get the enum attribute's value. 0 is returned if none exists.
+"""
+function LLVMGetEnumAttributeValue(A)
+    @ccall (MLIR_C_PATH[]).LLVMGetEnumAttributeValue(A::LLVMAttributeRef)::UInt64
+end
+
+"""
+    LLVMCreateTypeAttribute(C, KindID, type_ref)
+
+Create a type attribute
+"""
+function LLVMCreateTypeAttribute(C, KindID, type_ref)
+    @ccall (MLIR_C_PATH[]).LLVMCreateTypeAttribute(
+        C::LLVMContextRef, KindID::Cuint, type_ref::LLVMTypeRef
+    )::LLVMAttributeRef
+end
+
+"""
+    LLVMGetTypeAttributeValue(A)
+
+Get the type attribute's value.
+"""
+function LLVMGetTypeAttributeValue(A)
+    @ccall (MLIR_C_PATH[]).LLVMGetTypeAttributeValue(A::LLVMAttributeRef)::LLVMTypeRef
+end
+
+"""
+    LLVMCreateConstantRangeAttribute(C, KindID, NumBits, LowerWords, UpperWords)
+
+Create a ConstantRange attribute.
+
+LowerWords and UpperWords need to be NumBits divided by 64 rounded up elements long.
+"""
+function LLVMCreateConstantRangeAttribute(C, KindID, NumBits, LowerWords, UpperWords)
+    @ccall (MLIR_C_PATH[]).LLVMCreateConstantRangeAttribute(
+        C::LLVMContextRef,
+        KindID::Cuint,
+        NumBits::Cuint,
+        LowerWords::Ptr{UInt64},
+        UpperWords::Ptr{UInt64},
+    )::LLVMAttributeRef
+end
+
+"""
+    LLVMCreateStringAttribute(C, K, KLength, V, VLength)
+
+Create a string attribute.
+"""
+function LLVMCreateStringAttribute(C, K, KLength, V, VLength)
+    @ccall (MLIR_C_PATH[]).LLVMCreateStringAttribute(
+        C::LLVMContextRef, K::Cstring, KLength::Cuint, V::Cstring, VLength::Cuint
+    )::LLVMAttributeRef
+end
+
+"""
+    LLVMGetStringAttributeKind(A, Length)
+
+Get the string attribute's kind.
+"""
+function LLVMGetStringAttributeKind(A, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetStringAttributeKind(
+        A::LLVMAttributeRef, Length::Ptr{Cuint}
+    )::Cstring
+end
+
+"""
+    LLVMGetStringAttributeValue(A, Length)
+
+Get the string attribute's value.
+"""
+function LLVMGetStringAttributeValue(A, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetStringAttributeValue(
+        A::LLVMAttributeRef, Length::Ptr{Cuint}
+    )::Cstring
+end
+
+"""
+    LLVMIsEnumAttribute(A)
+
+Check for the different types of attributes.
+"""
+function LLVMIsEnumAttribute(A)
+    @ccall (MLIR_C_PATH[]).LLVMIsEnumAttribute(A::LLVMAttributeRef)::LLVMBool
+end
+
+function LLVMIsStringAttribute(A)
+    @ccall (MLIR_C_PATH[]).LLVMIsStringAttribute(A::LLVMAttributeRef)::LLVMBool
+end
+
+function LLVMIsTypeAttribute(A)
+    @ccall (MLIR_C_PATH[]).LLVMIsTypeAttribute(A::LLVMAttributeRef)::LLVMBool
+end
+
+"""
+    LLVMGetTypeByName2(C, Name)
+
+Obtain a Type from a context by its registered name.
+"""
+function LLVMGetTypeByName2(C, Name)
+    @ccall (MLIR_C_PATH[]).LLVMGetTypeByName2(C::LLVMContextRef, Name::Cstring)::LLVMTypeRef
+end
+
+"""
+    LLVMModuleCreateWithName(ModuleID)
+
+Create a new, empty module in the global context.
+
+This is equivalent to calling [`LLVMModuleCreateWithNameInContext`](@ref) with [`LLVMGetGlobalContext`](@ref)() as the context parameter.
+
+Every invocation should be paired with [`LLVMDisposeModule`](@ref)() or memory will be leaked.
+"""
+function LLVMModuleCreateWithName(ModuleID)
+    @ccall (MLIR_C_PATH[]).LLVMModuleCreateWithName(ModuleID::Cstring)::LLVMModuleRef
+end
+
+"""
+    LLVMModuleCreateWithNameInContext(ModuleID, C)
+
+Create a new, empty module in a specific context.
+
+Every invocation should be paired with [`LLVMDisposeModule`](@ref)() or memory will be leaked.
+"""
+function LLVMModuleCreateWithNameInContext(ModuleID, C)
+    @ccall (MLIR_C_PATH[]).LLVMModuleCreateWithNameInContext(
+        ModuleID::Cstring, C::LLVMContextRef
+    )::LLVMModuleRef
+end
+
+"""
+    LLVMCloneModule(M)
+
+Return an exact copy of the specified module.
+"""
+function LLVMCloneModule(M)
+    @ccall (MLIR_C_PATH[]).LLVMCloneModule(M::LLVMModuleRef)::LLVMModuleRef
+end
+
+"""
+    LLVMDisposeModule(M)
+
+Destroy a module instance.
+
+This must be called for every created module or memory will be leaked.
+"""
+function LLVMDisposeModule(M)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeModule(M::LLVMModuleRef)::Cvoid
+end
+
+"""
+    LLVMIsNewDbgInfoFormat(M)
+
+Soon to be deprecated. See https://llvm.org/docs/RemoveDIsDebugInfo.html#c-api-changes
+
+Returns true if the module is in the new debug info mode which uses non-instruction debug records instead of debug intrinsics for variable location tracking.
+"""
+function LLVMIsNewDbgInfoFormat(M)
+    @ccall (MLIR_C_PATH[]).LLVMIsNewDbgInfoFormat(M::LLVMModuleRef)::LLVMBool
+end
+
+"""
+    LLVMSetIsNewDbgInfoFormat(M, UseNewFormat)
+
+Soon to be deprecated. See https://llvm.org/docs/RemoveDIsDebugInfo.html#c-api-changes
+
+Convert module into desired debug info format.
+"""
+function LLVMSetIsNewDbgInfoFormat(M, UseNewFormat)
+    @ccall (MLIR_C_PATH[]).LLVMSetIsNewDbgInfoFormat(
+        M::LLVMModuleRef, UseNewFormat::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMGetModuleIdentifier(M, Len)
+
+Obtain the identifier of a module.
+
+# Arguments
+* `M`: Module to obtain identifier of
+* `Len`: Out parameter which holds the length of the returned string.
+# Returns
+The identifier of M.
+# See also
+Module::getModuleIdentifier()
+"""
+function LLVMGetModuleIdentifier(M, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetModuleIdentifier(
+        M::LLVMModuleRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMSetModuleIdentifier(M, Ident, Len)
+
+Set the identifier of a module to a string Ident with length Len.
+
+# Arguments
+* `M`: The module to set identifier
+* `Ident`: The string to set M's identifier to
+* `Len`: Length of Ident
+# See also
+Module::setModuleIdentifier()
+"""
+function LLVMSetModuleIdentifier(M, Ident, Len)
+    @ccall (MLIR_C_PATH[]).LLVMSetModuleIdentifier(
+        M::LLVMModuleRef, Ident::Cstring, Len::Csize_t
+    )::Cvoid
+end
+
+"""
+    LLVMGetSourceFileName(M, Len)
+
+Obtain the module's original source file name.
+
+# Arguments
+* `M`: Module to obtain the name of
+* `Len`: Out parameter which holds the length of the returned string
+# Returns
+The original source file name of M
+# See also
+Module::getSourceFileName()
+"""
+function LLVMGetSourceFileName(M, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetSourceFileName(
+        M::LLVMModuleRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMSetSourceFileName(M, Name, Len)
+
+Set the original source file name of a module to a string Name with length Len.
+
+# Arguments
+* `M`: The module to set the source file name of
+* `Name`: The string to set M's source file name to
+* `Len`: Length of Name
+# See also
+Module::setSourceFileName()
+"""
+function LLVMSetSourceFileName(M, Name, Len)
+    @ccall (MLIR_C_PATH[]).LLVMSetSourceFileName(
+        M::LLVMModuleRef, Name::Cstring, Len::Csize_t
+    )::Cvoid
+end
+
+"""
+    LLVMGetDataLayoutStr(M)
+
+Obtain the data layout for a module.
+
+[`LLVMGetDataLayout`](@ref) is DEPRECATED, as the name is not only incorrect, but match the name of another method on the module. Prefer the use of [`LLVMGetDataLayoutStr`](@ref), which is not ambiguous.
+
+# See also
+Module::getDataLayoutStr()
+"""
+function LLVMGetDataLayoutStr(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetDataLayoutStr(M::LLVMModuleRef)::Cstring
+end
+
+function LLVMGetDataLayout(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetDataLayout(M::LLVMModuleRef)::Cstring
+end
+
+"""
+    LLVMSetDataLayout(M, DataLayoutStr)
+
+Set the data layout for a module.
+
+# See also
+Module::setDataLayout()
+"""
+function LLVMSetDataLayout(M, DataLayoutStr)
+    @ccall (MLIR_C_PATH[]).LLVMSetDataLayout(
+        M::LLVMModuleRef, DataLayoutStr::Cstring
+    )::Cvoid
+end
+
+"""
+    LLVMGetTarget(M)
+
+Obtain the target triple for a module.
+
+# See also
+Module::getTargetTriple()
+"""
+function LLVMGetTarget(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetTarget(M::LLVMModuleRef)::Cstring
+end
+
+"""
+    LLVMSetTarget(M, Triple)
+
+Set the target triple for a module.
+
+# See also
+Module::setTargetTriple()
+"""
+function LLVMSetTarget(M, Triple)
+    @ccall (MLIR_C_PATH[]).LLVMSetTarget(M::LLVMModuleRef, Triple::Cstring)::Cvoid
+end
+
+"""
+    LLVMCopyModuleFlagsMetadata(M, Len)
+
+Returns the module flags as an array of flag-key-value triples. The caller is responsible for freeing this array by calling [`LLVMDisposeModuleFlagsMetadata`](@ref).
+
+# See also
+Module::getModuleFlagsMetadata()
+"""
+function LLVMCopyModuleFlagsMetadata(M, Len)
+    @ccall (MLIR_C_PATH[]).LLVMCopyModuleFlagsMetadata(
+        M::LLVMModuleRef, Len::Ptr{Csize_t}
+    )::Ptr{LLVMModuleFlagEntry}
+end
+
+"""
+    LLVMDisposeModuleFlagsMetadata(Entries)
+
+Destroys module flags metadata entries.
+"""
+function LLVMDisposeModuleFlagsMetadata(Entries)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeModuleFlagsMetadata(
+        Entries::Ptr{LLVMModuleFlagEntry}
+    )::Cvoid
+end
+
+"""
+    LLVMModuleFlagEntriesGetFlagBehavior(Entries, Index)
+
+Returns the flag behavior for a module flag entry at a specific index.
+
+# See also
+Module::ModuleFlagEntry::Behavior
+"""
+function LLVMModuleFlagEntriesGetFlagBehavior(Entries, Index)
+    @ccall (MLIR_C_PATH[]).LLVMModuleFlagEntriesGetFlagBehavior(
+        Entries::Ptr{LLVMModuleFlagEntry}, Index::Cuint
+    )::LLVMModuleFlagBehavior
+end
+
+"""
+    LLVMModuleFlagEntriesGetKey(Entries, Index, Len)
+
+Returns the key for a module flag entry at a specific index.
+
+# See also
+Module::ModuleFlagEntry::Key
+"""
+function LLVMModuleFlagEntriesGetKey(Entries, Index, Len)
+    @ccall (MLIR_C_PATH[]).LLVMModuleFlagEntriesGetKey(
+        Entries::Ptr{LLVMModuleFlagEntry}, Index::Cuint, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMModuleFlagEntriesGetMetadata(Entries, Index)
+
+Returns the metadata for a module flag entry at a specific index.
+
+# See also
+Module::ModuleFlagEntry::Val
+"""
+function LLVMModuleFlagEntriesGetMetadata(Entries, Index)
+    @ccall (MLIR_C_PATH[]).LLVMModuleFlagEntriesGetMetadata(
+        Entries::Ptr{LLVMModuleFlagEntry}, Index::Cuint
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMGetModuleFlag(M, Key, KeyLen)
+
+Add a module-level flag to the module-level flags metadata if it doesn't already exist.
+
+# See also
+Module::getModuleFlag()
+"""
+function LLVMGetModuleFlag(M, Key, KeyLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetModuleFlag(
+        M::LLVMModuleRef, Key::Cstring, KeyLen::Csize_t
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMAddModuleFlag(M, Behavior, Key, KeyLen, Val)
+
+Add a module-level flag to the module-level flags metadata if it doesn't already exist.
+
+# See also
+Module::addModuleFlag()
+"""
+function LLVMAddModuleFlag(M, Behavior, Key, KeyLen, Val)
+    @ccall (MLIR_C_PATH[]).LLVMAddModuleFlag(
+        M::LLVMModuleRef,
+        Behavior::LLVMModuleFlagBehavior,
+        Key::Cstring,
+        KeyLen::Csize_t,
+        Val::LLVMMetadataRef,
+    )::Cvoid
+end
+
+"""
+    LLVMDumpModule(M)
+
+Dump a representation of a module to stderr.
+
+# See also
+Module::dump()
+"""
+function LLVMDumpModule(M)
+    @ccall (MLIR_C_PATH[]).LLVMDumpModule(M::LLVMModuleRef)::Cvoid
+end
+
+"""
+    LLVMPrintModuleToFile(M, Filename, ErrorMessage)
+
+Print a representation of a module to a file. The ErrorMessage needs to be disposed with [`LLVMDisposeMessage`](@ref). Returns 0 on success, 1 otherwise.
+
+# See also
+Module::print()
+"""
+function LLVMPrintModuleToFile(M, Filename, ErrorMessage)
+    @ccall (MLIR_C_PATH[]).LLVMPrintModuleToFile(
+        M::LLVMModuleRef, Filename::Cstring, ErrorMessage::Ptr{Cstring}
+    )::LLVMBool
+end
+
+"""
+    LLVMPrintModuleToString(M)
+
+Return a string representation of the module. Use [`LLVMDisposeMessage`](@ref) to free the string.
+
+# See also
+Module::print()
+"""
+function LLVMPrintModuleToString(M)
+    @ccall (MLIR_C_PATH[]).LLVMPrintModuleToString(M::LLVMModuleRef)::Cstring
+end
+
+"""
+    LLVMGetModuleInlineAsm(M, Len)
+
+Get inline assembly for a module.
+
+# See also
+Module::getModuleInlineAsm()
+"""
+function LLVMGetModuleInlineAsm(M, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetModuleInlineAsm(
+        M::LLVMModuleRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMSetModuleInlineAsm2(M, Asm, Len)
+
+Set inline assembly for a module.
+
+# See also
+Module::setModuleInlineAsm()
+"""
+function LLVMSetModuleInlineAsm2(M, Asm, Len)
+    @ccall (MLIR_C_PATH[]).LLVMSetModuleInlineAsm2(
+        M::LLVMModuleRef, Asm::Cstring, Len::Csize_t
+    )::Cvoid
+end
+
+"""
+    LLVMAppendModuleInlineAsm(M, Asm, Len)
+
+Append inline assembly to a module.
+
+# See also
+Module::appendModuleInlineAsm()
+"""
+function LLVMAppendModuleInlineAsm(M, Asm, Len)
+    @ccall (MLIR_C_PATH[]).LLVMAppendModuleInlineAsm(
+        M::LLVMModuleRef, Asm::Cstring, Len::Csize_t
+    )::Cvoid
+end
+
+"""
+    LLVMGetInlineAsm(Ty, AsmString, AsmStringSize, Constraints, ConstraintsSize, HasSideEffects, IsAlignStack, Dialect, CanThrow)
+
+Create the specified uniqued inline asm string.
+
+# See also
+InlineAsm::get()
+"""
+function LLVMGetInlineAsm(
+    Ty,
+    AsmString,
+    AsmStringSize,
+    Constraints,
+    ConstraintsSize,
+    HasSideEffects,
+    IsAlignStack,
+    Dialect,
+    CanThrow,
+)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsm(
+        Ty::LLVMTypeRef,
+        AsmString::Cstring,
+        AsmStringSize::Csize_t,
+        Constraints::Cstring,
+        ConstraintsSize::Csize_t,
+        HasSideEffects::LLVMBool,
+        IsAlignStack::LLVMBool,
+        Dialect::LLVMInlineAsmDialect,
+        CanThrow::LLVMBool,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetInlineAsmAsmString(InlineAsmVal, Len)
+
+Get the template string used for an inline assembly snippet
+"""
+function LLVMGetInlineAsmAsmString(InlineAsmVal, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmAsmString(
+        InlineAsmVal::LLVMValueRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMGetInlineAsmConstraintString(InlineAsmVal, Len)
+
+Get the raw constraint string for an inline assembly snippet
+"""
+function LLVMGetInlineAsmConstraintString(InlineAsmVal, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmConstraintString(
+        InlineAsmVal::LLVMValueRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMGetInlineAsmDialect(InlineAsmVal)
+
+Get the dialect used by the inline asm snippet
+"""
+function LLVMGetInlineAsmDialect(InlineAsmVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmDialect(
+        InlineAsmVal::LLVMValueRef
+    )::LLVMInlineAsmDialect
+end
+
+"""
+    LLVMGetInlineAsmFunctionType(InlineAsmVal)
+
+Get the function type of the inline assembly snippet. The same type that was passed into [`LLVMGetInlineAsm`](@ref) originally
+
+# See also
+[`LLVMGetInlineAsm`](@ref)
+"""
+function LLVMGetInlineAsmFunctionType(InlineAsmVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmFunctionType(
+        InlineAsmVal::LLVMValueRef
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetInlineAsmHasSideEffects(InlineAsmVal)
+
+Get if the inline asm snippet has side effects
+"""
+function LLVMGetInlineAsmHasSideEffects(InlineAsmVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmHasSideEffects(
+        InlineAsmVal::LLVMValueRef
+    )::LLVMBool
+end
+
+"""
+    LLVMGetInlineAsmNeedsAlignedStack(InlineAsmVal)
+
+Get if the inline asm snippet needs an aligned stack
+"""
+function LLVMGetInlineAsmNeedsAlignedStack(InlineAsmVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmNeedsAlignedStack(
+        InlineAsmVal::LLVMValueRef
+    )::LLVMBool
+end
+
+"""
+    LLVMGetInlineAsmCanUnwind(InlineAsmVal)
+
+Get if the inline asm snippet may unwind the stack
+"""
+function LLVMGetInlineAsmCanUnwind(InlineAsmVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetInlineAsmCanUnwind(InlineAsmVal::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetModuleContext(M)
+
+Obtain the context to which this module is associated.
+
+# See also
+Module::getContext()
+"""
+function LLVMGetModuleContext(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetModuleContext(M::LLVMModuleRef)::LLVMContextRef
+end
+
+"""
+    LLVMGetTypeByName(M, Name)
+
+Deprecated: Use [`LLVMGetTypeByName2`](@ref) instead.
+"""
+function LLVMGetTypeByName(M, Name)
+    @ccall (MLIR_C_PATH[]).LLVMGetTypeByName(M::LLVMModuleRef, Name::Cstring)::LLVMTypeRef
+end
+
+"""
+    LLVMGetFirstNamedMetadata(M)
+
+Obtain an iterator to the first NamedMDNode in a Module.
+
+# See also
+llvm::Module::named\\_metadata\\_begin()
+"""
+function LLVMGetFirstNamedMetadata(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstNamedMetadata(M::LLVMModuleRef)::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetLastNamedMetadata(M)
+
+Obtain an iterator to the last NamedMDNode in a Module.
+
+# See also
+llvm::Module::named\\_metadata\\_end()
+"""
+function LLVMGetLastNamedMetadata(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastNamedMetadata(M::LLVMModuleRef)::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetNextNamedMetadata(NamedMDNode)
+
+Advance a NamedMDNode iterator to the next NamedMDNode.
+
+Returns NULL if the iterator was already at the end and there are no more named metadata nodes.
+"""
+function LLVMGetNextNamedMetadata(NamedMDNode)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextNamedMetadata(
+        NamedMDNode::LLVMNamedMDNodeRef
+    )::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetPreviousNamedMetadata(NamedMDNode)
+
+Decrement a NamedMDNode iterator to the previous NamedMDNode.
+
+Returns NULL if the iterator was already at the beginning and there are no previous named metadata nodes.
+"""
+function LLVMGetPreviousNamedMetadata(NamedMDNode)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousNamedMetadata(
+        NamedMDNode::LLVMNamedMDNodeRef
+    )::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetNamedMetadata(M, Name, NameLen)
+
+Retrieve a NamedMDNode with the given name, returning NULL if no such node exists.
+
+# See also
+llvm::Module::getNamedMetadata()
+"""
+function LLVMGetNamedMetadata(M, Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedMetadata(
+        M::LLVMModuleRef, Name::Cstring, NameLen::Csize_t
+    )::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetOrInsertNamedMetadata(M, Name, NameLen)
+
+Retrieve a NamedMDNode with the given name, creating a new node if no such node exists.
+
+# See also
+llvm::Module::getOrInsertNamedMetadata()
+"""
+function LLVMGetOrInsertNamedMetadata(M, Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetOrInsertNamedMetadata(
+        M::LLVMModuleRef, Name::Cstring, NameLen::Csize_t
+    )::LLVMNamedMDNodeRef
+end
+
+"""
+    LLVMGetNamedMetadataName(NamedMD, NameLen)
+
+Retrieve the name of a NamedMDNode.
+
+# See also
+llvm::NamedMDNode::getName()
+"""
+function LLVMGetNamedMetadataName(NamedMD, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedMetadataName(
+        NamedMD::LLVMNamedMDNodeRef, NameLen::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMGetNamedMetadataNumOperands(M, Name)
+
+Obtain the number of operands for named metadata in a module.
+
+# See also
+llvm::Module::getNamedMetadata()
+"""
+function LLVMGetNamedMetadataNumOperands(M, Name)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedMetadataNumOperands(
+        M::LLVMModuleRef, Name::Cstring
+    )::Cuint
+end
+
+"""
+    LLVMGetNamedMetadataOperands(M, Name, Dest)
+
+Obtain the named metadata operands for a module.
+
+The passed [`LLVMValueRef`](@ref) pointer should refer to an array of [`LLVMValueRef`](@ref) at least [`LLVMGetNamedMetadataNumOperands`](@ref) long. This array will be populated with the [`LLVMValueRef`](@ref) instances. Each instance corresponds to a llvm::MDNode.
+
+# See also
+llvm::Module::getNamedMetadata(), llvm::MDNode::getOperand()
+"""
+function LLVMGetNamedMetadataOperands(M, Name, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedMetadataOperands(
+        M::LLVMModuleRef, Name::Cstring, Dest::Ptr{LLVMValueRef}
+    )::Cvoid
+end
+
+"""
+    LLVMAddNamedMetadataOperand(M, Name, Val)
+
+Add an operand to named metadata.
+
+# See also
+llvm::Module::getNamedMetadata(), llvm::MDNode::addOperand()
+"""
+function LLVMAddNamedMetadataOperand(M, Name, Val)
+    @ccall (MLIR_C_PATH[]).LLVMAddNamedMetadataOperand(
+        M::LLVMModuleRef, Name::Cstring, Val::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetDebugLocDirectory(Val, Length)
+
+Return the directory of the debug location for this value, which must be an llvm::Instruction, llvm::GlobalVariable, or llvm::Function.
+
+# See also
+llvm::Instruction::getDebugLoc(), llvm::GlobalVariable::getDebugInfo(), llvm::Function::getSubprogram()
+"""
+function LLVMGetDebugLocDirectory(Val, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetDebugLocDirectory(
+        Val::LLVMValueRef, Length::Ptr{Cuint}
+    )::Cstring
+end
+
+"""
+    LLVMGetDebugLocFilename(Val, Length)
+
+Return the filename of the debug location for this value, which must be an llvm::Instruction, llvm::GlobalVariable, or llvm::Function.
+
+# See also
+llvm::Instruction::getDebugLoc(), llvm::GlobalVariable::getDebugInfo(), llvm::Function::getSubprogram()
+"""
+function LLVMGetDebugLocFilename(Val, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetDebugLocFilename(
+        Val::LLVMValueRef, Length::Ptr{Cuint}
+    )::Cstring
+end
+
+"""
+    LLVMGetDebugLocLine(Val)
+
+Return the line number of the debug location for this value, which must be an llvm::Instruction, llvm::GlobalVariable, or llvm::Function.
+
+# See also
+llvm::Instruction::getDebugLoc(), llvm::GlobalVariable::getDebugInfo(), llvm::Function::getSubprogram()
+"""
+function LLVMGetDebugLocLine(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetDebugLocLine(Val::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetDebugLocColumn(Val)
+
+Return the column number of the debug location for this value, which must be an llvm::Instruction.
+
+# See also
+llvm::Instruction::getDebugLoc()
+"""
+function LLVMGetDebugLocColumn(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetDebugLocColumn(Val::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMAddFunction(M, Name, FunctionTy)
+
+Add a function to a module under a specified name.
+
+# See also
+llvm::Function::Create()
+"""
+function LLVMAddFunction(M, Name, FunctionTy)
+    @ccall (MLIR_C_PATH[]).LLVMAddFunction(
+        M::LLVMModuleRef, Name::Cstring, FunctionTy::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetNamedFunction(M, Name)
+
+Obtain a Function value from a Module by its name.
+
+The returned value corresponds to a llvm::Function value.
+
+# See also
+llvm::Module::getFunction()
+"""
+function LLVMGetNamedFunction(M, Name)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedFunction(
+        M::LLVMModuleRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetNamedFunctionWithLength(M, Name, Length)
+
+Obtain a Function value from a Module by its name.
+
+The returned value corresponds to a llvm::Function value.
+
+# See also
+llvm::Module::getFunction()
+"""
+function LLVMGetNamedFunctionWithLength(M, Name, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedFunctionWithLength(
+        M::LLVMModuleRef, Name::Cstring, Length::Csize_t
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetFirstFunction(M)
+
+Obtain an iterator to the first Function in a Module.
+
+# See also
+llvm::Module::begin()
+"""
+function LLVMGetFirstFunction(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstFunction(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetLastFunction(M)
+
+Obtain an iterator to the last Function in a Module.
+
+# See also
+llvm::Module::end()
+"""
+function LLVMGetLastFunction(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastFunction(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetNextFunction(Fn)
+
+Advance a Function iterator to the next Function.
+
+Returns NULL if the iterator was already at the end and there are no more functions.
+"""
+function LLVMGetNextFunction(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextFunction(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPreviousFunction(Fn)
+
+Decrement a Function iterator to the previous Function.
+
+Returns NULL if the iterator was already at the beginning and there are no previous functions.
+"""
+function LLVMGetPreviousFunction(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousFunction(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetModuleInlineAsm(M, Asm)
+
+Deprecated: Use [`LLVMSetModuleInlineAsm2`](@ref) instead.
+"""
+function LLVMSetModuleInlineAsm(M, Asm)
+    @ccall (MLIR_C_PATH[]).LLVMSetModuleInlineAsm(M::LLVMModuleRef, Asm::Cstring)::Cvoid
+end
+
+"""
+    LLVMGetTypeKind(Ty)
+
+Obtain the enumerated type of a Type instance.
+
+# See also
+llvm::Type:getTypeID()
+"""
+function LLVMGetTypeKind(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetTypeKind(Ty::LLVMTypeRef)::LLVMTypeKind
+end
+
+"""
+    LLVMTypeIsSized(Ty)
+
+Whether the type has a known size.
+
+Things that don't have a size are abstract types, labels, and void.a
+
+# See also
+llvm::Type::isSized()
+"""
+function LLVMTypeIsSized(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMTypeIsSized(Ty::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMGetTypeContext(Ty)
+
+Obtain the context to which this type instance is associated.
+
+# See also
+llvm::Type::getContext()
+"""
+function LLVMGetTypeContext(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetTypeContext(Ty::LLVMTypeRef)::LLVMContextRef
+end
+
+"""
+    LLVMDumpType(Val)
+
+Dump a representation of a type to stderr.
+
+# See also
+llvm::Type::dump()
+"""
+function LLVMDumpType(Val)
+    @ccall (MLIR_C_PATH[]).LLVMDumpType(Val::LLVMTypeRef)::Cvoid
+end
+
+"""
+    LLVMPrintTypeToString(Val)
+
+Return a string representation of the type. Use [`LLVMDisposeMessage`](@ref) to free the string.
+
+# See also
+llvm::Type::print()
+"""
+function LLVMPrintTypeToString(Val)
+    @ccall (MLIR_C_PATH[]).LLVMPrintTypeToString(Val::LLVMTypeRef)::Cstring
+end
+
+"""
+    LLVMInt1TypeInContext(C)
+
+Obtain an integer type from a context with specified bit width.
+"""
+function LLVMInt1TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt1TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMInt8TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt8TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMInt16TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt16TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMInt32TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt32TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMInt64TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt64TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMInt128TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMInt128TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+function LLVMIntTypeInContext(C, NumBits)
+    @ccall (MLIR_C_PATH[]).LLVMIntTypeInContext(
+        C::LLVMContextRef, NumBits::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMInt1Type()
+
+Obtain an integer type from the global context with a specified bit width.
+"""
+function LLVMInt1Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt1Type()::LLVMTypeRef
+end
+
+function LLVMInt8Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt8Type()::LLVMTypeRef
+end
+
+function LLVMInt16Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt16Type()::LLVMTypeRef
+end
+
+function LLVMInt32Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt32Type()::LLVMTypeRef
+end
+
+function LLVMInt64Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt64Type()::LLVMTypeRef
+end
+
+function LLVMInt128Type()
+    @ccall (MLIR_C_PATH[]).LLVMInt128Type()::LLVMTypeRef
+end
+
+function LLVMIntType(NumBits)
+    @ccall (MLIR_C_PATH[]).LLVMIntType(NumBits::Cuint)::LLVMTypeRef
+end
+
+function LLVMGetIntTypeWidth(IntegerTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetIntTypeWidth(IntegerTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMHalfTypeInContext(C)
+
+Obtain a 16-bit floating point type from a context.
+"""
+function LLVMHalfTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMHalfTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMBFloatTypeInContext(C)
+
+Obtain a 16-bit brain floating point type from a context.
+"""
+function LLVMBFloatTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMBFloatTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMFloatTypeInContext(C)
+
+Obtain a 32-bit floating point type from a context.
+"""
+function LLVMFloatTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMFloatTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMDoubleTypeInContext(C)
+
+Obtain a 64-bit floating point type from a context.
+"""
+function LLVMDoubleTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMDoubleTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMX86FP80TypeInContext(C)
+
+Obtain a 80-bit floating point type (X87) from a context.
+"""
+function LLVMX86FP80TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMX86FP80TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMFP128TypeInContext(C)
+
+Obtain a 128-bit floating point type (112-bit mantissa) from a context.
+"""
+function LLVMFP128TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMFP128TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMPPCFP128TypeInContext(C)
+
+Obtain a 128-bit floating point type (two 64-bits) from a context.
+"""
+function LLVMPPCFP128TypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMPPCFP128TypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMHalfType()
+
+Obtain a floating point type from the global context.
+
+These map to the functions in this group of the same name.
+"""
+function LLVMHalfType()
+    @ccall (MLIR_C_PATH[]).LLVMHalfType()::LLVMTypeRef
+end
+
+function LLVMBFloatType()
+    @ccall (MLIR_C_PATH[]).LLVMBFloatType()::LLVMTypeRef
+end
+
+function LLVMFloatType()
+    @ccall (MLIR_C_PATH[]).LLVMFloatType()::LLVMTypeRef
+end
+
+function LLVMDoubleType()
+    @ccall (MLIR_C_PATH[]).LLVMDoubleType()::LLVMTypeRef
+end
+
+function LLVMX86FP80Type()
+    @ccall (MLIR_C_PATH[]).LLVMX86FP80Type()::LLVMTypeRef
+end
+
+function LLVMFP128Type()
+    @ccall (MLIR_C_PATH[]).LLVMFP128Type()::LLVMTypeRef
+end
+
+function LLVMPPCFP128Type()
+    @ccall (MLIR_C_PATH[]).LLVMPPCFP128Type()::LLVMTypeRef
+end
+
+"""
+    LLVMFunctionType(ReturnType, ParamTypes, ParamCount, IsVarArg)
+
+Obtain a function type consisting of a specified signature.
+
+The function is defined as a tuple of a return Type, a list of parameter types, and whether the function is variadic.
+"""
+function LLVMFunctionType(ReturnType, ParamTypes, ParamCount, IsVarArg)
+    @ccall (MLIR_C_PATH[]).LLVMFunctionType(
+        ReturnType::LLVMTypeRef,
+        ParamTypes::Ptr{LLVMTypeRef},
+        ParamCount::Cuint,
+        IsVarArg::LLVMBool,
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMIsFunctionVarArg(FunctionTy)
+
+Returns whether a function type is variadic.
+"""
+function LLVMIsFunctionVarArg(FunctionTy)
+    @ccall (MLIR_C_PATH[]).LLVMIsFunctionVarArg(FunctionTy::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMGetReturnType(FunctionTy)
+
+Obtain the Type this function Type returns.
+"""
+function LLVMGetReturnType(FunctionTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetReturnType(FunctionTy::LLVMTypeRef)::LLVMTypeRef
+end
+
+"""
+    LLVMCountParamTypes(FunctionTy)
+
+Obtain the number of parameters this function accepts.
+"""
+function LLVMCountParamTypes(FunctionTy)
+    @ccall (MLIR_C_PATH[]).LLVMCountParamTypes(FunctionTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMGetParamTypes(FunctionTy, Dest)
+
+Obtain the types of a function's parameters.
+
+The Dest parameter should point to a pre-allocated array of [`LLVMTypeRef`](@ref) at least [`LLVMCountParamTypes`](@ref)() large. On return, the first [`LLVMCountParamTypes`](@ref)() entries in the array will be populated with [`LLVMTypeRef`](@ref) instances.
+
+# Arguments
+* `FunctionTy`: The function type to operate on.
+* `Dest`: Memory address of an array to be filled with result.
+"""
+function LLVMGetParamTypes(FunctionTy, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMGetParamTypes(
+        FunctionTy::LLVMTypeRef, Dest::Ptr{LLVMTypeRef}
+    )::Cvoid
+end
+
+"""
+    LLVMStructTypeInContext(C, ElementTypes, ElementCount, Packed)
+
+Create a new structure type in a context.
+
+A structure is specified by a list of inner elements/types and whether these can be packed together.
+
+# See also
+llvm::StructType::create()
+"""
+function LLVMStructTypeInContext(C, ElementTypes, ElementCount, Packed)
+    @ccall (MLIR_C_PATH[]).LLVMStructTypeInContext(
+        C::LLVMContextRef,
+        ElementTypes::Ptr{LLVMTypeRef},
+        ElementCount::Cuint,
+        Packed::LLVMBool,
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMStructType(ElementTypes, ElementCount, Packed)
+
+Create a new structure type in the global context.
+
+# See also
+llvm::StructType::create()
+"""
+function LLVMStructType(ElementTypes, ElementCount, Packed)
+    @ccall (MLIR_C_PATH[]).LLVMStructType(
+        ElementTypes::Ptr{LLVMTypeRef}, ElementCount::Cuint, Packed::LLVMBool
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMStructCreateNamed(C, Name)
+
+Create an empty structure in a context having a specified name.
+
+# See also
+llvm::StructType::create()
+"""
+function LLVMStructCreateNamed(C, Name)
+    @ccall (MLIR_C_PATH[]).LLVMStructCreateNamed(
+        C::LLVMContextRef, Name::Cstring
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetStructName(Ty)
+
+Obtain the name of a structure.
+
+# See also
+llvm::StructType::getName()
+"""
+function LLVMGetStructName(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetStructName(Ty::LLVMTypeRef)::Cstring
+end
+
+"""
+    LLVMStructSetBody(StructTy, ElementTypes, ElementCount, Packed)
+
+Set the contents of a structure type.
+
+# See also
+llvm::StructType::setBody()
+"""
+function LLVMStructSetBody(StructTy, ElementTypes, ElementCount, Packed)
+    @ccall (MLIR_C_PATH[]).LLVMStructSetBody(
+        StructTy::LLVMTypeRef,
+        ElementTypes::Ptr{LLVMTypeRef},
+        ElementCount::Cuint,
+        Packed::LLVMBool,
+    )::Cvoid
+end
+
+"""
+    LLVMCountStructElementTypes(StructTy)
+
+Get the number of elements defined inside the structure.
+
+# See also
+llvm::StructType::getNumElements()
+"""
+function LLVMCountStructElementTypes(StructTy)
+    @ccall (MLIR_C_PATH[]).LLVMCountStructElementTypes(StructTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMGetStructElementTypes(StructTy, Dest)
+
+Get the elements within a structure.
+
+The function is passed the address of a pre-allocated array of [`LLVMTypeRef`](@ref) at least [`LLVMCountStructElementTypes`](@ref)() long. After invocation, this array will be populated with the structure's elements. The objects in the destination array will have a lifetime of the structure type itself, which is the lifetime of the context it is contained in.
+"""
+function LLVMGetStructElementTypes(StructTy, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMGetStructElementTypes(
+        StructTy::LLVMTypeRef, Dest::Ptr{LLVMTypeRef}
+    )::Cvoid
+end
+
+"""
+    LLVMStructGetTypeAtIndex(StructTy, i)
+
+Get the type of the element at a given index in the structure.
+
+# See also
+llvm::StructType::getTypeAtIndex()
+"""
+function LLVMStructGetTypeAtIndex(StructTy, i)
+    @ccall (MLIR_C_PATH[]).LLVMStructGetTypeAtIndex(
+        StructTy::LLVMTypeRef, i::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMIsPackedStruct(StructTy)
+
+Determine whether a structure is packed.
+
+# See also
+llvm::StructType::isPacked()
+"""
+function LLVMIsPackedStruct(StructTy)
+    @ccall (MLIR_C_PATH[]).LLVMIsPackedStruct(StructTy::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMIsOpaqueStruct(StructTy)
+
+Determine whether a structure is opaque.
+
+# See also
+llvm::StructType::isOpaque()
+"""
+function LLVMIsOpaqueStruct(StructTy)
+    @ccall (MLIR_C_PATH[]).LLVMIsOpaqueStruct(StructTy::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMIsLiteralStruct(StructTy)
+
+Determine whether a structure is literal.
+
+# See also
+llvm::StructType::isLiteral()
+"""
+function LLVMIsLiteralStruct(StructTy)
+    @ccall (MLIR_C_PATH[]).LLVMIsLiteralStruct(StructTy::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMGetElementType(Ty)
+
+Obtain the element type of an array or vector type.
+
+# See also
+llvm::SequentialType::getElementType()
+"""
+function LLVMGetElementType(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetElementType(Ty::LLVMTypeRef)::LLVMTypeRef
+end
+
+"""
+    LLVMGetSubtypes(Tp, Arr)
+
+Returns type's subtypes
+
+# See also
+llvm::Type::subtypes()
+"""
+function LLVMGetSubtypes(Tp, Arr)
+    @ccall (MLIR_C_PATH[]).LLVMGetSubtypes(Tp::LLVMTypeRef, Arr::Ptr{LLVMTypeRef})::Cvoid
+end
+
+"""
+    LLVMGetNumContainedTypes(Tp)
+
+Return the number of types in the derived type.
+
+# See also
+llvm::Type::getNumContainedTypes()
+"""
+function LLVMGetNumContainedTypes(Tp)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumContainedTypes(Tp::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMArrayType(ElementType, ElementCount)
+
+Create a fixed size array type that refers to a specific type.
+
+The created type will exist in the context that its element type exists in.
+
+!!! compat "Deprecated"
+
+    [`LLVMArrayType`](@ref) is deprecated in favor of the API accurate [`LLVMArrayType2`](@ref)
+
+# See also
+llvm::ArrayType::get()
+"""
+function LLVMArrayType(ElementType, ElementCount)
+    @ccall (MLIR_C_PATH[]).LLVMArrayType(
+        ElementType::LLVMTypeRef, ElementCount::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMArrayType2(ElementType, ElementCount)
+
+Create a fixed size array type that refers to a specific type.
+
+The created type will exist in the context that its element type exists in.
+
+# See also
+llvm::ArrayType::get()
+"""
+function LLVMArrayType2(ElementType, ElementCount)
+    @ccall (MLIR_C_PATH[]).LLVMArrayType2(
+        ElementType::LLVMTypeRef, ElementCount::UInt64
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetArrayLength(ArrayTy)
+
+Obtain the length of an array type.
+
+This only works on types that represent arrays.
+
+!!! compat "Deprecated"
+
+    [`LLVMGetArrayLength`](@ref) is deprecated in favor of the API accurate [`LLVMGetArrayLength2`](@ref)
+
+# See also
+llvm::ArrayType::getNumElements()
+"""
+function LLVMGetArrayLength(ArrayTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetArrayLength(ArrayTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMGetArrayLength2(ArrayTy)
+
+Obtain the length of an array type.
+
+This only works on types that represent arrays.
+
+# See also
+llvm::ArrayType::getNumElements()
+"""
+function LLVMGetArrayLength2(ArrayTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetArrayLength2(ArrayTy::LLVMTypeRef)::UInt64
+end
+
+"""
+    LLVMPointerType(ElementType, AddressSpace)
+
+Create a pointer type that points to a defined type.
+
+The created type will exist in the context that its pointee type exists in.
+
+# See also
+llvm::PointerType::get()
+"""
+function LLVMPointerType(ElementType, AddressSpace)
+    @ccall (MLIR_C_PATH[]).LLVMPointerType(
+        ElementType::LLVMTypeRef, AddressSpace::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMPointerTypeIsOpaque(Ty)
+
+Determine whether a pointer is opaque.
+
+True if this is an instance of an opaque PointerType.
+
+# See also
+llvm::Type::isOpaquePointerTy()
+"""
+function LLVMPointerTypeIsOpaque(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMPointerTypeIsOpaque(Ty::LLVMTypeRef)::LLVMBool
+end
+
+"""
+    LLVMPointerTypeInContext(C, AddressSpace)
+
+Create an opaque pointer type in a context.
+
+# See also
+llvm::PointerType::get()
+"""
+function LLVMPointerTypeInContext(C, AddressSpace)
+    @ccall (MLIR_C_PATH[]).LLVMPointerTypeInContext(
+        C::LLVMContextRef, AddressSpace::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetPointerAddressSpace(PointerTy)
+
+Obtain the address space of a pointer type.
+
+This only works on types that represent pointers.
+
+# See also
+llvm::PointerType::getAddressSpace()
+"""
+function LLVMGetPointerAddressSpace(PointerTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetPointerAddressSpace(PointerTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMVectorType(ElementType, ElementCount)
+
+Create a vector type that contains a defined type and has a specific number of elements.
+
+The created type will exist in the context thats its element type exists in.
+
+# See also
+llvm::VectorType::get()
+"""
+function LLVMVectorType(ElementType, ElementCount)
+    @ccall (MLIR_C_PATH[]).LLVMVectorType(
+        ElementType::LLVMTypeRef, ElementCount::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMScalableVectorType(ElementType, ElementCount)
+
+Create a vector type that contains a defined type and has a scalable number of elements.
+
+The created type will exist in the context thats its element type exists in.
+
+# See also
+llvm::ScalableVectorType::get()
+"""
+function LLVMScalableVectorType(ElementType, ElementCount)
+    @ccall (MLIR_C_PATH[]).LLVMScalableVectorType(
+        ElementType::LLVMTypeRef, ElementCount::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetVectorSize(VectorTy)
+
+Obtain the (possibly scalable) number of elements in a vector type.
+
+This only works on types that represent vectors (fixed or scalable).
+
+# See also
+llvm::VectorType::getNumElements()
+"""
+function LLVMGetVectorSize(VectorTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetVectorSize(VectorTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMGetConstantPtrAuthPointer(PtrAuth)
+
+Get the pointer value for the associated ConstantPtrAuth constant.
+
+# See also
+llvm::ConstantPtrAuth::getPointer
+"""
+function LLVMGetConstantPtrAuthPointer(PtrAuth)
+    @ccall (MLIR_C_PATH[]).LLVMGetConstantPtrAuthPointer(
+        PtrAuth::LLVMValueRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetConstantPtrAuthKey(PtrAuth)
+
+Get the key value for the associated ConstantPtrAuth constant.
+
+# See also
+llvm::ConstantPtrAuth::getKey
+"""
+function LLVMGetConstantPtrAuthKey(PtrAuth)
+    @ccall (MLIR_C_PATH[]).LLVMGetConstantPtrAuthKey(PtrAuth::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetConstantPtrAuthDiscriminator(PtrAuth)
+
+Get the discriminator value for the associated ConstantPtrAuth constant.
+
+# See also
+llvm::ConstantPtrAuth::getDiscriminator
+"""
+function LLVMGetConstantPtrAuthDiscriminator(PtrAuth)
+    @ccall (MLIR_C_PATH[]).LLVMGetConstantPtrAuthDiscriminator(
+        PtrAuth::LLVMValueRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetConstantPtrAuthAddrDiscriminator(PtrAuth)
+
+Get the address discriminator value for the associated ConstantPtrAuth constant.
+
+# See also
+llvm::ConstantPtrAuth::getAddrDiscriminator
+"""
+function LLVMGetConstantPtrAuthAddrDiscriminator(PtrAuth)
+    @ccall (MLIR_C_PATH[]).LLVMGetConstantPtrAuthAddrDiscriminator(
+        PtrAuth::LLVMValueRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMVoidTypeInContext(C)
+
+Create a void type in a context.
+"""
+function LLVMVoidTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMVoidTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMLabelTypeInContext(C)
+
+Create a label type in a context.
+"""
+function LLVMLabelTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMLabelTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMX86AMXTypeInContext(C)
+
+Create a X86 AMX type in a context.
+"""
+function LLVMX86AMXTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMX86AMXTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMTokenTypeInContext(C)
+
+Create a token type in a context.
+"""
+function LLVMTokenTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMTokenTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMMetadataTypeInContext(C)
+
+Create a metadata type in a context.
+"""
+function LLVMMetadataTypeInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMMetadataTypeInContext(C::LLVMContextRef)::LLVMTypeRef
+end
+
+"""
+    LLVMVoidType()
+
+These are similar to the above functions except they operate on the global context.
+"""
+function LLVMVoidType()
+    @ccall (MLIR_C_PATH[]).LLVMVoidType()::LLVMTypeRef
+end
+
+function LLVMLabelType()
+    @ccall (MLIR_C_PATH[]).LLVMLabelType()::LLVMTypeRef
+end
+
+function LLVMX86AMXType()
+    @ccall (MLIR_C_PATH[]).LLVMX86AMXType()::LLVMTypeRef
+end
+
+"""
+    LLVMTargetExtTypeInContext(C, Name, TypeParams, TypeParamCount, IntParams, IntParamCount)
+
+Create a target extension type in LLVM context.
+"""
+function LLVMTargetExtTypeInContext(
+    C, Name, TypeParams, TypeParamCount, IntParams, IntParamCount
+)
+    @ccall (MLIR_C_PATH[]).LLVMTargetExtTypeInContext(
+        C::LLVMContextRef,
+        Name::Cstring,
+        TypeParams::Ptr{LLVMTypeRef},
+        TypeParamCount::Cuint,
+        IntParams::Ptr{Cuint},
+        IntParamCount::Cuint,
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetTargetExtTypeName(TargetExtTy)
+
+Obtain the name for this target extension type.
+
+# See also
+llvm::TargetExtType::getName()
+"""
+function LLVMGetTargetExtTypeName(TargetExtTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetTargetExtTypeName(TargetExtTy::LLVMTypeRef)::Cstring
+end
+
+"""
+    LLVMGetTargetExtTypeNumTypeParams(TargetExtTy)
+
+Obtain the number of type parameters for this target extension type.
+
+# See also
+llvm::TargetExtType::getNumTypeParameters()
+"""
+function LLVMGetTargetExtTypeNumTypeParams(TargetExtTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetTargetExtTypeNumTypeParams(
+        TargetExtTy::LLVMTypeRef
+    )::Cuint
+end
+
+"""
+    LLVMGetTargetExtTypeTypeParam(TargetExtTy, Idx)
+
+Get the type parameter at the given index for the target extension type.
+
+# See also
+llvm::TargetExtType::getTypeParameter()
+"""
+function LLVMGetTargetExtTypeTypeParam(TargetExtTy, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetTargetExtTypeTypeParam(
+        TargetExtTy::LLVMTypeRef, Idx::Cuint
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMGetTargetExtTypeNumIntParams(TargetExtTy)
+
+Obtain the number of int parameters for this target extension type.
+
+# See also
+llvm::TargetExtType::getNumIntParameters()
+"""
+function LLVMGetTargetExtTypeNumIntParams(TargetExtTy)
+    @ccall (MLIR_C_PATH[]).LLVMGetTargetExtTypeNumIntParams(TargetExtTy::LLVMTypeRef)::Cuint
+end
+
+"""
+    LLVMGetTargetExtTypeIntParam(TargetExtTy, Idx)
+
+Get the int parameter at the given index for the target extension type.
+
+# See also
+llvm::TargetExtType::getIntParameter()
+"""
+function LLVMGetTargetExtTypeIntParam(TargetExtTy, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetTargetExtTypeIntParam(
+        TargetExtTy::LLVMTypeRef, Idx::Cuint
+    )::Cuint
+end
+
+"""
+    LLVMTypeOf(Val)
+
+Obtain the type of a value.
+
+# See also
+llvm::Value::getType()
+"""
+function LLVMTypeOf(Val)
+    @ccall (MLIR_C_PATH[]).LLVMTypeOf(Val::LLVMValueRef)::LLVMTypeRef
+end
+
+"""
+    LLVMGetValueKind(Val)
+
+Obtain the enumerated type of a Value instance.
+
+# See also
+llvm::Value::getValueID()
+"""
+function LLVMGetValueKind(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetValueKind(Val::LLVMValueRef)::LLVMValueKind
+end
+
+"""
+    LLVMGetValueName2(Val, Length)
+
+Obtain the string name of a value.
+
+# See also
+llvm::Value::getName()
+"""
+function LLVMGetValueName2(Val, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetValueName2(
+        Val::LLVMValueRef, Length::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMSetValueName2(Val, Name, NameLen)
+
+Set the string name of a value.
+
+# See also
+llvm::Value::setName()
+"""
+function LLVMSetValueName2(Val, Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMSetValueName2(
+        Val::LLVMValueRef, Name::Cstring, NameLen::Csize_t
+    )::Cvoid
+end
+
+"""
+    LLVMDumpValue(Val)
+
+Dump a representation of a value to stderr.
+
+# See also
+llvm::Value::dump()
+"""
+function LLVMDumpValue(Val)
+    @ccall (MLIR_C_PATH[]).LLVMDumpValue(Val::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMPrintValueToString(Val)
+
+Return a string representation of the value. Use [`LLVMDisposeMessage`](@ref) to free the string.
+
+# See also
+llvm::Value::print()
+"""
+function LLVMPrintValueToString(Val)
+    @ccall (MLIR_C_PATH[]).LLVMPrintValueToString(Val::LLVMValueRef)::Cstring
+end
+
+"""
+    LLVMGetValueContext(Val)
+
+Obtain the context to which this value is associated.
+
+# See also
+llvm::Value::getContext()
+"""
+function LLVMGetValueContext(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetValueContext(Val::LLVMValueRef)::LLVMContextRef
+end
+
+"""
+    LLVMPrintDbgRecordToString(Record)
+
+Return a string representation of the DbgRecord. Use [`LLVMDisposeMessage`](@ref) to free the string.
+
+# See also
+llvm::DbgRecord::print()
+"""
+function LLVMPrintDbgRecordToString(Record)
+    @ccall (MLIR_C_PATH[]).LLVMPrintDbgRecordToString(Record::LLVMDbgRecordRef)::Cstring
+end
+
+"""
+    LLVMReplaceAllUsesWith(OldVal, NewVal)
+
+Replace all uses of a value with another one.
+
+# See also
+llvm::Value::replaceAllUsesWith()
+"""
+function LLVMReplaceAllUsesWith(OldVal, NewVal)
+    @ccall (MLIR_C_PATH[]).LLVMReplaceAllUsesWith(
+        OldVal::LLVMValueRef, NewVal::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMIsConstant(Val)
+
+Determine whether the specified value instance is constant.
+"""
+function LLVMIsConstant(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsConstant(Val::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMIsUndef(Val)
+
+Determine whether a value instance is undefined.
+"""
+function LLVMIsUndef(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsUndef(Val::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMIsPoison(Val)
+
+Determine whether a value instance is poisonous.
+"""
+function LLVMIsPoison(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsPoison(Val::LLVMValueRef)::LLVMBool
+end
+
+function LLVMIsAArgument(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAArgument(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsABasicBlock(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsABasicBlock(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAInlineAsm(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAInlineAsm(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUser(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUser(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstant(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstant(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsABlockAddress(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsABlockAddress(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantAggregateZero(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantAggregateZero(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantArray(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantArray(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantDataSequential(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantDataSequential(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantDataArray(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantDataArray(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantDataVector(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantDataVector(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantExpr(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantExpr(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantFP(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantFP(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantInt(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantInt(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantPointerNull(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantPointerNull(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantStruct(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantStruct(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantTokenNone(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantTokenNone(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantVector(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantVector(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAConstantPtrAuth(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAConstantPtrAuth(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGlobalValue(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGlobalValue(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGlobalAlias(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGlobalAlias(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGlobalObject(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGlobalObject(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFunction(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFunction(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGlobalVariable(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGlobalVariable(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGlobalIFunc(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGlobalIFunc(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUndefValue(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUndefValue(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAPoisonValue(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAPoisonValue(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAInstruction(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAInstruction(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUnaryOperator(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUnaryOperator(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsABinaryOperator(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsABinaryOperator(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACallInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACallInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAIntrinsicInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAIntrinsicInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsADbgInfoIntrinsic(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsADbgInfoIntrinsic(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsADbgVariableIntrinsic(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsADbgVariableIntrinsic(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsADbgDeclareInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsADbgDeclareInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsADbgLabelInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsADbgLabelInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMemIntrinsic(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMemIntrinsic(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMemCpyInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMemCpyInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMemMoveInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMemMoveInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMemSetInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMemSetInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACmpInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACmpInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFCmpInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFCmpInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAICmpInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAICmpInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAExtractElementInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAExtractElementInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAGetElementPtrInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAGetElementPtrInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAInsertElementInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAInsertElementInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAInsertValueInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAInsertValueInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsALandingPadInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsALandingPadInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAPHINode(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAPHINode(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsASelectInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsASelectInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAShuffleVectorInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAShuffleVectorInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAStoreInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAStoreInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsABranchInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsABranchInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAIndirectBrInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAIndirectBrInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAInvokeInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAInvokeInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAReturnInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAReturnInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsASwitchInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsASwitchInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUnreachableInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUnreachableInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAResumeInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAResumeInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACleanupReturnInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACleanupReturnInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACatchReturnInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACatchReturnInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACatchSwitchInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACatchSwitchInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACallBrInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACallBrInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFuncletPadInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFuncletPadInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACatchPadInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACatchPadInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACleanupPadInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACleanupPadInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUnaryInstruction(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUnaryInstruction(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAAllocaInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAAllocaInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsACastInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsACastInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAAddrSpaceCastInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAAddrSpaceCastInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsABitCastInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsABitCastInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFPExtInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFPExtInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFPToSIInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFPToSIInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFPToUIInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFPToUIInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFPTruncInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFPTruncInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAIntToPtrInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAIntToPtrInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAPtrToIntInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAPtrToIntInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsASExtInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsASExtInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsASIToFPInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsASIToFPInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsATruncInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsATruncInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAUIToFPInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAUIToFPInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAZExtInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAZExtInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAExtractValueInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAExtractValueInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsALoadInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsALoadInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAVAArgInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAVAArgInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFreezeInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFreezeInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAAtomicCmpXchgInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAAtomicCmpXchgInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAAtomicRMWInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAAtomicRMWInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAFenceInst(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAFenceInst(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMDNode(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMDNode(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAValueAsMetadata(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAValueAsMetadata(Val::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMIsAMDString(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsAMDString(Val::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetValueName(Val)
+
+Deprecated: Use [`LLVMGetValueName2`](@ref) instead.
+"""
+function LLVMGetValueName(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetValueName(Val::LLVMValueRef)::Cstring
+end
+
+"""
+    LLVMSetValueName(Val, Name)
+
+Deprecated: Use [`LLVMSetValueName2`](@ref) instead.
+"""
+function LLVMSetValueName(Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMSetValueName(Val::LLVMValueRef, Name::Cstring)::Cvoid
+end
+
+"""
+    LLVMGetFirstUse(Val)
+
+Obtain the first use of a value.
+
+Uses are obtained in an iterator fashion. First, call this function to obtain a reference to the first use. Then, call [`LLVMGetNextUse`](@ref)() on that instance and all subsequently obtained instances until [`LLVMGetNextUse`](@ref)() returns NULL.
+
+# See also
+llvm::Value::use\\_begin()
+"""
+function LLVMGetFirstUse(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstUse(Val::LLVMValueRef)::LLVMUseRef
+end
+
+"""
+    LLVMGetNextUse(U)
+
+Obtain the next use of a value.
+
+This effectively advances the iterator. It returns NULL if you are on the final use and no more are available.
+"""
+function LLVMGetNextUse(U)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextUse(U::LLVMUseRef)::LLVMUseRef
+end
+
+"""
+    LLVMGetUser(U)
+
+Obtain the user value for a user.
+
+The returned value corresponds to a llvm::User type.
+
+# See also
+llvm::Use::getUser()
+"""
+function LLVMGetUser(U)
+    @ccall (MLIR_C_PATH[]).LLVMGetUser(U::LLVMUseRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetUsedValue(U)
+
+Obtain the value this use corresponds to.
+
+# See also
+llvm::Use::get().
+"""
+function LLVMGetUsedValue(U)
+    @ccall (MLIR_C_PATH[]).LLVMGetUsedValue(U::LLVMUseRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetOperand(Val, Index)
+
+Obtain an operand at a specific index in a llvm::User value.
+
+# See also
+llvm::User::getOperand()
+"""
+function LLVMGetOperand(Val, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetOperand(Val::LLVMValueRef, Index::Cuint)::LLVMValueRef
+end
+
+"""
+    LLVMGetOperandUse(Val, Index)
+
+Obtain the use of an operand at a specific index in a llvm::User value.
+
+# See also
+llvm::User::getOperandUse()
+"""
+function LLVMGetOperandUse(Val, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetOperandUse(Val::LLVMValueRef, Index::Cuint)::LLVMUseRef
+end
+
+"""
+    LLVMSetOperand(User, Index, Val)
+
+Set an operand at a specific index in a llvm::User value.
+
+# See also
+llvm::User::setOperand()
+"""
+function LLVMSetOperand(User, Index, Val)
+    @ccall (MLIR_C_PATH[]).LLVMSetOperand(
+        User::LLVMValueRef, Index::Cuint, Val::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetNumOperands(Val)
+
+Obtain the number of operands in a llvm::User value.
+
+# See also
+llvm::User::getNumOperands()
+"""
+function LLVMGetNumOperands(Val)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumOperands(Val::LLVMValueRef)::Cint
+end
+
+"""
+    LLVMConstNull(Ty)
+
+Obtain a constant value referring to the null instance of a type.
+
+# See also
+llvm::Constant::getNullValue()
+"""
+function LLVMConstNull(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMConstNull(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+"""
+    LLVMConstAllOnes(Ty)
+
+Obtain a constant value referring to the instance of a type consisting of all ones.
+
+This is only valid for integer types.
+
+# See also
+llvm::Constant::getAllOnesValue()
+"""
+function LLVMConstAllOnes(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMConstAllOnes(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetUndef(Ty)
+
+Obtain a constant value referring to an undefined value of a type.
+
+# See also
+llvm::UndefValue::get()
+"""
+function LLVMGetUndef(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetUndef(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPoison(Ty)
+
+Obtain a constant value referring to a poison value of a type.
+
+# See also
+llvm::PoisonValue::get()
+"""
+function LLVMGetPoison(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMGetPoison(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+"""
+    LLVMIsNull(Val)
+
+Determine whether a value instance is null.
+
+# See also
+llvm::Constant::isNullValue()
+"""
+function LLVMIsNull(Val)
+    @ccall (MLIR_C_PATH[]).LLVMIsNull(Val::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMConstPointerNull(Ty)
+
+Obtain a constant that is a constant pointer pointing to NULL for a specified type.
+"""
+function LLVMConstPointerNull(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMConstPointerNull(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+"""
+    LLVMConstInt(IntTy, N, SignExtend)
+
+Obtain a constant value for an integer type.
+
+The returned value corresponds to a llvm::ConstantInt.
+
+# Arguments
+* `IntTy`: Integer type to obtain value of.
+* `N`: The value the returned instance should refer to.
+* `SignExtend`: Whether to sign extend the produced value.
+# See also
+llvm::ConstantInt::get()
+"""
+function LLVMConstInt(IntTy, N, SignExtend)
+    @ccall (MLIR_C_PATH[]).LLVMConstInt(
+        IntTy::LLVMTypeRef, N::Culonglong, SignExtend::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstIntOfArbitraryPrecision(IntTy, NumWords, Words)
+
+Obtain a constant value for an integer of arbitrary precision.
+
+# See also
+llvm::ConstantInt::get()
+"""
+function LLVMConstIntOfArbitraryPrecision(IntTy, NumWords, Words)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntOfArbitraryPrecision(
+        IntTy::LLVMTypeRef, NumWords::Cuint, Words::Ptr{UInt64}
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstIntOfString(IntTy, Text, Radix)
+
+Obtain a constant value for an integer parsed from a string.
+
+A similar API, [`LLVMConstIntOfStringAndSize`](@ref) is also available. If the string's length is available, it is preferred to call that function instead.
+
+# See also
+llvm::ConstantInt::get()
+"""
+function LLVMConstIntOfString(IntTy, Text, Radix)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntOfString(
+        IntTy::LLVMTypeRef, Text::Cstring, Radix::UInt8
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstIntOfStringAndSize(IntTy, Text, SLen, Radix)
+
+Obtain a constant value for an integer parsed from a string with specified length.
+
+# See also
+llvm::ConstantInt::get()
+"""
+function LLVMConstIntOfStringAndSize(IntTy, Text, SLen, Radix)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntOfStringAndSize(
+        IntTy::LLVMTypeRef, Text::Cstring, SLen::Cuint, Radix::UInt8
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstReal(RealTy, N)
+
+Obtain a constant value referring to a double floating point value.
+"""
+function LLVMConstReal(RealTy, N)
+    @ccall (MLIR_C_PATH[]).LLVMConstReal(RealTy::LLVMTypeRef, N::Cdouble)::LLVMValueRef
+end
+
+"""
+    LLVMConstRealOfString(RealTy, Text)
+
+Obtain a constant for a floating point value parsed from a string.
+
+A similar API, [`LLVMConstRealOfStringAndSize`](@ref) is also available. It should be used if the input string's length is known.
+"""
+function LLVMConstRealOfString(RealTy, Text)
+    @ccall (MLIR_C_PATH[]).LLVMConstRealOfString(
+        RealTy::LLVMTypeRef, Text::Cstring
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstRealOfStringAndSize(RealTy, Text, SLen)
+
+Obtain a constant for a floating point value parsed from a string.
+"""
+function LLVMConstRealOfStringAndSize(RealTy, Text, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMConstRealOfStringAndSize(
+        RealTy::LLVMTypeRef, Text::Cstring, SLen::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstIntGetZExtValue(ConstantVal)
+
+Obtain the zero extended value for an integer constant value.
+
+# See also
+llvm::ConstantInt::getZExtValue()
+"""
+function LLVMConstIntGetZExtValue(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntGetZExtValue(ConstantVal::LLVMValueRef)::Culonglong
+end
+
+"""
+    LLVMConstIntGetSExtValue(ConstantVal)
+
+Obtain the sign extended value for an integer constant value.
+
+# See also
+llvm::ConstantInt::getSExtValue()
+"""
+function LLVMConstIntGetSExtValue(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntGetSExtValue(ConstantVal::LLVMValueRef)::Clonglong
+end
+
+"""
+    LLVMConstRealGetDouble(ConstantVal, losesInfo)
+
+Obtain the double value for an floating point constant value. losesInfo indicates if some precision was lost in the conversion.
+
+# See also
+llvm::ConstantFP::getDoubleValue
+"""
+function LLVMConstRealGetDouble(ConstantVal, losesInfo)
+    @ccall (MLIR_C_PATH[]).LLVMConstRealGetDouble(
+        ConstantVal::LLVMValueRef, losesInfo::Ptr{LLVMBool}
+    )::Cdouble
+end
+
+"""
+    LLVMConstStringInContext(C, Str, Length, DontNullTerminate)
+
+Create a ConstantDataSequential and initialize it with a string.
+
+!!! compat "Deprecated"
+
+    [`LLVMConstStringInContext`](@ref) is deprecated in favor of the API accurate [`LLVMConstStringInContext2`](@ref)
+
+# See also
+llvm::ConstantDataArray::getString()
+"""
+function LLVMConstStringInContext(C, Str, Length, DontNullTerminate)
+    @ccall (MLIR_C_PATH[]).LLVMConstStringInContext(
+        C::LLVMContextRef, Str::Cstring, Length::Cuint, DontNullTerminate::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstStringInContext2(C, Str, Length, DontNullTerminate)
+
+Create a ConstantDataSequential and initialize it with a string.
+
+# See also
+llvm::ConstantDataArray::getString()
+"""
+function LLVMConstStringInContext2(C, Str, Length, DontNullTerminate)
+    @ccall (MLIR_C_PATH[]).LLVMConstStringInContext2(
+        C::LLVMContextRef, Str::Cstring, Length::Csize_t, DontNullTerminate::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstString(Str, Length, DontNullTerminate)
+
+Create a ConstantDataSequential with string content in the global context.
+
+This is the same as [`LLVMConstStringInContext`](@ref) except it operates on the global context.
+
+# See also
+[`LLVMConstStringInContext`](@ref)(), llvm::ConstantDataArray::getString()
+"""
+function LLVMConstString(Str, Length, DontNullTerminate)
+    @ccall (MLIR_C_PATH[]).LLVMConstString(
+        Str::Cstring, Length::Cuint, DontNullTerminate::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMIsConstantString(c)
+
+Returns true if the specified constant is an array of i8.
+
+# See also
+ConstantDataSequential::getAsString()
+"""
+function LLVMIsConstantString(c)
+    @ccall (MLIR_C_PATH[]).LLVMIsConstantString(c::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetAsString(c, Length)
+
+Get the given constant data sequential as a string.
+
+# See also
+ConstantDataSequential::getAsString()
+"""
+function LLVMGetAsString(c, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetAsString(c::LLVMValueRef, Length::Ptr{Csize_t})::Cstring
+end
+
+"""
+    LLVMGetRawDataValues(c, SizeInBytes)
+
+Get the raw, underlying bytes of the given constant data sequential.
+
+This is the same as [`LLVMGetAsString`](@ref) except it works for all constant data sequentials, not just i8 arrays.
+
+# See also
+ConstantDataSequential::getRawDataValues()
+"""
+function LLVMGetRawDataValues(c, SizeInBytes)
+    @ccall (MLIR_C_PATH[]).LLVMGetRawDataValues(
+        c::LLVMValueRef, SizeInBytes::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMConstStructInContext(C, ConstantVals, Count, Packed)
+
+Create an anonymous ConstantStruct with the specified values.
+
+# See also
+llvm::ConstantStruct::getAnon()
+"""
+function LLVMConstStructInContext(C, ConstantVals, Count, Packed)
+    @ccall (MLIR_C_PATH[]).LLVMConstStructInContext(
+        C::LLVMContextRef, ConstantVals::Ptr{LLVMValueRef}, Count::Cuint, Packed::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstStruct(ConstantVals, Count, Packed)
+
+Create a ConstantStruct in the global Context.
+
+This is the same as [`LLVMConstStructInContext`](@ref) except it operates on the global Context.
+
+# See also
+[`LLVMConstStructInContext`](@ref)()
+"""
+function LLVMConstStruct(ConstantVals, Count, Packed)
+    @ccall (MLIR_C_PATH[]).LLVMConstStruct(
+        ConstantVals::Ptr{LLVMValueRef}, Count::Cuint, Packed::LLVMBool
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstArray(ElementTy, ConstantVals, Length)
+
+Create a ConstantArray from values.
+
+!!! compat "Deprecated"
+
+    [`LLVMConstArray`](@ref) is deprecated in favor of the API accurate [`LLVMConstArray2`](@ref)
+
+# See also
+llvm::ConstantArray::get()
+"""
+function LLVMConstArray(ElementTy, ConstantVals, Length)
+    @ccall (MLIR_C_PATH[]).LLVMConstArray(
+        ElementTy::LLVMTypeRef, ConstantVals::Ptr{LLVMValueRef}, Length::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstArray2(ElementTy, ConstantVals, Length)
+
+Create a ConstantArray from values.
+
+# See also
+llvm::ConstantArray::get()
+"""
+function LLVMConstArray2(ElementTy, ConstantVals, Length)
+    @ccall (MLIR_C_PATH[]).LLVMConstArray2(
+        ElementTy::LLVMTypeRef, ConstantVals::Ptr{LLVMValueRef}, Length::UInt64
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstDataArray(ElementTy, Data, SizeInBytes)
+
+Create a ConstantDataArray from raw values.
+
+ElementTy must be one of i8, i16, i32, i64, half, bfloat, float, or double. Data points to a contiguous buffer of raw values in the host endianness. The element count is inferred from the element type and the data size in bytes.
+
+# See also
+llvm::ConstantDataArray::getRaw()
+"""
+function LLVMConstDataArray(ElementTy, Data, SizeInBytes)
+    @ccall (MLIR_C_PATH[]).LLVMConstDataArray(
+        ElementTy::LLVMTypeRef, Data::Cstring, SizeInBytes::Csize_t
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstNamedStruct(StructTy, ConstantVals, Count)
+
+Create a non-anonymous ConstantStruct from values.
+
+# See also
+llvm::ConstantStruct::get()
+"""
+function LLVMConstNamedStruct(StructTy, ConstantVals, Count)
+    @ccall (MLIR_C_PATH[]).LLVMConstNamedStruct(
+        StructTy::LLVMTypeRef, ConstantVals::Ptr{LLVMValueRef}, Count::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetAggregateElement(C, Idx)
+
+Get element of a constant aggregate (struct, array or vector) at the specified index. Returns null if the index is out of range, or it's not possible to determine the element (e.g., because the constant is a constant expression.)
+
+# See also
+llvm::Constant::getAggregateElement()
+"""
+function LLVMGetAggregateElement(C, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetAggregateElement(
+        C::LLVMValueRef, Idx::Cuint
+    )::LLVMValueRef
+end
+
+function LLVMGetElementAsConstant(C, idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetElementAsConstant(
+        C::LLVMValueRef, idx::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstVector(ScalarConstantVals, Size)
+
+Create a ConstantVector from values.
+
+# See also
+llvm::ConstantVector::get()
+"""
+function LLVMConstVector(ScalarConstantVals, Size)
+    @ccall (MLIR_C_PATH[]).LLVMConstVector(
+        ScalarConstantVals::Ptr{LLVMValueRef}, Size::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstantPtrAuth(Ptr, Key, Disc, AddrDisc)
+
+Create a ConstantPtrAuth constant with the given values.
+
+# See also
+llvm::ConstantPtrAuth::get()
+"""
+function LLVMConstantPtrAuth(Ptr, Key, Disc, AddrDisc)
+    @ccall (MLIR_C_PATH[]).LLVMConstantPtrAuth(
+        Ptr::LLVMValueRef, Key::LLVMValueRef, Disc::LLVMValueRef, AddrDisc::LLVMValueRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetConstOpcode(ConstantVal)
+
+` LLVMCCoreValueConstantExpressions Constant Expressions`
+
+Functions in this group correspond to APIs on llvm::ConstantExpr.
+
+@{
+
+# See also
+llvm::ConstantExpr.
+"""
+function LLVMGetConstOpcode(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMGetConstOpcode(ConstantVal::LLVMValueRef)::LLVMOpcode
+end
+
+function LLVMAlignOf(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMAlignOf(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+function LLVMSizeOf(Ty)
+    @ccall (MLIR_C_PATH[]).LLVMSizeOf(Ty::LLVMTypeRef)::LLVMValueRef
+end
+
+function LLVMConstNeg(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstNeg(ConstantVal::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMConstNSWNeg(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstNSWNeg(ConstantVal::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMConstNUWNeg(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstNUWNeg(ConstantVal::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMConstNot(ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMConstNot(ConstantVal::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMConstAdd(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstAdd(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstNSWAdd(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstNSWAdd(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstNUWAdd(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstNUWAdd(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstSub(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstSub(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstNSWSub(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstNSWSub(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstNUWSub(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstNUWSub(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstXor(LHSConstant, RHSConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstXor(
+        LHSConstant::LLVMValueRef, RHSConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstGEP2(Ty, ConstantVal, ConstantIndices, NumIndices)
+    @ccall (MLIR_C_PATH[]).LLVMConstGEP2(
+        Ty::LLVMTypeRef,
+        ConstantVal::LLVMValueRef,
+        ConstantIndices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+    )::LLVMValueRef
+end
+
+function LLVMConstInBoundsGEP2(Ty, ConstantVal, ConstantIndices, NumIndices)
+    @ccall (MLIR_C_PATH[]).LLVMConstInBoundsGEP2(
+        Ty::LLVMTypeRef,
+        ConstantVal::LLVMValueRef,
+        ConstantIndices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMConstGEPWithNoWrapFlags(Ty, ConstantVal, ConstantIndices, NumIndices, NoWrapFlags)
+
+Creates a constant GetElementPtr expression. Similar to [`LLVMConstGEP2`](@ref), but allows specifying the no-wrap flags.
+
+# See also
+llvm::ConstantExpr::getGetElementPtr()
+"""
+function LLVMConstGEPWithNoWrapFlags(
+    Ty, ConstantVal, ConstantIndices, NumIndices, NoWrapFlags
+)
+    @ccall (MLIR_C_PATH[]).LLVMConstGEPWithNoWrapFlags(
+        Ty::LLVMTypeRef,
+        ConstantVal::LLVMValueRef,
+        ConstantIndices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+        NoWrapFlags::LLVMGEPNoWrapFlags,
+    )::LLVMValueRef
+end
+
+function LLVMConstTrunc(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstTrunc(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstPtrToInt(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstPtrToInt(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstIntToPtr(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstIntToPtr(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstBitCast(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstBitCast(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstAddrSpaceCast(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstAddrSpaceCast(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstTruncOrBitCast(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstTruncOrBitCast(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstPointerCast(ConstantVal, ToType)
+    @ccall (MLIR_C_PATH[]).LLVMConstPointerCast(
+        ConstantVal::LLVMValueRef, ToType::LLVMTypeRef
+    )::LLVMValueRef
+end
+
+function LLVMConstExtractElement(VectorConstant, IndexConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstExtractElement(
+        VectorConstant::LLVMValueRef, IndexConstant::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMConstInsertElement(VectorConstant, ElementValueConstant, IndexConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstInsertElement(
+        VectorConstant::LLVMValueRef,
+        ElementValueConstant::LLVMValueRef,
+        IndexConstant::LLVMValueRef,
+    )::LLVMValueRef
+end
+
+function LLVMConstShuffleVector(VectorAConstant, VectorBConstant, MaskConstant)
+    @ccall (MLIR_C_PATH[]).LLVMConstShuffleVector(
+        VectorAConstant::LLVMValueRef,
+        VectorBConstant::LLVMValueRef,
+        MaskConstant::LLVMValueRef,
+    )::LLVMValueRef
+end
+
+function LLVMBlockAddress(F, BB)
+    @ccall (MLIR_C_PATH[]).LLVMBlockAddress(
+        F::LLVMValueRef, BB::LLVMBasicBlockRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetBlockAddressFunction(BlockAddr)
+
+Gets the function associated with a given BlockAddress constant value.
+"""
+function LLVMGetBlockAddressFunction(BlockAddr)
+    @ccall (MLIR_C_PATH[]).LLVMGetBlockAddressFunction(
+        BlockAddr::LLVMValueRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetBlockAddressBasicBlock(BlockAddr)
+
+Gets the basic block associated with a given BlockAddress constant value.
+"""
+function LLVMGetBlockAddressBasicBlock(BlockAddr)
+    @ccall (MLIR_C_PATH[]).LLVMGetBlockAddressBasicBlock(
+        BlockAddr::LLVMValueRef
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMConstInlineAsm(Ty, AsmString, Constraints, HasSideEffects, IsAlignStack)
+
+Deprecated: Use [`LLVMGetInlineAsm`](@ref) instead.
+"""
+function LLVMConstInlineAsm(Ty, AsmString, Constraints, HasSideEffects, IsAlignStack)
+    @ccall (MLIR_C_PATH[]).LLVMConstInlineAsm(
+        Ty::LLVMTypeRef,
+        AsmString::Cstring,
+        Constraints::Cstring,
+        HasSideEffects::LLVMBool,
+        IsAlignStack::LLVMBool,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetGlobalParent(Global)
+
+` LLVMCCoreValueConstantGlobals Global Values`
+
+This group contains functions that operate on global values. Functions in this group relate to functions in the llvm::GlobalValue class tree.
+
+@{
+
+# See also
+llvm::GlobalValue
+"""
+function LLVMGetGlobalParent(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetGlobalParent(Global::LLVMValueRef)::LLVMModuleRef
+end
+
+function LLVMIsDeclaration(Global)
+    @ccall (MLIR_C_PATH[]).LLVMIsDeclaration(Global::LLVMValueRef)::LLVMBool
+end
+
+function LLVMGetLinkage(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetLinkage(Global::LLVMValueRef)::LLVMLinkage
+end
+
+function LLVMSetLinkage(Global, Linkage)
+    @ccall (MLIR_C_PATH[]).LLVMSetLinkage(Global::LLVMValueRef, Linkage::LLVMLinkage)::Cvoid
+end
+
+function LLVMGetSection(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetSection(Global::LLVMValueRef)::Cstring
+end
+
+function LLVMSetSection(Global, Section)
+    @ccall (MLIR_C_PATH[]).LLVMSetSection(Global::LLVMValueRef, Section::Cstring)::Cvoid
+end
+
+function LLVMGetVisibility(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetVisibility(Global::LLVMValueRef)::LLVMVisibility
+end
+
+function LLVMSetVisibility(Global, Viz)
+    @ccall (MLIR_C_PATH[]).LLVMSetVisibility(
+        Global::LLVMValueRef, Viz::LLVMVisibility
+    )::Cvoid
+end
+
+function LLVMGetDLLStorageClass(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetDLLStorageClass(Global::LLVMValueRef)::LLVMDLLStorageClass
+end
+
+function LLVMSetDLLStorageClass(Global, Class)
+    @ccall (MLIR_C_PATH[]).LLVMSetDLLStorageClass(
+        Global::LLVMValueRef, Class::LLVMDLLStorageClass
+    )::Cvoid
+end
+
+function LLVMGetUnnamedAddress(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGetUnnamedAddress(Global::LLVMValueRef)::LLVMUnnamedAddr
+end
+
+function LLVMSetUnnamedAddress(Global, UnnamedAddr)
+    @ccall (MLIR_C_PATH[]).LLVMSetUnnamedAddress(
+        Global::LLVMValueRef, UnnamedAddr::LLVMUnnamedAddr
+    )::Cvoid
+end
+
+"""
+    LLVMGlobalGetValueType(Global)
+
+Returns the "value type" of a global value. This differs from the formal type of a global value which is always a pointer type.
+
+# See also
+llvm::GlobalValue::getValueType(), llvm::Function::getFunctionType()
+"""
+function LLVMGlobalGetValueType(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGlobalGetValueType(Global::LLVMValueRef)::LLVMTypeRef
+end
+
+"""
+    LLVMHasUnnamedAddr(Global)
+
+Deprecated: Use [`LLVMGetUnnamedAddress`](@ref) instead.
+"""
+function LLVMHasUnnamedAddr(Global)
+    @ccall (MLIR_C_PATH[]).LLVMHasUnnamedAddr(Global::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetUnnamedAddr(Global, HasUnnamedAddr)
+
+Deprecated: Use [`LLVMSetUnnamedAddress`](@ref) instead.
+"""
+function LLVMSetUnnamedAddr(Global, HasUnnamedAddr)
+    @ccall (MLIR_C_PATH[]).LLVMSetUnnamedAddr(
+        Global::LLVMValueRef, HasUnnamedAddr::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMGetAlignment(V)
+
+Obtain the preferred alignment of the value.
+
+# See also
+llvm::AllocaInst::getAlignment(), llvm::LoadInst::getAlignment(), llvm::StoreInst::getAlignment(), llvm::AtomicRMWInst::setAlignment(), llvm::AtomicCmpXchgInst::setAlignment(), llvm::GlobalValue::getAlignment()
+"""
+function LLVMGetAlignment(V)
+    @ccall (MLIR_C_PATH[]).LLVMGetAlignment(V::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMSetAlignment(V, Bytes)
+
+Set the preferred alignment of the value.
+
+# See also
+llvm::AllocaInst::setAlignment(), llvm::LoadInst::setAlignment(), llvm::StoreInst::setAlignment(), llvm::AtomicRMWInst::setAlignment(), llvm::AtomicCmpXchgInst::setAlignment(), llvm::GlobalValue::setAlignment()
+"""
+function LLVMSetAlignment(V, Bytes)
+    @ccall (MLIR_C_PATH[]).LLVMSetAlignment(V::LLVMValueRef, Bytes::Cuint)::Cvoid
+end
+
+"""
+    LLVMGlobalSetMetadata(Global, Kind, MD)
+
+Sets a metadata attachment, erasing the existing metadata attachment if it already exists for the given kind.
+
+# See also
+llvm::GlobalObject::setMetadata()
+"""
+function LLVMGlobalSetMetadata(Global, Kind, MD)
+    @ccall (MLIR_C_PATH[]).LLVMGlobalSetMetadata(
+        Global::LLVMValueRef, Kind::Cuint, MD::LLVMMetadataRef
+    )::Cvoid
+end
+
+"""
+    LLVMGlobalEraseMetadata(Global, Kind)
+
+Erases a metadata attachment of the given kind if it exists.
+
+# See also
+llvm::GlobalObject::eraseMetadata()
+"""
+function LLVMGlobalEraseMetadata(Global, Kind)
+    @ccall (MLIR_C_PATH[]).LLVMGlobalEraseMetadata(Global::LLVMValueRef, Kind::Cuint)::Cvoid
+end
+
+"""
+    LLVMGlobalClearMetadata(Global)
+
+Removes all metadata attachments from this value.
+
+# See also
+llvm::GlobalObject::clearMetadata()
+"""
+function LLVMGlobalClearMetadata(Global)
+    @ccall (MLIR_C_PATH[]).LLVMGlobalClearMetadata(Global::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMGlobalCopyAllMetadata(Value, NumEntries)
+
+Retrieves an array of metadata entries representing the metadata attached to this value. The caller is responsible for freeing this array by calling [`LLVMDisposeValueMetadataEntries`](@ref).
+
+# See also
+llvm::GlobalObject::getAllMetadata()
+"""
+function LLVMGlobalCopyAllMetadata(Value, NumEntries)
+    @ccall (MLIR_C_PATH[]).LLVMGlobalCopyAllMetadata(
+        Value::LLVMValueRef, NumEntries::Ptr{Csize_t}
+    )::Ptr{LLVMValueMetadataEntry}
+end
+
+"""
+    LLVMDisposeValueMetadataEntries(Entries)
+
+Destroys value metadata entries.
+"""
+function LLVMDisposeValueMetadataEntries(Entries)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeValueMetadataEntries(
+        Entries::Ptr{LLVMValueMetadataEntry}
+    )::Cvoid
+end
+
+"""
+    LLVMValueMetadataEntriesGetKind(Entries, Index)
+
+Returns the kind of a value metadata entry at a specific index.
+"""
+function LLVMValueMetadataEntriesGetKind(Entries, Index)
+    @ccall (MLIR_C_PATH[]).LLVMValueMetadataEntriesGetKind(
+        Entries::Ptr{LLVMValueMetadataEntry}, Index::Cuint
+    )::Cuint
+end
+
+"""
+    LLVMValueMetadataEntriesGetMetadata(Entries, Index)
+
+Returns the underlying metadata node of a value metadata entry at a specific index.
+"""
+function LLVMValueMetadataEntriesGetMetadata(Entries, Index)
+    @ccall (MLIR_C_PATH[]).LLVMValueMetadataEntriesGetMetadata(
+        Entries::Ptr{LLVMValueMetadataEntry}, Index::Cuint
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMAddGlobal(M, Ty, Name)
+
+` LLVMCoreValueConstantGlobalVariable Global Variables`
+
+This group contains functions that operate on global variable values.
+
+@{
+
+# See also
+llvm::GlobalVariable
+"""
+function LLVMAddGlobal(M, Ty, Name)
+    @ccall (MLIR_C_PATH[]).LLVMAddGlobal(
+        M::LLVMModuleRef, Ty::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMAddGlobalInAddressSpace(M, Ty, Name, AddressSpace)
+    @ccall (MLIR_C_PATH[]).LLVMAddGlobalInAddressSpace(
+        M::LLVMModuleRef, Ty::LLVMTypeRef, Name::Cstring, AddressSpace::Cuint
+    )::LLVMValueRef
+end
+
+function LLVMGetNamedGlobal(M, Name)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedGlobal(M::LLVMModuleRef, Name::Cstring)::LLVMValueRef
+end
+
+function LLVMGetNamedGlobalWithLength(M, Name, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedGlobalWithLength(
+        M::LLVMModuleRef, Name::Cstring, Length::Csize_t
+    )::LLVMValueRef
+end
+
+function LLVMGetFirstGlobal(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstGlobal(M::LLVMModuleRef)::LLVMValueRef
+end
+
+function LLVMGetLastGlobal(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastGlobal(M::LLVMModuleRef)::LLVMValueRef
+end
+
+function LLVMGetNextGlobal(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextGlobal(GlobalVar::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMGetPreviousGlobal(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousGlobal(GlobalVar::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMDeleteGlobal(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMDeleteGlobal(GlobalVar::LLVMValueRef)::Cvoid
+end
+
+function LLVMGetInitializer(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMGetInitializer(GlobalVar::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMSetInitializer(GlobalVar, ConstantVal)
+    @ccall (MLIR_C_PATH[]).LLVMSetInitializer(
+        GlobalVar::LLVMValueRef, ConstantVal::LLVMValueRef
+    )::Cvoid
+end
+
+function LLVMIsThreadLocal(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMIsThreadLocal(GlobalVar::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetThreadLocal(GlobalVar, IsThreadLocal)
+    @ccall (MLIR_C_PATH[]).LLVMSetThreadLocal(
+        GlobalVar::LLVMValueRef, IsThreadLocal::LLVMBool
+    )::Cvoid
+end
+
+function LLVMIsGlobalConstant(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMIsGlobalConstant(GlobalVar::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetGlobalConstant(GlobalVar, IsConstant)
+    @ccall (MLIR_C_PATH[]).LLVMSetGlobalConstant(
+        GlobalVar::LLVMValueRef, IsConstant::LLVMBool
+    )::Cvoid
+end
+
+function LLVMGetThreadLocalMode(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMGetThreadLocalMode(
+        GlobalVar::LLVMValueRef
+    )::LLVMThreadLocalMode
+end
+
+function LLVMSetThreadLocalMode(GlobalVar, Mode)
+    @ccall (MLIR_C_PATH[]).LLVMSetThreadLocalMode(
+        GlobalVar::LLVMValueRef, Mode::LLVMThreadLocalMode
+    )::Cvoid
+end
+
+function LLVMIsExternallyInitialized(GlobalVar)
+    @ccall (MLIR_C_PATH[]).LLVMIsExternallyInitialized(GlobalVar::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetExternallyInitialized(GlobalVar, IsExtInit)
+    @ccall (MLIR_C_PATH[]).LLVMSetExternallyInitialized(
+        GlobalVar::LLVMValueRef, IsExtInit::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMAddAlias2(M, ValueTy, AddrSpace, Aliasee, Name)
+
+Add a GlobalAlias with the given value type, address space and aliasee.
+
+# See also
+llvm::GlobalAlias::create()
+"""
+function LLVMAddAlias2(M, ValueTy, AddrSpace, Aliasee, Name)
+    @ccall (MLIR_C_PATH[]).LLVMAddAlias2(
+        M::LLVMModuleRef,
+        ValueTy::LLVMTypeRef,
+        AddrSpace::Cuint,
+        Aliasee::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetNamedGlobalAlias(M, Name, NameLen)
+
+Obtain a GlobalAlias value from a Module by its name.
+
+The returned value corresponds to a llvm::GlobalAlias value.
+
+# See also
+llvm::Module::getNamedAlias()
+"""
+function LLVMGetNamedGlobalAlias(M, Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedGlobalAlias(
+        M::LLVMModuleRef, Name::Cstring, NameLen::Csize_t
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetFirstGlobalAlias(M)
+
+Obtain an iterator to the first GlobalAlias in a Module.
+
+# See also
+llvm::Module::alias\\_begin()
+"""
+function LLVMGetFirstGlobalAlias(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstGlobalAlias(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetLastGlobalAlias(M)
+
+Obtain an iterator to the last GlobalAlias in a Module.
+
+# See also
+llvm::Module::alias\\_end()
+"""
+function LLVMGetLastGlobalAlias(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastGlobalAlias(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetNextGlobalAlias(GA)
+
+Advance a GlobalAlias iterator to the next GlobalAlias.
+
+Returns NULL if the iterator was already at the end and there are no more global aliases.
+"""
+function LLVMGetNextGlobalAlias(GA)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextGlobalAlias(GA::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPreviousGlobalAlias(GA)
+
+Decrement a GlobalAlias iterator to the previous GlobalAlias.
+
+Returns NULL if the iterator was already at the beginning and there are no previous global aliases.
+"""
+function LLVMGetPreviousGlobalAlias(GA)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousGlobalAlias(GA::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMAliasGetAliasee(Alias)
+
+Retrieve the target value of an alias.
+"""
+function LLVMAliasGetAliasee(Alias)
+    @ccall (MLIR_C_PATH[]).LLVMAliasGetAliasee(Alias::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMAliasSetAliasee(Alias, Aliasee)
+
+Set the target value of an alias.
+"""
+function LLVMAliasSetAliasee(Alias, Aliasee)
+    @ccall (MLIR_C_PATH[]).LLVMAliasSetAliasee(
+        Alias::LLVMValueRef, Aliasee::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMDeleteFunction(Fn)
+
+Remove a function from its containing module and deletes it.
+
+# See also
+llvm::Function::eraseFromParent()
+"""
+function LLVMDeleteFunction(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMDeleteFunction(Fn::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMHasPersonalityFn(Fn)
+
+Check whether the given function has a personality function.
+
+# See also
+llvm::Function::hasPersonalityFn()
+"""
+function LLVMHasPersonalityFn(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMHasPersonalityFn(Fn::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetPersonalityFn(Fn)
+
+Obtain the personality function attached to the function.
+
+# See also
+llvm::Function::getPersonalityFn()
+"""
+function LLVMGetPersonalityFn(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetPersonalityFn(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetPersonalityFn(Fn, PersonalityFn)
+
+Set the personality function attached to the function.
+
+# See also
+llvm::Function::setPersonalityFn()
+"""
+function LLVMSetPersonalityFn(Fn, PersonalityFn)
+    @ccall (MLIR_C_PATH[]).LLVMSetPersonalityFn(
+        Fn::LLVMValueRef, PersonalityFn::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMLookupIntrinsicID(Name, NameLen)
+
+Obtain the intrinsic ID number which matches the given function name.
+
+# See also
+llvm::Intrinsic::lookupIntrinsicID()
+"""
+function LLVMLookupIntrinsicID(Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMLookupIntrinsicID(Name::Cstring, NameLen::Csize_t)::Cuint
+end
+
+"""
+    LLVMGetIntrinsicID(Fn)
+
+Obtain the ID number from a function instance.
+
+# See also
+llvm::Function::getIntrinsicID()
+"""
+function LLVMGetIntrinsicID(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetIntrinsicID(Fn::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetIntrinsicDeclaration(Mod, ID, ParamTypes, ParamCount)
+
+Get or insert the declaration of an intrinsic. For overloaded intrinsics, parameter types must be provided to uniquely identify an overload.
+
+# See also
+llvm::Intrinsic::getOrInsertDeclaration()
+"""
+function LLVMGetIntrinsicDeclaration(Mod, ID, ParamTypes, ParamCount)
+    @ccall (MLIR_C_PATH[]).LLVMGetIntrinsicDeclaration(
+        Mod::LLVMModuleRef, ID::Cuint, ParamTypes::Ptr{LLVMTypeRef}, ParamCount::Csize_t
+    )::LLVMValueRef
+end
+
+"""
+    LLVMIntrinsicGetType(Ctx, ID, ParamTypes, ParamCount)
+
+Retrieves the type of an intrinsic. For overloaded intrinsics, parameter types must be provided to uniquely identify an overload.
+
+# See also
+llvm::Intrinsic::getType()
+"""
+function LLVMIntrinsicGetType(Ctx, ID, ParamTypes, ParamCount)
+    @ccall (MLIR_C_PATH[]).LLVMIntrinsicGetType(
+        Ctx::LLVMContextRef, ID::Cuint, ParamTypes::Ptr{LLVMTypeRef}, ParamCount::Csize_t
+    )::LLVMTypeRef
+end
+
+"""
+    LLVMIntrinsicGetName(ID, NameLength)
+
+Retrieves the name of an intrinsic.
+
+# See also
+llvm::Intrinsic::getName()
+"""
+function LLVMIntrinsicGetName(ID, NameLength)
+    @ccall (MLIR_C_PATH[]).LLVMIntrinsicGetName(
+        ID::Cuint, NameLength::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMIntrinsicCopyOverloadedName(ID, ParamTypes, ParamCount, NameLength)
+
+Deprecated: Use [`LLVMIntrinsicCopyOverloadedName2`](@ref) instead.
+"""
+function LLVMIntrinsicCopyOverloadedName(ID, ParamTypes, ParamCount, NameLength)
+    @ccall (MLIR_C_PATH[]).LLVMIntrinsicCopyOverloadedName(
+        ID::Cuint,
+        ParamTypes::Ptr{LLVMTypeRef},
+        ParamCount::Csize_t,
+        NameLength::Ptr{Csize_t},
+    )::Cstring
+end
+
+"""
+    LLVMIntrinsicCopyOverloadedName2(Mod, ID, ParamTypes, ParamCount, NameLength)
+
+Copies the name of an overloaded intrinsic identified by a given list of parameter types.
+
+Unlike [`LLVMIntrinsicGetName`](@ref), the caller is responsible for freeing the returned string.
+
+This version also supports unnamed types.
+
+# See also
+llvm::Intrinsic::getName()
+"""
+function LLVMIntrinsicCopyOverloadedName2(Mod, ID, ParamTypes, ParamCount, NameLength)
+    @ccall (MLIR_C_PATH[]).LLVMIntrinsicCopyOverloadedName2(
+        Mod::LLVMModuleRef,
+        ID::Cuint,
+        ParamTypes::Ptr{LLVMTypeRef},
+        ParamCount::Csize_t,
+        NameLength::Ptr{Csize_t},
+    )::Cstring
+end
+
+"""
+    LLVMIntrinsicIsOverloaded(ID)
+
+Obtain if the intrinsic identified by the given ID is overloaded.
+
+# See also
+llvm::Intrinsic::isOverloaded()
+"""
+function LLVMIntrinsicIsOverloaded(ID)
+    @ccall (MLIR_C_PATH[]).LLVMIntrinsicIsOverloaded(ID::Cuint)::LLVMBool
+end
+
+"""
+    LLVMGetFunctionCallConv(Fn)
+
+Obtain the calling function of a function.
+
+The returned value corresponds to the [`LLVMCallConv`](@ref) enumeration.
+
+# See also
+llvm::Function::getCallingConv()
+"""
+function LLVMGetFunctionCallConv(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetFunctionCallConv(Fn::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMSetFunctionCallConv(Fn, CC)
+
+Set the calling convention of a function.
+
+# Arguments
+* `Fn`: Function to operate on
+* `CC`: [`LLVMCallConv`](@ref) to set calling convention to
+# See also
+llvm::Function::setCallingConv()
+"""
+function LLVMSetFunctionCallConv(Fn, CC)
+    @ccall (MLIR_C_PATH[]).LLVMSetFunctionCallConv(Fn::LLVMValueRef, CC::Cuint)::Cvoid
+end
+
+"""
+    LLVMGetGC(Fn)
+
+Obtain the name of the garbage collector to use during code generation.
+
+# See also
+llvm::Function::getGC()
+"""
+function LLVMGetGC(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetGC(Fn::LLVMValueRef)::Cstring
+end
+
+"""
+    LLVMSetGC(Fn, Name)
+
+Define the garbage collector to use during code generation.
+
+# See also
+llvm::Function::setGC()
+"""
+function LLVMSetGC(Fn, Name)
+    @ccall (MLIR_C_PATH[]).LLVMSetGC(Fn::LLVMValueRef, Name::Cstring)::Cvoid
+end
+
+"""
+    LLVMGetPrefixData(Fn)
+
+Gets the prefix data associated with a function. Only valid on functions, and only if [`LLVMHasPrefixData`](@ref) returns true. See https://llvm.org/docs/LangRef.html#prefix-data
+"""
+function LLVMGetPrefixData(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetPrefixData(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMHasPrefixData(Fn)
+
+Check if a given function has prefix data. Only valid on functions. See https://llvm.org/docs/LangRef.html#prefix-data
+"""
+function LLVMHasPrefixData(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMHasPrefixData(Fn::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetPrefixData(Fn, prefixData)
+
+Sets the prefix data for the function. Only valid on functions. See https://llvm.org/docs/LangRef.html#prefix-data
+"""
+function LLVMSetPrefixData(Fn, prefixData)
+    @ccall (MLIR_C_PATH[]).LLVMSetPrefixData(
+        Fn::LLVMValueRef, prefixData::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetPrologueData(Fn)
+
+Gets the prologue data associated with a function. Only valid on functions, and only if [`LLVMHasPrologueData`](@ref) returns true. See https://llvm.org/docs/LangRef.html#prologue-data
+"""
+function LLVMGetPrologueData(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetPrologueData(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMHasPrologueData(Fn)
+
+Check if a given function has prologue data. Only valid on functions. See https://llvm.org/docs/LangRef.html#prologue-data
+"""
+function LLVMHasPrologueData(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMHasPrologueData(Fn::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetPrologueData(Fn, prologueData)
+
+Sets the prologue data for the function. Only valid on functions. See https://llvm.org/docs/LangRef.html#prologue-data
+"""
+function LLVMSetPrologueData(Fn, prologueData)
+    @ccall (MLIR_C_PATH[]).LLVMSetPrologueData(
+        Fn::LLVMValueRef, prologueData::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMAddAttributeAtIndex(F, Idx, A)
+
+Add an attribute to a function.
+
+# See also
+llvm::Function::addAttribute()
+"""
+function LLVMAddAttributeAtIndex(F, Idx, A)
+    @ccall (MLIR_C_PATH[]).LLVMAddAttributeAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, A::LLVMAttributeRef
+    )::Cvoid
+end
+
+function LLVMGetAttributeCountAtIndex(F, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetAttributeCountAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex
+    )::Cuint
+end
+
+function LLVMGetAttributesAtIndex(F, Idx, Attrs)
+    @ccall (MLIR_C_PATH[]).LLVMGetAttributesAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, Attrs::Ptr{LLVMAttributeRef}
+    )::Cvoid
+end
+
+function LLVMGetEnumAttributeAtIndex(F, Idx, KindID)
+    @ccall (MLIR_C_PATH[]).LLVMGetEnumAttributeAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, KindID::Cuint
+    )::LLVMAttributeRef
+end
+
+function LLVMGetStringAttributeAtIndex(F, Idx, K, KLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetStringAttributeAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, K::Cstring, KLen::Cuint
+    )::LLVMAttributeRef
+end
+
+function LLVMRemoveEnumAttributeAtIndex(F, Idx, KindID)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveEnumAttributeAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, KindID::Cuint
+    )::Cvoid
+end
+
+function LLVMRemoveStringAttributeAtIndex(F, Idx, K, KLen)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveStringAttributeAtIndex(
+        F::LLVMValueRef, Idx::LLVMAttributeIndex, K::Cstring, KLen::Cuint
+    )::Cvoid
+end
+
+"""
+    LLVMAddTargetDependentFunctionAttr(Fn, A, V)
+
+Add a target-dependent attribute to a function
+
+# See also
+llvm::AttrBuilder::addAttribute()
+"""
+function LLVMAddTargetDependentFunctionAttr(Fn, A, V)
+    @ccall (MLIR_C_PATH[]).LLVMAddTargetDependentFunctionAttr(
+        Fn::LLVMValueRef, A::Cstring, V::Cstring
+    )::Cvoid
+end
+
+"""
+    LLVMCountParams(Fn)
+
+Obtain the number of parameters in a function.
+
+# See also
+llvm::Function::arg\\_size()
+"""
+function LLVMCountParams(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMCountParams(Fn::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetParams(Fn, Params)
+
+Obtain the parameters in a function.
+
+The takes a pointer to a pre-allocated array of [`LLVMValueRef`](@ref) that is at least [`LLVMCountParams`](@ref)() long. This array will be filled with [`LLVMValueRef`](@ref) instances which correspond to the parameters the function receives. Each [`LLVMValueRef`](@ref) corresponds to a llvm::Argument instance.
+
+# See also
+llvm::Function::arg\\_begin()
+"""
+function LLVMGetParams(Fn, Params)
+    @ccall (MLIR_C_PATH[]).LLVMGetParams(Fn::LLVMValueRef, Params::Ptr{LLVMValueRef})::Cvoid
+end
+
+"""
+    LLVMGetParam(Fn, Index)
+
+Obtain the parameter at the specified index.
+
+Parameters are indexed from 0.
+
+# See also
+llvm::Function::arg\\_begin()
+"""
+function LLVMGetParam(Fn, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetParam(Fn::LLVMValueRef, Index::Cuint)::LLVMValueRef
+end
+
+"""
+    LLVMGetParamParent(Inst)
+
+Obtain the function to which this argument belongs.
+
+Unlike other functions in this group, this one takes an [`LLVMValueRef`](@ref) that corresponds to a llvm::Attribute.
+
+The returned [`LLVMValueRef`](@ref) is the llvm::Function to which this argument belongs.
+"""
+function LLVMGetParamParent(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetParamParent(Inst::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetFirstParam(Fn)
+
+Obtain the first parameter to a function.
+
+# See also
+llvm::Function::arg\\_begin()
+"""
+function LLVMGetFirstParam(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstParam(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetLastParam(Fn)
+
+Obtain the last parameter to a function.
+
+# See also
+llvm::Function::arg\\_end()
+"""
+function LLVMGetLastParam(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastParam(Fn::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetNextParam(Arg)
+
+Obtain the next parameter to a function.
+
+This takes an [`LLVMValueRef`](@ref) obtained from [`LLVMGetFirstParam`](@ref)() (which is actually a wrapped iterator) and obtains the next parameter from the underlying iterator.
+"""
+function LLVMGetNextParam(Arg)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextParam(Arg::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPreviousParam(Arg)
+
+Obtain the previous parameter to a function.
+
+This is the opposite of [`LLVMGetNextParam`](@ref)().
+"""
+function LLVMGetPreviousParam(Arg)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousParam(Arg::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetParamAlignment(Arg, Align)
+
+Set the alignment for a function parameter.
+
+# See also
+llvm::Argument::addAttr(), llvm::AttrBuilder::addAlignmentAttr()
+"""
+function LLVMSetParamAlignment(Arg, Align)
+    @ccall (MLIR_C_PATH[]).LLVMSetParamAlignment(Arg::LLVMValueRef, Align::Cuint)::Cvoid
+end
+
+"""
+    LLVMAddGlobalIFunc(M, Name, NameLen, Ty, AddrSpace, Resolver)
+
+Add a global indirect function to a module under a specified name.
+
+# See also
+llvm::GlobalIFunc::create()
+"""
+function LLVMAddGlobalIFunc(M, Name, NameLen, Ty, AddrSpace, Resolver)
+    @ccall (MLIR_C_PATH[]).LLVMAddGlobalIFunc(
+        M::LLVMModuleRef,
+        Name::Cstring,
+        NameLen::Csize_t,
+        Ty::LLVMTypeRef,
+        AddrSpace::Cuint,
+        Resolver::LLVMValueRef,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetNamedGlobalIFunc(M, Name, NameLen)
+
+Obtain a GlobalIFunc value from a Module by its name.
+
+The returned value corresponds to a llvm::GlobalIFunc value.
+
+# See also
+llvm::Module::getNamedIFunc()
+"""
+function LLVMGetNamedGlobalIFunc(M, Name, NameLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetNamedGlobalIFunc(
+        M::LLVMModuleRef, Name::Cstring, NameLen::Csize_t
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetFirstGlobalIFunc(M)
+
+Obtain an iterator to the first GlobalIFunc in a Module.
+
+# See also
+llvm::Module::ifunc\\_begin()
+"""
+function LLVMGetFirstGlobalIFunc(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstGlobalIFunc(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetLastGlobalIFunc(M)
+
+Obtain an iterator to the last GlobalIFunc in a Module.
+
+# See also
+llvm::Module::ifunc\\_end()
+"""
+function LLVMGetLastGlobalIFunc(M)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastGlobalIFunc(M::LLVMModuleRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetNextGlobalIFunc(IFunc)
+
+Advance a GlobalIFunc iterator to the next GlobalIFunc.
+
+Returns NULL if the iterator was already at the end and there are no more global aliases.
+"""
+function LLVMGetNextGlobalIFunc(IFunc)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextGlobalIFunc(IFunc::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPreviousGlobalIFunc(IFunc)
+
+Decrement a GlobalIFunc iterator to the previous GlobalIFunc.
+
+Returns NULL if the iterator was already at the beginning and there are no previous global aliases.
+"""
+function LLVMGetPreviousGlobalIFunc(IFunc)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousGlobalIFunc(IFunc::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetGlobalIFuncResolver(IFunc)
+
+Retrieves the resolver function associated with this indirect function, or NULL if it doesn't not exist.
+
+# See also
+llvm::GlobalIFunc::getResolver()
+"""
+function LLVMGetGlobalIFuncResolver(IFunc)
+    @ccall (MLIR_C_PATH[]).LLVMGetGlobalIFuncResolver(IFunc::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetGlobalIFuncResolver(IFunc, Resolver)
+
+Sets the resolver function associated with this indirect function.
+
+# See also
+llvm::GlobalIFunc::setResolver()
+"""
+function LLVMSetGlobalIFuncResolver(IFunc, Resolver)
+    @ccall (MLIR_C_PATH[]).LLVMSetGlobalIFuncResolver(
+        IFunc::LLVMValueRef, Resolver::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMEraseGlobalIFunc(IFunc)
+
+Remove a global indirect function from its parent module and delete it.
+
+# See also
+llvm::GlobalIFunc::eraseFromParent()
+"""
+function LLVMEraseGlobalIFunc(IFunc)
+    @ccall (MLIR_C_PATH[]).LLVMEraseGlobalIFunc(IFunc::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMRemoveGlobalIFunc(IFunc)
+
+Remove a global indirect function from its parent module.
+
+This unlinks the global indirect function from its containing module but keeps it alive.
+
+# See also
+llvm::GlobalIFunc::removeFromParent()
+"""
+function LLVMRemoveGlobalIFunc(IFunc)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveGlobalIFunc(IFunc::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMMDStringInContext2(C, Str, SLen)
+
+Create an MDString value from a given string value.
+
+The MDString value does not take ownership of the given string, it remains the responsibility of the caller to free it.
+
+# See also
+llvm::MDString::get()
+"""
+function LLVMMDStringInContext2(C, Str, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMMDStringInContext2(
+        C::LLVMContextRef, Str::Cstring, SLen::Csize_t
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMMDNodeInContext2(C, MDs, Count)
+
+Create an MDNode value with the given array of operands.
+
+# See also
+llvm::MDNode::get()
+"""
+function LLVMMDNodeInContext2(C, MDs, Count)
+    @ccall (MLIR_C_PATH[]).LLVMMDNodeInContext2(
+        C::LLVMContextRef, MDs::Ptr{LLVMMetadataRef}, Count::Csize_t
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMMetadataAsValue(C, MD)
+
+Obtain a Metadata as a Value.
+"""
+function LLVMMetadataAsValue(C, MD)
+    @ccall (MLIR_C_PATH[]).LLVMMetadataAsValue(
+        C::LLVMContextRef, MD::LLVMMetadataRef
+    )::LLVMValueRef
+end
+
+"""
+    LLVMValueAsMetadata(Val)
+
+Obtain a Value as a Metadata.
+"""
+function LLVMValueAsMetadata(Val)
+    @ccall (MLIR_C_PATH[]).LLVMValueAsMetadata(Val::LLVMValueRef)::LLVMMetadataRef
+end
+
+"""
+    LLVMGetMDString(V, Length)
+
+Obtain the underlying string from a MDString value.
+
+# Arguments
+* `V`: Instance to obtain string from.
+* `Length`: Memory address which will hold length of returned string.
+# Returns
+String data in MDString.
+"""
+function LLVMGetMDString(V, Length)
+    @ccall (MLIR_C_PATH[]).LLVMGetMDString(V::LLVMValueRef, Length::Ptr{Cuint})::Cstring
+end
+
+"""
+    LLVMGetMDNodeNumOperands(V)
+
+Obtain the number of operands from an MDNode value.
+
+# Arguments
+* `V`: MDNode to get number of operands from.
+# Returns
+Number of operands of the MDNode.
+"""
+function LLVMGetMDNodeNumOperands(V)
+    @ccall (MLIR_C_PATH[]).LLVMGetMDNodeNumOperands(V::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetMDNodeOperands(V, Dest)
+
+Obtain the given MDNode's operands.
+
+The passed [`LLVMValueRef`](@ref) pointer should point to enough memory to hold all of the operands of the given MDNode (see [`LLVMGetMDNodeNumOperands`](@ref)) as LLVMValueRefs. This memory will be populated with the LLVMValueRefs of the MDNode's operands.
+
+# Arguments
+* `V`: MDNode to get the operands from.
+* `Dest`: Destination array for operands.
+"""
+function LLVMGetMDNodeOperands(V, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMGetMDNodeOperands(
+        V::LLVMValueRef, Dest::Ptr{LLVMValueRef}
+    )::Cvoid
+end
+
+"""
+    LLVMReplaceMDNodeOperandWith(V, Index, Replacement)
+
+Replace an operand at a specific index in a llvm::MDNode value.
+
+# See also
+llvm::MDNode::replaceOperandWith()
+"""
+function LLVMReplaceMDNodeOperandWith(V, Index, Replacement)
+    @ccall (MLIR_C_PATH[]).LLVMReplaceMDNodeOperandWith(
+        V::LLVMValueRef, Index::Cuint, Replacement::LLVMMetadataRef
+    )::Cvoid
+end
+
+"""
+    LLVMMDStringInContext(C, Str, SLen)
+
+Deprecated: Use [`LLVMMDStringInContext2`](@ref) instead.
+"""
+function LLVMMDStringInContext(C, Str, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMMDStringInContext(
+        C::LLVMContextRef, Str::Cstring, SLen::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMMDString(Str, SLen)
+
+Deprecated: Use [`LLVMMDStringInContext2`](@ref) instead.
+"""
+function LLVMMDString(Str, SLen)
+    @ccall (MLIR_C_PATH[]).LLVMMDString(Str::Cstring, SLen::Cuint)::LLVMValueRef
+end
+
+"""
+    LLVMMDNodeInContext(C, Vals, Count)
+
+Deprecated: Use [`LLVMMDNodeInContext2`](@ref) instead.
+"""
+function LLVMMDNodeInContext(C, Vals, Count)
+    @ccall (MLIR_C_PATH[]).LLVMMDNodeInContext(
+        C::LLVMContextRef, Vals::Ptr{LLVMValueRef}, Count::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMMDNode(Vals, Count)
+
+Deprecated: Use [`LLVMMDNodeInContext2`](@ref) instead.
+"""
+function LLVMMDNode(Vals, Count)
+    @ccall (MLIR_C_PATH[]).LLVMMDNode(Vals::Ptr{LLVMValueRef}, Count::Cuint)::LLVMValueRef
+end
+
+"""
+    LLVMCreateOperandBundle(Tag, TagLen, Args, NumArgs)
+
+Create a new operand bundle.
+
+Every invocation should be paired with [`LLVMDisposeOperandBundle`](@ref)() or memory will be leaked.
+
+# Arguments
+* `Tag`: Tag name of the operand bundle
+* `TagLen`: Length of Tag
+* `Args`: Memory address of an array of bundle operands
+* `NumArgs`: Length of Args
+"""
+function LLVMCreateOperandBundle(Tag, TagLen, Args, NumArgs)
+    @ccall (MLIR_C_PATH[]).LLVMCreateOperandBundle(
+        Tag::Cstring, TagLen::Csize_t, Args::Ptr{LLVMValueRef}, NumArgs::Cuint
+    )::LLVMOperandBundleRef
+end
+
+"""
+    LLVMDisposeOperandBundle(Bundle)
+
+Destroy an operand bundle.
+
+This must be called for every created operand bundle or memory will be leaked.
+"""
+function LLVMDisposeOperandBundle(Bundle)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeOperandBundle(Bundle::LLVMOperandBundleRef)::Cvoid
+end
+
+"""
+    LLVMGetOperandBundleTag(Bundle, Len)
+
+Obtain the tag of an operand bundle as a string.
+
+# Arguments
+* `Bundle`: Operand bundle to obtain tag of.
+* `Len`: Out parameter which holds the length of the returned string.
+# Returns
+The tag name of Bundle.
+# See also
+OperandBundleDef::getTag()
+"""
+function LLVMGetOperandBundleTag(Bundle, Len)
+    @ccall (MLIR_C_PATH[]).LLVMGetOperandBundleTag(
+        Bundle::LLVMOperandBundleRef, Len::Ptr{Csize_t}
+    )::Cstring
+end
+
+"""
+    LLVMGetNumOperandBundleArgs(Bundle)
+
+Obtain the number of operands for an operand bundle.
+
+# Arguments
+* `Bundle`: Operand bundle to obtain operand count of.
+# Returns
+The number of operands.
+# See also
+OperandBundleDef::input\\_size()
+"""
+function LLVMGetNumOperandBundleArgs(Bundle)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumOperandBundleArgs(Bundle::LLVMOperandBundleRef)::Cuint
+end
+
+"""
+    LLVMGetOperandBundleArgAtIndex(Bundle, Index)
+
+Obtain the operand for an operand bundle at the given index.
+
+# Arguments
+* `Bundle`: Operand bundle to obtain operand of.
+* `Index`: An operand index, must be less than [`LLVMGetNumOperandBundleArgs`](@ref)().
+# Returns
+The operand.
+"""
+function LLVMGetOperandBundleArgAtIndex(Bundle, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetOperandBundleArgAtIndex(
+        Bundle::LLVMOperandBundleRef, Index::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBasicBlockAsValue(BB)
+
+Convert a basic block instance to a value type.
+"""
+function LLVMBasicBlockAsValue(BB)
+    @ccall (MLIR_C_PATH[]).LLVMBasicBlockAsValue(BB::LLVMBasicBlockRef)::LLVMValueRef
+end
+
+"""
+    LLVMValueIsBasicBlock(Val)
+
+Determine whether an [`LLVMValueRef`](@ref) is itself a basic block.
+"""
+function LLVMValueIsBasicBlock(Val)
+    @ccall (MLIR_C_PATH[]).LLVMValueIsBasicBlock(Val::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMValueAsBasicBlock(Val)
+
+Convert an [`LLVMValueRef`](@ref) to an [`LLVMBasicBlockRef`](@ref) instance.
+"""
+function LLVMValueAsBasicBlock(Val)
+    @ccall (MLIR_C_PATH[]).LLVMValueAsBasicBlock(Val::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetBasicBlockName(BB)
+
+Obtain the string name of a basic block.
+"""
+function LLVMGetBasicBlockName(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetBasicBlockName(BB::LLVMBasicBlockRef)::Cstring
+end
+
+"""
+    LLVMGetBasicBlockParent(BB)
+
+Obtain the function to which a basic block belongs.
+
+# See also
+llvm::BasicBlock::getParent()
+"""
+function LLVMGetBasicBlockParent(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetBasicBlockParent(BB::LLVMBasicBlockRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetBasicBlockTerminator(BB)
+
+Obtain the terminator instruction for a basic block.
+
+If the basic block does not have a terminator (it is not well-formed if it doesn't), then NULL is returned.
+
+The returned [`LLVMValueRef`](@ref) corresponds to an llvm::Instruction.
+
+# See also
+llvm::BasicBlock::getTerminator()
+"""
+function LLVMGetBasicBlockTerminator(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetBasicBlockTerminator(BB::LLVMBasicBlockRef)::LLVMValueRef
+end
+
+"""
+    LLVMCountBasicBlocks(Fn)
+
+Obtain the number of basic blocks in a function.
+
+# Arguments
+* `Fn`: Function value to operate on.
+"""
+function LLVMCountBasicBlocks(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMCountBasicBlocks(Fn::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetBasicBlocks(Fn, BasicBlocks)
+
+Obtain all of the basic blocks in a function.
+
+This operates on a function value. The BasicBlocks parameter is a pointer to a pre-allocated array of [`LLVMBasicBlockRef`](@ref) of at least [`LLVMCountBasicBlocks`](@ref)() in length. This array is populated with [`LLVMBasicBlockRef`](@ref) instances.
+"""
+function LLVMGetBasicBlocks(Fn, BasicBlocks)
+    @ccall (MLIR_C_PATH[]).LLVMGetBasicBlocks(
+        Fn::LLVMValueRef, BasicBlocks::Ptr{LLVMBasicBlockRef}
+    )::Cvoid
+end
+
+"""
+    LLVMGetFirstBasicBlock(Fn)
+
+Obtain the first basic block in a function.
+
+The returned basic block can be used as an iterator. You will likely eventually call into [`LLVMGetNextBasicBlock`](@ref)() with it.
+
+# See also
+llvm::Function::begin()
+"""
+function LLVMGetFirstBasicBlock(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstBasicBlock(Fn::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetLastBasicBlock(Fn)
+
+Obtain the last basic block in a function.
+
+# See also
+llvm::Function::end()
+"""
+function LLVMGetLastBasicBlock(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastBasicBlock(Fn::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetNextBasicBlock(BB)
+
+Advance a basic block iterator.
+"""
+function LLVMGetNextBasicBlock(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextBasicBlock(BB::LLVMBasicBlockRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetPreviousBasicBlock(BB)
+
+Go backwards in a basic block iterator.
+"""
+function LLVMGetPreviousBasicBlock(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousBasicBlock(
+        BB::LLVMBasicBlockRef
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetEntryBasicBlock(Fn)
+
+Obtain the basic block that corresponds to the entry point of a function.
+
+# See also
+llvm::Function::getEntryBlock()
+"""
+function LLVMGetEntryBasicBlock(Fn)
+    @ccall (MLIR_C_PATH[]).LLVMGetEntryBasicBlock(Fn::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMInsertExistingBasicBlockAfterInsertBlock(Builder, BB)
+
+Insert the given basic block after the insertion point of the given builder.
+
+The insertion point must be valid.
+
+# See also
+llvm::Function::BasicBlockListType::insertAfter()
+"""
+function LLVMInsertExistingBasicBlockAfterInsertBlock(Builder, BB)
+    @ccall (MLIR_C_PATH[]).LLVMInsertExistingBasicBlockAfterInsertBlock(
+        Builder::LLVMBuilderRef, BB::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMAppendExistingBasicBlock(Fn, BB)
+
+Append the given basic block to the basic block list of the given function.
+
+# See also
+llvm::Function::BasicBlockListType::push\\_back()
+"""
+function LLVMAppendExistingBasicBlock(Fn, BB)
+    @ccall (MLIR_C_PATH[]).LLVMAppendExistingBasicBlock(
+        Fn::LLVMValueRef, BB::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMCreateBasicBlockInContext(C, Name)
+
+Create a new basic block without inserting it into a function.
+
+# See also
+llvm::BasicBlock::Create()
+"""
+function LLVMCreateBasicBlockInContext(C, Name)
+    @ccall (MLIR_C_PATH[]).LLVMCreateBasicBlockInContext(
+        C::LLVMContextRef, Name::Cstring
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMAppendBasicBlockInContext(C, Fn, Name)
+
+Append a basic block to the end of a function.
+
+# See also
+llvm::BasicBlock::Create()
+"""
+function LLVMAppendBasicBlockInContext(C, Fn, Name)
+    @ccall (MLIR_C_PATH[]).LLVMAppendBasicBlockInContext(
+        C::LLVMContextRef, Fn::LLVMValueRef, Name::Cstring
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMAppendBasicBlock(Fn, Name)
+
+Append a basic block to the end of a function using the global context.
+
+# See also
+llvm::BasicBlock::Create()
+"""
+function LLVMAppendBasicBlock(Fn, Name)
+    @ccall (MLIR_C_PATH[]).LLVMAppendBasicBlock(
+        Fn::LLVMValueRef, Name::Cstring
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMInsertBasicBlockInContext(C, BB, Name)
+
+Insert a basic block in a function before another basic block.
+
+The function to add to is determined by the function of the passed basic block.
+
+# See also
+llvm::BasicBlock::Create()
+"""
+function LLVMInsertBasicBlockInContext(C, BB, Name)
+    @ccall (MLIR_C_PATH[]).LLVMInsertBasicBlockInContext(
+        C::LLVMContextRef, BB::LLVMBasicBlockRef, Name::Cstring
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMInsertBasicBlock(InsertBeforeBB, Name)
+
+Insert a basic block in a function using the global context.
+
+# See also
+llvm::BasicBlock::Create()
+"""
+function LLVMInsertBasicBlock(InsertBeforeBB, Name)
+    @ccall (MLIR_C_PATH[]).LLVMInsertBasicBlock(
+        InsertBeforeBB::LLVMBasicBlockRef, Name::Cstring
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMDeleteBasicBlock(BB)
+
+Remove a basic block from a function and delete it.
+
+This deletes the basic block from its containing function and deletes the basic block itself.
+
+# See also
+llvm::BasicBlock::eraseFromParent()
+"""
+function LLVMDeleteBasicBlock(BB)
+    @ccall (MLIR_C_PATH[]).LLVMDeleteBasicBlock(BB::LLVMBasicBlockRef)::Cvoid
+end
+
+"""
+    LLVMRemoveBasicBlockFromParent(BB)
+
+Remove a basic block from a function.
+
+This deletes the basic block from its containing function but keep the basic block alive.
+
+# See also
+llvm::BasicBlock::removeFromParent()
+"""
+function LLVMRemoveBasicBlockFromParent(BB)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveBasicBlockFromParent(BB::LLVMBasicBlockRef)::Cvoid
+end
+
+"""
+    LLVMMoveBasicBlockBefore(BB, MovePos)
+
+Move a basic block to before another one.
+
+# See also
+llvm::BasicBlock::moveBefore()
+"""
+function LLVMMoveBasicBlockBefore(BB, MovePos)
+    @ccall (MLIR_C_PATH[]).LLVMMoveBasicBlockBefore(
+        BB::LLVMBasicBlockRef, MovePos::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMMoveBasicBlockAfter(BB, MovePos)
+
+Move a basic block to after another one.
+
+# See also
+llvm::BasicBlock::moveAfter()
+"""
+function LLVMMoveBasicBlockAfter(BB, MovePos)
+    @ccall (MLIR_C_PATH[]).LLVMMoveBasicBlockAfter(
+        BB::LLVMBasicBlockRef, MovePos::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetFirstInstruction(BB)
+
+Obtain the first instruction in a basic block.
+
+The returned [`LLVMValueRef`](@ref) corresponds to a llvm::Instruction instance.
+"""
+function LLVMGetFirstInstruction(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstInstruction(BB::LLVMBasicBlockRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetLastInstruction(BB)
+
+Obtain the last instruction in a basic block.
+
+The returned [`LLVMValueRef`](@ref) corresponds to an LLVM:Instruction.
+"""
+function LLVMGetLastInstruction(BB)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastInstruction(BB::LLVMBasicBlockRef)::LLVMValueRef
+end
+
+"""
+    LLVMHasMetadata(Val)
+
+Determine whether an instruction has any metadata attached.
+"""
+function LLVMHasMetadata(Val)
+    @ccall (MLIR_C_PATH[]).LLVMHasMetadata(Val::LLVMValueRef)::Cint
+end
+
+"""
+    LLVMGetMetadata(Val, KindID)
+
+Return metadata associated with an instruction value.
+"""
+function LLVMGetMetadata(Val, KindID)
+    @ccall (MLIR_C_PATH[]).LLVMGetMetadata(Val::LLVMValueRef, KindID::Cuint)::LLVMValueRef
+end
+
+"""
+    LLVMSetMetadata(Val, KindID, Node)
+
+Set metadata associated with an instruction value.
+"""
+function LLVMSetMetadata(Val, KindID, Node)
+    @ccall (MLIR_C_PATH[]).LLVMSetMetadata(
+        Val::LLVMValueRef, KindID::Cuint, Node::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMInstructionGetAllMetadataOtherThanDebugLoc(Instr, NumEntries)
+
+Returns the metadata associated with an instruction value, but filters out all the debug locations.
+
+# See also
+llvm::Instruction::getAllMetadataOtherThanDebugLoc()
+"""
+function LLVMInstructionGetAllMetadataOtherThanDebugLoc(Instr, NumEntries)
+    @ccall (MLIR_C_PATH[]).LLVMInstructionGetAllMetadataOtherThanDebugLoc(
+        Instr::LLVMValueRef, NumEntries::Ptr{Csize_t}
+    )::Ptr{LLVMValueMetadataEntry}
+end
+
+"""
+    LLVMGetInstructionParent(Inst)
+
+Obtain the basic block to which an instruction belongs.
+
+# See also
+llvm::Instruction::getParent()
+"""
+function LLVMGetInstructionParent(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetInstructionParent(Inst::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetNextInstruction(Inst)
+
+Obtain the instruction that occurs after the one specified.
+
+The next instruction will be from the same basic block.
+
+If this is the last instruction in a basic block, NULL will be returned.
+"""
+function LLVMGetNextInstruction(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextInstruction(Inst::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetPreviousInstruction(Inst)
+
+Obtain the instruction that occurred before this one.
+
+If the instruction is the first instruction in a basic block, NULL will be returned.
+"""
+function LLVMGetPreviousInstruction(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousInstruction(Inst::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMInstructionRemoveFromParent(Inst)
+
+Remove an instruction.
+
+The instruction specified is removed from its containing building block but is kept alive.
+
+# See also
+llvm::Instruction::removeFromParent()
+"""
+function LLVMInstructionRemoveFromParent(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMInstructionRemoveFromParent(Inst::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMInstructionEraseFromParent(Inst)
+
+Remove and delete an instruction.
+
+The instruction specified is removed from its containing building block and then deleted.
+
+# See also
+llvm::Instruction::eraseFromParent()
+"""
+function LLVMInstructionEraseFromParent(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMInstructionEraseFromParent(Inst::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMDeleteInstruction(Inst)
+
+Delete an instruction.
+
+The instruction specified is deleted. It must have previously been removed from its containing building block.
+
+# See also
+llvm::Value::deleteValue()
+"""
+function LLVMDeleteInstruction(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMDeleteInstruction(Inst::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMGetInstructionOpcode(Inst)
+
+Obtain the code opcode for an individual instruction.
+
+# See also
+llvm::Instruction::getOpCode()
+"""
+function LLVMGetInstructionOpcode(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetInstructionOpcode(Inst::LLVMValueRef)::LLVMOpcode
+end
+
+"""
+    LLVMGetICmpPredicate(Inst)
+
+Obtain the predicate of an instruction.
+
+This is only valid for instructions that correspond to llvm::ICmpInst.
+
+# See also
+llvm::ICmpInst::getPredicate()
+"""
+function LLVMGetICmpPredicate(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetICmpPredicate(Inst::LLVMValueRef)::LLVMIntPredicate
+end
+
+"""
+    LLVMGetICmpSameSign(Inst)
+
+Get whether or not an icmp instruction has the samesign flag.
+
+This is only valid for instructions that correspond to llvm::ICmpInst.
+
+# See also
+llvm::ICmpInst::hasSameSign()
+"""
+function LLVMGetICmpSameSign(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetICmpSameSign(Inst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetICmpSameSign(Inst, SameSign)
+
+Set the samesign flag on an icmp instruction.
+
+This is only valid for instructions that correspond to llvm::ICmpInst.
+
+# See also
+llvm::ICmpInst::setSameSign()
+"""
+function LLVMSetICmpSameSign(Inst, SameSign)
+    @ccall (MLIR_C_PATH[]).LLVMSetICmpSameSign(
+        Inst::LLVMValueRef, SameSign::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMGetFCmpPredicate(Inst)
+
+Obtain the float predicate of an instruction.
+
+This is only valid for instructions that correspond to llvm::FCmpInst.
+
+# See also
+llvm::FCmpInst::getPredicate()
+"""
+function LLVMGetFCmpPredicate(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetFCmpPredicate(Inst::LLVMValueRef)::LLVMRealPredicate
+end
+
+"""
+    LLVMInstructionClone(Inst)
+
+Create a copy of 'this' instruction that is identical in all ways except the following: * The instruction has no parent * The instruction has no name
+
+# See also
+llvm::Instruction::clone()
+"""
+function LLVMInstructionClone(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMInstructionClone(Inst::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMIsATerminatorInst(Inst)
+
+Determine whether an instruction is a terminator. This routine is named to be compatible with historical functions that did this by querying the underlying C++ type.
+
+# See also
+llvm::Instruction::isTerminator()
+"""
+function LLVMIsATerminatorInst(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMIsATerminatorInst(Inst::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetFirstDbgRecord(Inst)
+
+Obtain the first debug record attached to an instruction.
+
+Use [`LLVMGetNextDbgRecord`](@ref)() and [`LLVMGetPreviousDbgRecord`](@ref)() to traverse the sequence of DbgRecords.
+
+Return the first DbgRecord attached to Inst or NULL if there are none.
+
+# See also
+llvm::Instruction::getDbgRecordRange()
+"""
+function LLVMGetFirstDbgRecord(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetFirstDbgRecord(Inst::LLVMValueRef)::LLVMDbgRecordRef
+end
+
+"""
+    LLVMGetLastDbgRecord(Inst)
+
+Obtain the last debug record attached to an instruction.
+
+Return the last DbgRecord attached to Inst or NULL if there are none.
+
+# See also
+llvm::Instruction::getDbgRecordRange()
+"""
+function LLVMGetLastDbgRecord(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetLastDbgRecord(Inst::LLVMValueRef)::LLVMDbgRecordRef
+end
+
+"""
+    LLVMGetNextDbgRecord(DbgRecord)
+
+Obtain the next DbgRecord in the sequence or NULL if there are no more.
+
+# See also
+llvm::Instruction::getDbgRecordRange()
+"""
+function LLVMGetNextDbgRecord(DbgRecord)
+    @ccall (MLIR_C_PATH[]).LLVMGetNextDbgRecord(
+        DbgRecord::LLVMDbgRecordRef
+    )::LLVMDbgRecordRef
+end
+
+"""
+    LLVMGetPreviousDbgRecord(DbgRecord)
+
+Obtain the previous DbgRecord in the sequence or NULL if there are no more.
+
+# See also
+llvm::Instruction::getDbgRecordRange()
+"""
+function LLVMGetPreviousDbgRecord(DbgRecord)
+    @ccall (MLIR_C_PATH[]).LLVMGetPreviousDbgRecord(
+        DbgRecord::LLVMDbgRecordRef
+    )::LLVMDbgRecordRef
+end
+
+"""
+    LLVMGetNumArgOperands(Instr)
+
+Obtain the argument count for a call instruction.
+
+This expects an [`LLVMValueRef`](@ref) that corresponds to a llvm::CallInst, llvm::InvokeInst, or llvm:FuncletPadInst.
+
+# See also
+llvm::CallInst::getNumArgOperands(), llvm::InvokeInst::getNumArgOperands(), llvm::FuncletPadInst::getNumArgOperands()
+"""
+function LLVMGetNumArgOperands(Instr)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumArgOperands(Instr::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMSetInstructionCallConv(Instr, CC)
+
+Set the calling convention for a call instruction.
+
+This expects an [`LLVMValueRef`](@ref) that corresponds to a llvm::CallInst or llvm::InvokeInst.
+
+# See also
+llvm::CallInst::setCallingConv(), llvm::InvokeInst::setCallingConv()
+"""
+function LLVMSetInstructionCallConv(Instr, CC)
+    @ccall (MLIR_C_PATH[]).LLVMSetInstructionCallConv(Instr::LLVMValueRef, CC::Cuint)::Cvoid
+end
+
+"""
+    LLVMGetInstructionCallConv(Instr)
+
+Obtain the calling convention for a call instruction.
+
+This is the opposite of [`LLVMSetInstructionCallConv`](@ref)(). Reads its usage.
+
+# See also
+[`LLVMSetInstructionCallConv`](@ref)()
+"""
+function LLVMGetInstructionCallConv(Instr)
+    @ccall (MLIR_C_PATH[]).LLVMGetInstructionCallConv(Instr::LLVMValueRef)::Cuint
+end
+
+function LLVMSetInstrParamAlignment(Instr, Idx, Align)
+    @ccall (MLIR_C_PATH[]).LLVMSetInstrParamAlignment(
+        Instr::LLVMValueRef, Idx::LLVMAttributeIndex, Align::Cuint
+    )::Cvoid
+end
+
+function LLVMAddCallSiteAttribute(C, Idx, A)
+    @ccall (MLIR_C_PATH[]).LLVMAddCallSiteAttribute(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, A::LLVMAttributeRef
+    )::Cvoid
+end
+
+function LLVMGetCallSiteAttributeCount(C, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallSiteAttributeCount(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex
+    )::Cuint
+end
+
+function LLVMGetCallSiteAttributes(C, Idx, Attrs)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallSiteAttributes(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, Attrs::Ptr{LLVMAttributeRef}
+    )::Cvoid
+end
+
+function LLVMGetCallSiteEnumAttribute(C, Idx, KindID)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallSiteEnumAttribute(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, KindID::Cuint
+    )::LLVMAttributeRef
+end
+
+function LLVMGetCallSiteStringAttribute(C, Idx, K, KLen)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallSiteStringAttribute(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, K::Cstring, KLen::Cuint
+    )::LLVMAttributeRef
+end
+
+function LLVMRemoveCallSiteEnumAttribute(C, Idx, KindID)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveCallSiteEnumAttribute(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, KindID::Cuint
+    )::Cvoid
+end
+
+function LLVMRemoveCallSiteStringAttribute(C, Idx, K, KLen)
+    @ccall (MLIR_C_PATH[]).LLVMRemoveCallSiteStringAttribute(
+        C::LLVMValueRef, Idx::LLVMAttributeIndex, K::Cstring, KLen::Cuint
+    )::Cvoid
+end
+
+"""
+    LLVMGetCalledFunctionType(C)
+
+Obtain the function type called by this instruction.
+
+# See also
+llvm::CallBase::getFunctionType()
+"""
+function LLVMGetCalledFunctionType(C)
+    @ccall (MLIR_C_PATH[]).LLVMGetCalledFunctionType(C::LLVMValueRef)::LLVMTypeRef
+end
+
+"""
+    LLVMGetCalledValue(Instr)
+
+Obtain the pointer to the function invoked by this instruction.
+
+This expects an [`LLVMValueRef`](@ref) that corresponds to a llvm::CallInst or llvm::InvokeInst.
+
+# See also
+llvm::CallInst::getCalledOperand(), llvm::InvokeInst::getCalledOperand()
+"""
+function LLVMGetCalledValue(Instr)
+    @ccall (MLIR_C_PATH[]).LLVMGetCalledValue(Instr::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMGetNumOperandBundles(C)
+
+Obtain the number of operand bundles attached to this instruction.
+
+This only works on llvm::CallInst and llvm::InvokeInst instructions.
+
+# See also
+llvm::CallBase::getNumOperandBundles()
+"""
+function LLVMGetNumOperandBundles(C)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumOperandBundles(C::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetOperandBundleAtIndex(C, Index)
+
+Obtain the operand bundle attached to this instruction at the given index. Use [`LLVMDisposeOperandBundle`](@ref) to free the operand bundle.
+
+This only works on llvm::CallInst and llvm::InvokeInst instructions.
+"""
+function LLVMGetOperandBundleAtIndex(C, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetOperandBundleAtIndex(
+        C::LLVMValueRef, Index::Cuint
+    )::LLVMOperandBundleRef
+end
+
+"""
+    LLVMIsTailCall(CallInst)
+
+Obtain whether a call instruction is a tail call.
+
+This only works on llvm::CallInst instructions.
+
+# See also
+llvm::CallInst::isTailCall()
+"""
+function LLVMIsTailCall(CallInst)
+    @ccall (MLIR_C_PATH[]).LLVMIsTailCall(CallInst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetTailCall(CallInst, IsTailCall)
+
+Set whether a call instruction is a tail call.
+
+This only works on llvm::CallInst instructions.
+
+# See also
+llvm::CallInst::setTailCall()
+"""
+function LLVMSetTailCall(CallInst, IsTailCall)
+    @ccall (MLIR_C_PATH[]).LLVMSetTailCall(
+        CallInst::LLVMValueRef, IsTailCall::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMGetTailCallKind(CallInst)
+
+Obtain a tail call kind of the call instruction.
+
+# See also
+llvm::CallInst::setTailCallKind()
+"""
+function LLVMGetTailCallKind(CallInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetTailCallKind(CallInst::LLVMValueRef)::LLVMTailCallKind
+end
+
+"""
+    LLVMSetTailCallKind(CallInst, kind)
+
+Set the call kind of the call instruction.
+
+# See also
+llvm::CallInst::getTailCallKind()
+"""
+function LLVMSetTailCallKind(CallInst, kind)
+    @ccall (MLIR_C_PATH[]).LLVMSetTailCallKind(
+        CallInst::LLVMValueRef, kind::LLVMTailCallKind
+    )::Cvoid
+end
+
+"""
+    LLVMGetNormalDest(InvokeInst)
+
+Return the normal destination basic block.
+
+This only works on llvm::InvokeInst instructions.
+
+# See also
+llvm::InvokeInst::getNormalDest()
+"""
+function LLVMGetNormalDest(InvokeInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNormalDest(InvokeInst::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetUnwindDest(InvokeInst)
+
+Return the unwind destination basic block.
+
+Works on llvm::InvokeInst, llvm::CleanupReturnInst, and llvm::CatchSwitchInst instructions.
+
+# See also
+llvm::InvokeInst::getUnwindDest(), llvm::CleanupReturnInst::getUnwindDest(), llvm::CatchSwitchInst::getUnwindDest()
+"""
+function LLVMGetUnwindDest(InvokeInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetUnwindDest(InvokeInst::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMSetNormalDest(InvokeInst, B)
+
+Set the normal destination basic block.
+
+This only works on llvm::InvokeInst instructions.
+
+# See also
+llvm::InvokeInst::setNormalDest()
+"""
+function LLVMSetNormalDest(InvokeInst, B)
+    @ccall (MLIR_C_PATH[]).LLVMSetNormalDest(
+        InvokeInst::LLVMValueRef, B::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMSetUnwindDest(InvokeInst, B)
+
+Set the unwind destination basic block.
+
+Works on llvm::InvokeInst, llvm::CleanupReturnInst, and llvm::CatchSwitchInst instructions.
+
+# See also
+llvm::InvokeInst::setUnwindDest(), llvm::CleanupReturnInst::setUnwindDest(), llvm::CatchSwitchInst::setUnwindDest()
+"""
+function LLVMSetUnwindDest(InvokeInst, B)
+    @ccall (MLIR_C_PATH[]).LLVMSetUnwindDest(
+        InvokeInst::LLVMValueRef, B::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetCallBrDefaultDest(CallBr)
+
+Get the default destination of a CallBr instruction.
+
+# See also
+llvm::CallBrInst::getDefaultDest()
+"""
+function LLVMGetCallBrDefaultDest(CallBr)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallBrDefaultDest(CallBr::LLVMValueRef)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetCallBrNumIndirectDests(CallBr)
+
+Get the number of indirect destinations of a CallBr instruction.
+
+# See also
+llvm::CallBrInst::getNumIndirectDests()
+"""
+function LLVMGetCallBrNumIndirectDests(CallBr)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallBrNumIndirectDests(CallBr::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetCallBrIndirectDest(CallBr, Idx)
+
+Get the indirect destination of a CallBr instruction at the given index.
+
+# See also
+llvm::CallBrInst::getIndirectDest()
+"""
+function LLVMGetCallBrIndirectDest(CallBr, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetCallBrIndirectDest(
+        CallBr::LLVMValueRef, Idx::Cuint
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetNumSuccessors(Term)
+
+Return the number of successors that this terminator has.
+
+# See also
+llvm::Instruction::getNumSuccessors
+"""
+function LLVMGetNumSuccessors(Term)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumSuccessors(Term::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetSuccessor(Term, i)
+
+Return the specified successor.
+
+# See also
+llvm::Instruction::getSuccessor
+"""
+function LLVMGetSuccessor(Term, i)
+    @ccall (MLIR_C_PATH[]).LLVMGetSuccessor(Term::LLVMValueRef, i::Cuint)::LLVMBasicBlockRef
+end
+
+"""
+    LLVMSetSuccessor(Term, i, block)
+
+Update the specified successor to point at the provided block.
+
+# See also
+llvm::Instruction::setSuccessor
+"""
+function LLVMSetSuccessor(Term, i, block)
+    @ccall (MLIR_C_PATH[]).LLVMSetSuccessor(
+        Term::LLVMValueRef, i::Cuint, block::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+"""
+    LLVMIsConditional(Branch)
+
+Return if a branch is conditional.
+
+This only works on llvm::BranchInst instructions.
+
+# See also
+llvm::BranchInst::isConditional
+"""
+function LLVMIsConditional(Branch)
+    @ccall (MLIR_C_PATH[]).LLVMIsConditional(Branch::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetCondition(Branch)
+
+Return the condition of a branch instruction.
+
+This only works on llvm::BranchInst instructions.
+
+# See also
+llvm::BranchInst::getCondition
+"""
+function LLVMGetCondition(Branch)
+    @ccall (MLIR_C_PATH[]).LLVMGetCondition(Branch::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetCondition(Branch, Cond)
+
+Set the condition of a branch instruction.
+
+This only works on llvm::BranchInst instructions.
+
+# See also
+llvm::BranchInst::setCondition
+"""
+function LLVMSetCondition(Branch, Cond)
+    @ccall (MLIR_C_PATH[]).LLVMSetCondition(Branch::LLVMValueRef, Cond::LLVMValueRef)::Cvoid
+end
+
+"""
+    LLVMGetSwitchDefaultDest(SwitchInstr)
+
+Obtain the default destination basic block of a switch instruction.
+
+This only works on llvm::SwitchInst instructions.
+
+# See also
+llvm::SwitchInst::getDefaultDest()
+"""
+function LLVMGetSwitchDefaultDest(SwitchInstr)
+    @ccall (MLIR_C_PATH[]).LLVMGetSwitchDefaultDest(
+        SwitchInstr::LLVMValueRef
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetAllocatedType(Alloca)
+
+Obtain the type that is being allocated by the alloca instruction.
+"""
+function LLVMGetAllocatedType(Alloca)
+    @ccall (MLIR_C_PATH[]).LLVMGetAllocatedType(Alloca::LLVMValueRef)::LLVMTypeRef
+end
+
+"""
+    LLVMIsInBounds(GEP)
+
+Check whether the given GEP operator is inbounds.
+"""
+function LLVMIsInBounds(GEP)
+    @ccall (MLIR_C_PATH[]).LLVMIsInBounds(GEP::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetIsInBounds(GEP, InBounds)
+
+Set the given GEP instruction to be inbounds or not.
+"""
+function LLVMSetIsInBounds(GEP, InBounds)
+    @ccall (MLIR_C_PATH[]).LLVMSetIsInBounds(GEP::LLVMValueRef, InBounds::LLVMBool)::Cvoid
+end
+
+"""
+    LLVMGetGEPSourceElementType(GEP)
+
+Get the source element type of the given GEP operator.
+"""
+function LLVMGetGEPSourceElementType(GEP)
+    @ccall (MLIR_C_PATH[]).LLVMGetGEPSourceElementType(GEP::LLVMValueRef)::LLVMTypeRef
+end
+
+"""
+    LLVMGEPGetNoWrapFlags(GEP)
+
+Get the no-wrap related flags for the given GEP instruction.
+
+# See also
+llvm::GetElementPtrInst::getNoWrapFlags
+"""
+function LLVMGEPGetNoWrapFlags(GEP)
+    @ccall (MLIR_C_PATH[]).LLVMGEPGetNoWrapFlags(GEP::LLVMValueRef)::LLVMGEPNoWrapFlags
+end
+
+"""
+    LLVMGEPSetNoWrapFlags(GEP, NoWrapFlags)
+
+Set the no-wrap related flags for the given GEP instruction.
+
+# See also
+llvm::GetElementPtrInst::setNoWrapFlags
+"""
+function LLVMGEPSetNoWrapFlags(GEP, NoWrapFlags)
+    @ccall (MLIR_C_PATH[]).LLVMGEPSetNoWrapFlags(
+        GEP::LLVMValueRef, NoWrapFlags::LLVMGEPNoWrapFlags
+    )::Cvoid
+end
+
+"""
+    LLVMAddIncoming(PhiNode, IncomingValues, IncomingBlocks, Count)
+
+Add an incoming value to the end of a PHI list.
+"""
+function LLVMAddIncoming(PhiNode, IncomingValues, IncomingBlocks, Count)
+    @ccall (MLIR_C_PATH[]).LLVMAddIncoming(
+        PhiNode::LLVMValueRef,
+        IncomingValues::Ptr{LLVMValueRef},
+        IncomingBlocks::Ptr{LLVMBasicBlockRef},
+        Count::Cuint,
+    )::Cvoid
+end
+
+"""
+    LLVMCountIncoming(PhiNode)
+
+Obtain the number of incoming basic blocks to a PHI node.
+"""
+function LLVMCountIncoming(PhiNode)
+    @ccall (MLIR_C_PATH[]).LLVMCountIncoming(PhiNode::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetIncomingValue(PhiNode, Index)
+
+Obtain an incoming value to a PHI node as an [`LLVMValueRef`](@ref).
+"""
+function LLVMGetIncomingValue(PhiNode, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetIncomingValue(
+        PhiNode::LLVMValueRef, Index::Cuint
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetIncomingBlock(PhiNode, Index)
+
+Obtain an incoming value to a PHI node as an [`LLVMBasicBlockRef`](@ref).
+"""
+function LLVMGetIncomingBlock(PhiNode, Index)
+    @ccall (MLIR_C_PATH[]).LLVMGetIncomingBlock(
+        PhiNode::LLVMValueRef, Index::Cuint
+    )::LLVMBasicBlockRef
+end
+
+"""
+    LLVMGetNumIndices(Inst)
+
+Obtain the number of indices. NB: This also works on GEP operators.
+"""
+function LLVMGetNumIndices(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumIndices(Inst::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetIndices(Inst)
+
+Obtain the indices as an array.
+"""
+function LLVMGetIndices(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetIndices(Inst::LLVMValueRef)::Ptr{Cuint}
+end
+
+"""
+    LLVMCreateBuilderInContext(C)
+
+` LLVMCCoreInstructionBuilder Instruction Builders`
+
+An instruction builder represents a point within a basic block and is the exclusive means of building instructions using the C interface.
+
+@{
+"""
+function LLVMCreateBuilderInContext(C)
+    @ccall (MLIR_C_PATH[]).LLVMCreateBuilderInContext(C::LLVMContextRef)::LLVMBuilderRef
+end
+
+function LLVMCreateBuilder()
+    @ccall (MLIR_C_PATH[]).LLVMCreateBuilder()::LLVMBuilderRef
+end
+
+"""
+    LLVMPositionBuilder(Builder, Block, Instr)
+
+Set the builder position before Instr but after any attached debug records, or if Instr is null set the position to the end of Block.
+"""
+function LLVMPositionBuilder(Builder, Block, Instr)
+    @ccall (MLIR_C_PATH[]).LLVMPositionBuilder(
+        Builder::LLVMBuilderRef, Block::LLVMBasicBlockRef, Instr::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMPositionBuilderBeforeDbgRecords(Builder, Block, Inst)
+
+Set the builder position before Instr and any attached debug records, or if Instr is null set the position to the end of Block.
+"""
+function LLVMPositionBuilderBeforeDbgRecords(Builder, Block, Inst)
+    @ccall (MLIR_C_PATH[]).LLVMPositionBuilderBeforeDbgRecords(
+        Builder::LLVMBuilderRef, Block::LLVMBasicBlockRef, Inst::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMPositionBuilderBefore(Builder, Instr)
+
+Set the builder position before Instr but after any attached debug records.
+"""
+function LLVMPositionBuilderBefore(Builder, Instr)
+    @ccall (MLIR_C_PATH[]).LLVMPositionBuilderBefore(
+        Builder::LLVMBuilderRef, Instr::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMPositionBuilderBeforeInstrAndDbgRecords(Builder, Instr)
+
+Set the builder position before Instr and any attached debug records.
+"""
+function LLVMPositionBuilderBeforeInstrAndDbgRecords(Builder, Instr)
+    @ccall (MLIR_C_PATH[]).LLVMPositionBuilderBeforeInstrAndDbgRecords(
+        Builder::LLVMBuilderRef, Instr::LLVMValueRef
+    )::Cvoid
+end
+
+function LLVMPositionBuilderAtEnd(Builder, Block)
+    @ccall (MLIR_C_PATH[]).LLVMPositionBuilderAtEnd(
+        Builder::LLVMBuilderRef, Block::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+function LLVMGetInsertBlock(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMGetInsertBlock(Builder::LLVMBuilderRef)::LLVMBasicBlockRef
+end
+
+function LLVMClearInsertionPosition(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMClearInsertionPosition(Builder::LLVMBuilderRef)::Cvoid
+end
+
+function LLVMInsertIntoBuilder(Builder, Instr)
+    @ccall (MLIR_C_PATH[]).LLVMInsertIntoBuilder(
+        Builder::LLVMBuilderRef, Instr::LLVMValueRef
+    )::Cvoid
+end
+
+function LLVMInsertIntoBuilderWithName(Builder, Instr, Name)
+    @ccall (MLIR_C_PATH[]).LLVMInsertIntoBuilderWithName(
+        Builder::LLVMBuilderRef, Instr::LLVMValueRef, Name::Cstring
+    )::Cvoid
+end
+
+function LLVMDisposeBuilder(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeBuilder(Builder::LLVMBuilderRef)::Cvoid
+end
+
+"""
+    LLVMGetCurrentDebugLocation2(Builder)
+
+Get location information used by debugging information.
+
+# See also
+llvm::IRBuilder::getCurrentDebugLocation()
+"""
+function LLVMGetCurrentDebugLocation2(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMGetCurrentDebugLocation2(
+        Builder::LLVMBuilderRef
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMSetCurrentDebugLocation2(Builder, Loc)
+
+Set location information used by debugging information.
+
+To clear the location metadata of the given instruction, pass NULL to `Loc`.
+
+# See also
+llvm::IRBuilder::SetCurrentDebugLocation()
+"""
+function LLVMSetCurrentDebugLocation2(Builder, Loc)
+    @ccall (MLIR_C_PATH[]).LLVMSetCurrentDebugLocation2(
+        Builder::LLVMBuilderRef, Loc::LLVMMetadataRef
+    )::Cvoid
+end
+
+"""
+    LLVMSetInstDebugLocation(Builder, Inst)
+
+Attempts to set the debug location for the given instruction using the current debug location for the given builder. If the builder has no current debug location, this function is a no-op.
+
+!!! compat "Deprecated"
+
+    [`LLVMSetInstDebugLocation`](@ref) is deprecated in favor of the more general [`LLVMAddMetadataToInst`](@ref).
+
+# See also
+llvm::IRBuilder::SetInstDebugLocation()
+"""
+function LLVMSetInstDebugLocation(Builder, Inst)
+    @ccall (MLIR_C_PATH[]).LLVMSetInstDebugLocation(
+        Builder::LLVMBuilderRef, Inst::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMAddMetadataToInst(Builder, Inst)
+
+Adds the metadata registered with the given builder to the given instruction.
+
+# See also
+llvm::IRBuilder::AddMetadataToInst()
+"""
+function LLVMAddMetadataToInst(Builder, Inst)
+    @ccall (MLIR_C_PATH[]).LLVMAddMetadataToInst(
+        Builder::LLVMBuilderRef, Inst::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMBuilderGetDefaultFPMathTag(Builder)
+
+Get the dafult floating-point math metadata for a given builder.
+
+# See also
+llvm::IRBuilder::getDefaultFPMathTag()
+"""
+function LLVMBuilderGetDefaultFPMathTag(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMBuilderGetDefaultFPMathTag(
+        Builder::LLVMBuilderRef
+    )::LLVMMetadataRef
+end
+
+"""
+    LLVMBuilderSetDefaultFPMathTag(Builder, FPMathTag)
+
+Set the default floating-point math metadata for the given builder.
+
+To clear the metadata, pass NULL to `FPMathTag`.
+
+# See also
+llvm::IRBuilder::setDefaultFPMathTag()
+"""
+function LLVMBuilderSetDefaultFPMathTag(Builder, FPMathTag)
+    @ccall (MLIR_C_PATH[]).LLVMBuilderSetDefaultFPMathTag(
+        Builder::LLVMBuilderRef, FPMathTag::LLVMMetadataRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetBuilderContext(Builder)
+
+Obtain the context to which this builder is associated.
+
+# See also
+llvm::IRBuilder::getContext()
+"""
+function LLVMGetBuilderContext(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMGetBuilderContext(Builder::LLVMBuilderRef)::LLVMContextRef
+end
+
+"""
+    LLVMSetCurrentDebugLocation(Builder, L)
+
+Deprecated: Passing the NULL location will crash. Use [`LLVMGetCurrentDebugLocation2`](@ref) instead.
+"""
+function LLVMSetCurrentDebugLocation(Builder, L)
+    @ccall (MLIR_C_PATH[]).LLVMSetCurrentDebugLocation(
+        Builder::LLVMBuilderRef, L::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetCurrentDebugLocation(Builder)
+
+Deprecated: Returning the NULL location will crash. Use [`LLVMGetCurrentDebugLocation2`](@ref) instead.
+"""
+function LLVMGetCurrentDebugLocation(Builder)
+    @ccall (MLIR_C_PATH[]).LLVMGetCurrentDebugLocation(
+        Builder::LLVMBuilderRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildRetVoid(arg1)
+    @ccall (MLIR_C_PATH[]).LLVMBuildRetVoid(arg1::LLVMBuilderRef)::LLVMValueRef
+end
+
+function LLVMBuildRet(arg1, V)
+    @ccall (MLIR_C_PATH[]).LLVMBuildRet(arg1::LLVMBuilderRef, V::LLVMValueRef)::LLVMValueRef
+end
+
+function LLVMBuildAggregateRet(arg1, RetVals, N)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAggregateRet(
+        arg1::LLVMBuilderRef, RetVals::Ptr{LLVMValueRef}, N::Cuint
+    )::LLVMValueRef
+end
+
+function LLVMBuildBr(arg1, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMBuildBr(
+        arg1::LLVMBuilderRef, Dest::LLVMBasicBlockRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildCondBr(arg1, If, Then, Else)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCondBr(
+        arg1::LLVMBuilderRef,
+        If::LLVMValueRef,
+        Then::LLVMBasicBlockRef,
+        Else::LLVMBasicBlockRef,
+    )::LLVMValueRef
+end
+
+function LLVMBuildSwitch(arg1, V, Else, NumCases)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSwitch(
+        arg1::LLVMBuilderRef, V::LLVMValueRef, Else::LLVMBasicBlockRef, NumCases::Cuint
+    )::LLVMValueRef
+end
+
+function LLVMBuildIndirectBr(B, Addr, NumDests)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIndirectBr(
+        B::LLVMBuilderRef, Addr::LLVMValueRef, NumDests::Cuint
+    )::LLVMValueRef
+end
+
+function LLVMBuildCallBr(
+    B,
+    Ty,
+    Fn,
+    DefaultDest,
+    IndirectDests,
+    NumIndirectDests,
+    Args,
+    NumArgs,
+    Bundles,
+    NumBundles,
+    Name,
+)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCallBr(
+        B::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Fn::LLVMValueRef,
+        DefaultDest::LLVMBasicBlockRef,
+        IndirectDests::Ptr{LLVMBasicBlockRef},
+        NumIndirectDests::Cuint,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Bundles::Ptr{LLVMOperandBundleRef},
+        NumBundles::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildInvoke2(arg1, Ty, Fn, Args, NumArgs, Then, Catch, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildInvoke2(
+        arg1::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Fn::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Then::LLVMBasicBlockRef,
+        Catch::LLVMBasicBlockRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildInvokeWithOperandBundles(
+    arg1, Ty, Fn, Args, NumArgs, Then, Catch, Bundles, NumBundles, Name
+)
+    @ccall (MLIR_C_PATH[]).LLVMBuildInvokeWithOperandBundles(
+        arg1::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Fn::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Then::LLVMBasicBlockRef,
+        Catch::LLVMBasicBlockRef,
+        Bundles::Ptr{LLVMOperandBundleRef},
+        NumBundles::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildUnreachable(arg1)
+    @ccall (MLIR_C_PATH[]).LLVMBuildUnreachable(arg1::LLVMBuilderRef)::LLVMValueRef
+end
+
+function LLVMBuildResume(B, Exn)
+    @ccall (MLIR_C_PATH[]).LLVMBuildResume(
+        B::LLVMBuilderRef, Exn::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildLandingPad(B, Ty, PersFn, NumClauses, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildLandingPad(
+        B::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        PersFn::LLVMValueRef,
+        NumClauses::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildCleanupRet(B, CatchPad, BB)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCleanupRet(
+        B::LLVMBuilderRef, CatchPad::LLVMValueRef, BB::LLVMBasicBlockRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildCatchRet(B, CatchPad, BB)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCatchRet(
+        B::LLVMBuilderRef, CatchPad::LLVMValueRef, BB::LLVMBasicBlockRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildCatchPad(B, ParentPad, Args, NumArgs, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCatchPad(
+        B::LLVMBuilderRef,
+        ParentPad::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildCleanupPad(B, ParentPad, Args, NumArgs, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCleanupPad(
+        B::LLVMBuilderRef,
+        ParentPad::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildCatchSwitch(B, ParentPad, UnwindBB, NumHandlers, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCatchSwitch(
+        B::LLVMBuilderRef,
+        ParentPad::LLVMValueRef,
+        UnwindBB::LLVMBasicBlockRef,
+        NumHandlers::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMAddCase(Switch, OnVal, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMAddCase(
+        Switch::LLVMValueRef, OnVal::LLVMValueRef, Dest::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+function LLVMAddDestination(IndirectBr, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMAddDestination(
+        IndirectBr::LLVMValueRef, Dest::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+function LLVMGetNumClauses(LandingPad)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumClauses(LandingPad::LLVMValueRef)::Cuint
+end
+
+function LLVMGetClause(LandingPad, Idx)
+    @ccall (MLIR_C_PATH[]).LLVMGetClause(LandingPad::LLVMValueRef, Idx::Cuint)::LLVMValueRef
+end
+
+function LLVMAddClause(LandingPad, ClauseVal)
+    @ccall (MLIR_C_PATH[]).LLVMAddClause(
+        LandingPad::LLVMValueRef, ClauseVal::LLVMValueRef
+    )::Cvoid
+end
+
+function LLVMIsCleanup(LandingPad)
+    @ccall (MLIR_C_PATH[]).LLVMIsCleanup(LandingPad::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetCleanup(LandingPad, Val)
+    @ccall (MLIR_C_PATH[]).LLVMSetCleanup(LandingPad::LLVMValueRef, Val::LLVMBool)::Cvoid
+end
+
+function LLVMAddHandler(CatchSwitch, Dest)
+    @ccall (MLIR_C_PATH[]).LLVMAddHandler(
+        CatchSwitch::LLVMValueRef, Dest::LLVMBasicBlockRef
+    )::Cvoid
+end
+
+function LLVMGetNumHandlers(CatchSwitch)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumHandlers(CatchSwitch::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetHandlers(CatchSwitch, Handlers)
+
+Obtain the basic blocks acting as handlers for a catchswitch instruction.
+
+The Handlers parameter should point to a pre-allocated array of LLVMBasicBlockRefs at least [`LLVMGetNumHandlers`](@ref)() large. On return, the first [`LLVMGetNumHandlers`](@ref)() entries in the array will be populated with [`LLVMBasicBlockRef`](@ref) instances.
+
+# Arguments
+* `CatchSwitch`: The catchswitch instruction to operate on.
+* `Handlers`: Memory address of an array to be filled with basic blocks.
+"""
+function LLVMGetHandlers(CatchSwitch, Handlers)
+    @ccall (MLIR_C_PATH[]).LLVMGetHandlers(
+        CatchSwitch::LLVMValueRef, Handlers::Ptr{LLVMBasicBlockRef}
+    )::Cvoid
+end
+
+function LLVMGetArgOperand(Funclet, i)
+    @ccall (MLIR_C_PATH[]).LLVMGetArgOperand(Funclet::LLVMValueRef, i::Cuint)::LLVMValueRef
+end
+
+function LLVMSetArgOperand(Funclet, i, value)
+    @ccall (MLIR_C_PATH[]).LLVMSetArgOperand(
+        Funclet::LLVMValueRef, i::Cuint, value::LLVMValueRef
+    )::Cvoid
+end
+
+"""
+    LLVMGetParentCatchSwitch(CatchPad)
+
+Get the parent catchswitch instruction of a catchpad instruction.
+
+This only works on llvm::CatchPadInst instructions.
+
+# See also
+llvm::CatchPadInst::getCatchSwitch()
+"""
+function LLVMGetParentCatchSwitch(CatchPad)
+    @ccall (MLIR_C_PATH[]).LLVMGetParentCatchSwitch(CatchPad::LLVMValueRef)::LLVMValueRef
+end
+
+"""
+    LLVMSetParentCatchSwitch(CatchPad, CatchSwitch)
+
+Set the parent catchswitch instruction of a catchpad instruction.
+
+This only works on llvm::CatchPadInst instructions.
+
+# See also
+llvm::CatchPadInst::setCatchSwitch()
+"""
+function LLVMSetParentCatchSwitch(CatchPad, CatchSwitch)
+    @ccall (MLIR_C_PATH[]).LLVMSetParentCatchSwitch(
+        CatchPad::LLVMValueRef, CatchSwitch::LLVMValueRef
+    )::Cvoid
+end
+
+function LLVMBuildAdd(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAdd(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNSWAdd(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNSWAdd(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNUWAdd(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNUWAdd(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFAdd(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFAdd(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSub(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSub(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNSWSub(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNSWSub(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNUWSub(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNUWSub(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFSub(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFSub(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildMul(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildMul(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNSWMul(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNSWMul(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNUWMul(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNUWMul(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFMul(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFMul(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildUDiv(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildUDiv(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildExactUDiv(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildExactUDiv(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSDiv(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSDiv(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildExactSDiv(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildExactSDiv(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFDiv(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFDiv(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildURem(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildURem(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSRem(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSRem(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFRem(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFRem(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildShl(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildShl(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildLShr(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildLShr(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildAShr(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAShr(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildAnd(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAnd(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildOr(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildOr(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildXor(arg1, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildXor(
+        arg1::LLVMBuilderRef, LHS::LLVMValueRef, RHS::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildBinOp(B, Op, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildBinOp(
+        B::LLVMBuilderRef,
+        Op::LLVMOpcode,
+        LHS::LLVMValueRef,
+        RHS::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildNeg(arg1, V, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNeg(
+        arg1::LLVMBuilderRef, V::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNSWNeg(B, V, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNSWNeg(
+        B::LLVMBuilderRef, V::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNUWNeg(B, V, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNUWNeg(
+        B::LLVMBuilderRef, V::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFNeg(arg1, V, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFNeg(
+        arg1::LLVMBuilderRef, V::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildNot(arg1, V, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildNot(
+        arg1::LLVMBuilderRef, V::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMGetNUW(ArithInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNUW(ArithInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetNUW(ArithInst, HasNUW)
+    @ccall (MLIR_C_PATH[]).LLVMSetNUW(ArithInst::LLVMValueRef, HasNUW::LLVMBool)::Cvoid
+end
+
+function LLVMGetNSW(ArithInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNSW(ArithInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetNSW(ArithInst, HasNSW)
+    @ccall (MLIR_C_PATH[]).LLVMSetNSW(ArithInst::LLVMValueRef, HasNSW::LLVMBool)::Cvoid
+end
+
+function LLVMGetExact(DivOrShrInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetExact(DivOrShrInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetExact(DivOrShrInst, IsExact)
+    @ccall (MLIR_C_PATH[]).LLVMSetExact(
+        DivOrShrInst::LLVMValueRef, IsExact::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMGetNNeg(NonNegInst)
+
+Gets if the instruction has the non-negative flag set. Only valid for zext instructions.
+"""
+function LLVMGetNNeg(NonNegInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNNeg(NonNegInst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetNNeg(NonNegInst, IsNonNeg)
+
+Sets the non-negative flag for the instruction. Only valid for zext instructions.
+"""
+function LLVMSetNNeg(NonNegInst, IsNonNeg)
+    @ccall (MLIR_C_PATH[]).LLVMSetNNeg(NonNegInst::LLVMValueRef, IsNonNeg::LLVMBool)::Cvoid
+end
+
+"""
+    LLVMGetFastMathFlags(FPMathInst)
+
+Get the flags for which fast-math-style optimizations are allowed for this value.
+
+Only valid on floating point instructions.
+
+# See also
+[`LLVMCanValueUseFastMathFlags`](@ref)
+"""
+function LLVMGetFastMathFlags(FPMathInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetFastMathFlags(FPMathInst::LLVMValueRef)::LLVMFastMathFlags
+end
+
+"""
+    LLVMSetFastMathFlags(FPMathInst, FMF)
+
+Sets the flags for which fast-math-style optimizations are allowed for this value.
+
+Only valid on floating point instructions.
+
+# See also
+[`LLVMCanValueUseFastMathFlags`](@ref)
+"""
+function LLVMSetFastMathFlags(FPMathInst, FMF)
+    @ccall (MLIR_C_PATH[]).LLVMSetFastMathFlags(
+        FPMathInst::LLVMValueRef, FMF::LLVMFastMathFlags
+    )::Cvoid
+end
+
+"""
+    LLVMCanValueUseFastMathFlags(Inst)
+
+Check if a given value can potentially have fast math flags.
+
+Will return true for floating point arithmetic instructions, and for select, phi, and call instructions whose type is a floating point type, or a vector or array thereof. See https://llvm.org/docs/LangRef.html#fast-math-flags
+"""
+function LLVMCanValueUseFastMathFlags(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMCanValueUseFastMathFlags(Inst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetIsDisjoint(Inst)
+
+Gets whether the instruction has the disjoint flag set. Only valid for or instructions.
+"""
+function LLVMGetIsDisjoint(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMGetIsDisjoint(Inst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMSetIsDisjoint(Inst, IsDisjoint)
+
+Sets the disjoint flag for the instruction. Only valid for or instructions.
+"""
+function LLVMSetIsDisjoint(Inst, IsDisjoint)
+    @ccall (MLIR_C_PATH[]).LLVMSetIsDisjoint(
+        Inst::LLVMValueRef, IsDisjoint::LLVMBool
+    )::Cvoid
+end
+
+function LLVMBuildMalloc(arg1, Ty, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildMalloc(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildArrayMalloc(arg1, Ty, Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildArrayMalloc(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, Val::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildMemSet(B, Ptr, Val, Len, Align)
+
+Creates and inserts a memset to the specified pointer and the specified value.
+
+# See also
+llvm::IRRBuilder::CreateMemSet()
+"""
+function LLVMBuildMemSet(B, Ptr, Val, Len, Align)
+    @ccall (MLIR_C_PATH[]).LLVMBuildMemSet(
+        B::LLVMBuilderRef,
+        Ptr::LLVMValueRef,
+        Val::LLVMValueRef,
+        Len::LLVMValueRef,
+        Align::Cuint,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildMemCpy(B, Dst, DstAlign, Src, SrcAlign, Size)
+
+Creates and inserts a memcpy between the specified pointers.
+
+# See also
+llvm::IRRBuilder::CreateMemCpy()
+"""
+function LLVMBuildMemCpy(B, Dst, DstAlign, Src, SrcAlign, Size)
+    @ccall (MLIR_C_PATH[]).LLVMBuildMemCpy(
+        B::LLVMBuilderRef,
+        Dst::LLVMValueRef,
+        DstAlign::Cuint,
+        Src::LLVMValueRef,
+        SrcAlign::Cuint,
+        Size::LLVMValueRef,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildMemMove(B, Dst, DstAlign, Src, SrcAlign, Size)
+
+Creates and inserts a memmove between the specified pointers.
+
+# See also
+llvm::IRRBuilder::CreateMemMove()
+"""
+function LLVMBuildMemMove(B, Dst, DstAlign, Src, SrcAlign, Size)
+    @ccall (MLIR_C_PATH[]).LLVMBuildMemMove(
+        B::LLVMBuilderRef,
+        Dst::LLVMValueRef,
+        DstAlign::Cuint,
+        Src::LLVMValueRef,
+        SrcAlign::Cuint,
+        Size::LLVMValueRef,
+    )::LLVMValueRef
+end
+
+function LLVMBuildAlloca(arg1, Ty, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAlloca(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildArrayAlloca(arg1, Ty, Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildArrayAlloca(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, Val::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFree(arg1, PointerVal)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFree(
+        arg1::LLVMBuilderRef, PointerVal::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildLoad2(arg1, Ty, PointerVal, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildLoad2(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, PointerVal::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildStore(arg1, Val, Ptr)
+    @ccall (MLIR_C_PATH[]).LLVMBuildStore(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, Ptr::LLVMValueRef
+    )::LLVMValueRef
+end
+
+function LLVMBuildGEP2(B, Ty, Pointer, Indices, NumIndices, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildGEP2(
+        B::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Pointer::LLVMValueRef,
+        Indices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildInBoundsGEP2(B, Ty, Pointer, Indices, NumIndices, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildInBoundsGEP2(
+        B::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Pointer::LLVMValueRef,
+        Indices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildGEPWithNoWrapFlags(B, Ty, Pointer, Indices, NumIndices, Name, NoWrapFlags)
+
+Creates a GetElementPtr instruction. Similar to [`LLVMBuildGEP2`](@ref), but allows specifying the no-wrap flags.
+
+# See also
+llvm::IRBuilder::CreateGEP()
+"""
+function LLVMBuildGEPWithNoWrapFlags(B, Ty, Pointer, Indices, NumIndices, Name, NoWrapFlags)
+    @ccall (MLIR_C_PATH[]).LLVMBuildGEPWithNoWrapFlags(
+        B::LLVMBuilderRef,
+        Ty::LLVMTypeRef,
+        Pointer::LLVMValueRef,
+        Indices::Ptr{LLVMValueRef},
+        NumIndices::Cuint,
+        Name::Cstring,
+        NoWrapFlags::LLVMGEPNoWrapFlags,
+    )::LLVMValueRef
+end
+
+function LLVMBuildStructGEP2(B, Ty, Pointer, Idx, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildStructGEP2(
+        B::LLVMBuilderRef, Ty::LLVMTypeRef, Pointer::LLVMValueRef, Idx::Cuint, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildGlobalString(B, Str, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildGlobalString(
+        B::LLVMBuilderRef, Str::Cstring, Name::Cstring
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildGlobalStringPtr(B, Str, Name)
+
+Deprecated: Use [`LLVMBuildGlobalString`](@ref) instead, which has identical behavior.
+"""
+function LLVMBuildGlobalStringPtr(B, Str, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildGlobalStringPtr(
+        B::LLVMBuilderRef, Str::Cstring, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMGetVolatile(MemoryAccessInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetVolatile(MemoryAccessInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetVolatile(MemoryAccessInst, IsVolatile)
+    @ccall (MLIR_C_PATH[]).LLVMSetVolatile(
+        MemoryAccessInst::LLVMValueRef, IsVolatile::LLVMBool
+    )::Cvoid
+end
+
+function LLVMGetWeak(CmpXchgInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetWeak(CmpXchgInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetWeak(CmpXchgInst, IsWeak)
+    @ccall (MLIR_C_PATH[]).LLVMSetWeak(CmpXchgInst::LLVMValueRef, IsWeak::LLVMBool)::Cvoid
+end
+
+function LLVMGetOrdering(MemoryAccessInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetOrdering(
+        MemoryAccessInst::LLVMValueRef
+    )::LLVMAtomicOrdering
+end
+
+function LLVMSetOrdering(MemoryAccessInst, Ordering)
+    @ccall (MLIR_C_PATH[]).LLVMSetOrdering(
+        MemoryAccessInst::LLVMValueRef, Ordering::LLVMAtomicOrdering
+    )::Cvoid
+end
+
+function LLVMGetAtomicRMWBinOp(AtomicRMWInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetAtomicRMWBinOp(
+        AtomicRMWInst::LLVMValueRef
+    )::LLVMAtomicRMWBinOp
+end
+
+function LLVMSetAtomicRMWBinOp(AtomicRMWInst, BinOp)
+    @ccall (MLIR_C_PATH[]).LLVMSetAtomicRMWBinOp(
+        AtomicRMWInst::LLVMValueRef, BinOp::LLVMAtomicRMWBinOp
+    )::Cvoid
+end
+
+function LLVMBuildTrunc(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildTrunc(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildZExt(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildZExt(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSExt(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSExt(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFPToUI(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFPToUI(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFPToSI(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFPToSI(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildUIToFP(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildUIToFP(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSIToFP(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSIToFP(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFPTrunc(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFPTrunc(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildFPExt(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFPExt(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildPtrToInt(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildPtrToInt(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildIntToPtr(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIntToPtr(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildBitCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildBitCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildAddrSpaceCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAddrSpaceCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildZExtOrBitCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildZExtOrBitCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildSExtOrBitCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSExtOrBitCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildTruncOrBitCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildTruncOrBitCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildCast(B, Op, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCast(
+        B::LLVMBuilderRef,
+        Op::LLVMOpcode,
+        Val::LLVMValueRef,
+        DestTy::LLVMTypeRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildPointerCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildPointerCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildIntCast2(arg1, Val, DestTy, IsSigned, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIntCast2(
+        arg1::LLVMBuilderRef,
+        Val::LLVMValueRef,
+        DestTy::LLVMTypeRef,
+        IsSigned::LLVMBool,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildFPCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFPCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+"""
+    LLVMBuildIntCast(arg1, Val, DestTy, Name)
+
+Deprecated: This cast is always signed. Use [`LLVMBuildIntCast2`](@ref) instead.
+"""
+function LLVMBuildIntCast(arg1, Val, DestTy, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIntCast(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, DestTy::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMGetCastOpcode(Src, SrcIsSigned, DestTy, DestIsSigned)
+    @ccall (MLIR_C_PATH[]).LLVMGetCastOpcode(
+        Src::LLVMValueRef,
+        SrcIsSigned::LLVMBool,
+        DestTy::LLVMTypeRef,
+        DestIsSigned::LLVMBool,
+    )::LLVMOpcode
+end
+
+function LLVMBuildICmp(arg1, Op, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildICmp(
+        arg1::LLVMBuilderRef,
+        Op::LLVMIntPredicate,
+        LHS::LLVMValueRef,
+        RHS::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildFCmp(arg1, Op, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFCmp(
+        arg1::LLVMBuilderRef,
+        Op::LLVMRealPredicate,
+        LHS::LLVMValueRef,
+        RHS::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildPhi(arg1, Ty, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildPhi(
+        arg1::LLVMBuilderRef, Ty::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildCall2(arg1, arg2, Fn, Args, NumArgs, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCall2(
+        arg1::LLVMBuilderRef,
+        arg2::LLVMTypeRef,
+        Fn::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildCallWithOperandBundles(
+    arg1, arg2, Fn, Args, NumArgs, Bundles, NumBundles, Name
+)
+    @ccall (MLIR_C_PATH[]).LLVMBuildCallWithOperandBundles(
+        arg1::LLVMBuilderRef,
+        arg2::LLVMTypeRef,
+        Fn::LLVMValueRef,
+        Args::Ptr{LLVMValueRef},
+        NumArgs::Cuint,
+        Bundles::Ptr{LLVMOperandBundleRef},
+        NumBundles::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildSelect(arg1, If, Then, Else, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildSelect(
+        arg1::LLVMBuilderRef,
+        If::LLVMValueRef,
+        Then::LLVMValueRef,
+        Else::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildVAArg(arg1, List, Ty, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildVAArg(
+        arg1::LLVMBuilderRef, List::LLVMValueRef, Ty::LLVMTypeRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildExtractElement(arg1, VecVal, Index, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildExtractElement(
+        arg1::LLVMBuilderRef, VecVal::LLVMValueRef, Index::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildInsertElement(arg1, VecVal, EltVal, Index, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildInsertElement(
+        arg1::LLVMBuilderRef,
+        VecVal::LLVMValueRef,
+        EltVal::LLVMValueRef,
+        Index::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildShuffleVector(arg1, V1, V2, Mask, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildShuffleVector(
+        arg1::LLVMBuilderRef,
+        V1::LLVMValueRef,
+        V2::LLVMValueRef,
+        Mask::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildExtractValue(arg1, AggVal, Index, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildExtractValue(
+        arg1::LLVMBuilderRef, AggVal::LLVMValueRef, Index::Cuint, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildInsertValue(arg1, AggVal, EltVal, Index, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildInsertValue(
+        arg1::LLVMBuilderRef,
+        AggVal::LLVMValueRef,
+        EltVal::LLVMValueRef,
+        Index::Cuint,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildFreeze(arg1, Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFreeze(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildIsNull(arg1, Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIsNull(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildIsNotNull(arg1, Val, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildIsNotNull(
+        arg1::LLVMBuilderRef, Val::LLVMValueRef, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildPtrDiff2(arg1, ElemTy, LHS, RHS, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildPtrDiff2(
+        arg1::LLVMBuilderRef,
+        ElemTy::LLVMTypeRef,
+        LHS::LLVMValueRef,
+        RHS::LLVMValueRef,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildFence(B, ordering, singleThread, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFence(
+        B::LLVMBuilderRef,
+        ordering::LLVMAtomicOrdering,
+        singleThread::LLVMBool,
+        Name::Cstring,
+    )::LLVMValueRef
+end
+
+function LLVMBuildFenceSyncScope(B, ordering, SSID, Name)
+    @ccall (MLIR_C_PATH[]).LLVMBuildFenceSyncScope(
+        B::LLVMBuilderRef, ordering::LLVMAtomicOrdering, SSID::Cuint, Name::Cstring
+    )::LLVMValueRef
+end
+
+function LLVMBuildAtomicRMW(B, op, PTR, Val, ordering, singleThread)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAtomicRMW(
+        B::LLVMBuilderRef,
+        op::LLVMAtomicRMWBinOp,
+        PTR::LLVMValueRef,
+        Val::LLVMValueRef,
+        ordering::LLVMAtomicOrdering,
+        singleThread::LLVMBool,
+    )::LLVMValueRef
+end
+
+function LLVMBuildAtomicRMWSyncScope(B, op, PTR, Val, ordering, SSID)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAtomicRMWSyncScope(
+        B::LLVMBuilderRef,
+        op::LLVMAtomicRMWBinOp,
+        PTR::LLVMValueRef,
+        Val::LLVMValueRef,
+        ordering::LLVMAtomicOrdering,
+        SSID::Cuint,
+    )::LLVMValueRef
+end
+
+function LLVMBuildAtomicCmpXchg(
+    B, Ptr, Cmp, New, SuccessOrdering, FailureOrdering, SingleThread
+)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAtomicCmpXchg(
+        B::LLVMBuilderRef,
+        Ptr::LLVMValueRef,
+        Cmp::LLVMValueRef,
+        New::LLVMValueRef,
+        SuccessOrdering::LLVMAtomicOrdering,
+        FailureOrdering::LLVMAtomicOrdering,
+        SingleThread::LLVMBool,
+    )::LLVMValueRef
+end
+
+function LLVMBuildAtomicCmpXchgSyncScope(
+    B, Ptr, Cmp, New, SuccessOrdering, FailureOrdering, SSID
+)
+    @ccall (MLIR_C_PATH[]).LLVMBuildAtomicCmpXchgSyncScope(
+        B::LLVMBuilderRef,
+        Ptr::LLVMValueRef,
+        Cmp::LLVMValueRef,
+        New::LLVMValueRef,
+        SuccessOrdering::LLVMAtomicOrdering,
+        FailureOrdering::LLVMAtomicOrdering,
+        SSID::Cuint,
+    )::LLVMValueRef
+end
+
+"""
+    LLVMGetNumMaskElements(ShuffleVectorInst)
+
+Get the number of elements in the mask of a ShuffleVector instruction.
+"""
+function LLVMGetNumMaskElements(ShuffleVectorInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetNumMaskElements(ShuffleVectorInst::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMGetUndefMaskElem()
+
+# Returns
+a constant that specifies that the result of a `ShuffleVectorInst` is undefined.
+"""
+function LLVMGetUndefMaskElem()
+    @ccall (MLIR_C_PATH[]).LLVMGetUndefMaskElem()::Cint
+end
+
+"""
+    LLVMGetMaskValue(ShuffleVectorInst, Elt)
+
+Get the mask value at position Elt in the mask of a ShuffleVector instruction.
+
+# Returns
+the result of [`LLVMGetUndefMaskElem`](@ref)() if the mask value is poison at that position.
+"""
+function LLVMGetMaskValue(ShuffleVectorInst, Elt)
+    @ccall (MLIR_C_PATH[]).LLVMGetMaskValue(
+        ShuffleVectorInst::LLVMValueRef, Elt::Cuint
+    )::Cint
+end
+
+function LLVMIsAtomicSingleThread(AtomicInst)
+    @ccall (MLIR_C_PATH[]).LLVMIsAtomicSingleThread(AtomicInst::LLVMValueRef)::LLVMBool
+end
+
+function LLVMSetAtomicSingleThread(AtomicInst, SingleThread)
+    @ccall (MLIR_C_PATH[]).LLVMSetAtomicSingleThread(
+        AtomicInst::LLVMValueRef, SingleThread::LLVMBool
+    )::Cvoid
+end
+
+"""
+    LLVMIsAtomic(Inst)
+
+Returns whether an instruction is an atomic instruction, e.g., atomicrmw, cmpxchg, fence, or loads and stores with atomic ordering.
+"""
+function LLVMIsAtomic(Inst)
+    @ccall (MLIR_C_PATH[]).LLVMIsAtomic(Inst::LLVMValueRef)::LLVMBool
+end
+
+"""
+    LLVMGetAtomicSyncScopeID(AtomicInst)
+
+Returns the synchronization scope ID of an atomic instruction.
+"""
+function LLVMGetAtomicSyncScopeID(AtomicInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetAtomicSyncScopeID(AtomicInst::LLVMValueRef)::Cuint
+end
+
+"""
+    LLVMSetAtomicSyncScopeID(AtomicInst, SSID)
+
+Sets the synchronization scope ID of an atomic instruction.
+"""
+function LLVMSetAtomicSyncScopeID(AtomicInst, SSID)
+    @ccall (MLIR_C_PATH[]).LLVMSetAtomicSyncScopeID(
+        AtomicInst::LLVMValueRef, SSID::Cuint
+    )::Cvoid
+end
+
+function LLVMGetCmpXchgSuccessOrdering(CmpXchgInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetCmpXchgSuccessOrdering(
+        CmpXchgInst::LLVMValueRef
+    )::LLVMAtomicOrdering
+end
+
+function LLVMSetCmpXchgSuccessOrdering(CmpXchgInst, Ordering)
+    @ccall (MLIR_C_PATH[]).LLVMSetCmpXchgSuccessOrdering(
+        CmpXchgInst::LLVMValueRef, Ordering::LLVMAtomicOrdering
+    )::Cvoid
+end
+
+function LLVMGetCmpXchgFailureOrdering(CmpXchgInst)
+    @ccall (MLIR_C_PATH[]).LLVMGetCmpXchgFailureOrdering(
+        CmpXchgInst::LLVMValueRef
+    )::LLVMAtomicOrdering
+end
+
+function LLVMSetCmpXchgFailureOrdering(CmpXchgInst, Ordering)
+    @ccall (MLIR_C_PATH[]).LLVMSetCmpXchgFailureOrdering(
+        CmpXchgInst::LLVMValueRef, Ordering::LLVMAtomicOrdering
+    )::Cvoid
+end
+
+"""
+    LLVMCreateModuleProviderForExistingModule(M)
+
+Changes the type of M so it can be passed to FunctionPassManagers and the JIT. They take ModuleProviders for historical reasons.
+"""
+function LLVMCreateModuleProviderForExistingModule(M)
+    @ccall (MLIR_C_PATH[]).LLVMCreateModuleProviderForExistingModule(
+        M::LLVMModuleRef
+    )::LLVMModuleProviderRef
+end
+
+"""
+    LLVMDisposeModuleProvider(M)
+
+Destroys the module M.
+"""
+function LLVMDisposeModuleProvider(M)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeModuleProvider(M::LLVMModuleProviderRef)::Cvoid
+end
+
+"""
+    LLVMCreateMemoryBufferWithContentsOfFile(Path, OutMemBuf, OutMessage)
+
+` LLVMCCoreMemoryBuffers Memory Buffers`
+
+@{
+"""
+function LLVMCreateMemoryBufferWithContentsOfFile(Path, OutMemBuf, OutMessage)
+    @ccall (MLIR_C_PATH[]).LLVMCreateMemoryBufferWithContentsOfFile(
+        Path::Cstring, OutMemBuf::Ptr{LLVMMemoryBufferRef}, OutMessage::Ptr{Cstring}
+    )::LLVMBool
+end
+
+function LLVMCreateMemoryBufferWithSTDIN(OutMemBuf, OutMessage)
+    @ccall (MLIR_C_PATH[]).LLVMCreateMemoryBufferWithSTDIN(
+        OutMemBuf::Ptr{LLVMMemoryBufferRef}, OutMessage::Ptr{Cstring}
+    )::LLVMBool
+end
+
+function LLVMCreateMemoryBufferWithMemoryRange(
+    InputData, InputDataLength, BufferName, RequiresNullTerminator
+)
+    @ccall (MLIR_C_PATH[]).LLVMCreateMemoryBufferWithMemoryRange(
+        InputData::Cstring,
+        InputDataLength::Csize_t,
+        BufferName::Cstring,
+        RequiresNullTerminator::LLVMBool,
+    )::LLVMMemoryBufferRef
+end
+
+function LLVMCreateMemoryBufferWithMemoryRangeCopy(InputData, InputDataLength, BufferName)
+    @ccall (MLIR_C_PATH[]).LLVMCreateMemoryBufferWithMemoryRangeCopy(
+        InputData::Cstring, InputDataLength::Csize_t, BufferName::Cstring
+    )::LLVMMemoryBufferRef
+end
+
+function LLVMGetBufferStart(MemBuf)
+    @ccall (MLIR_C_PATH[]).LLVMGetBufferStart(MemBuf::LLVMMemoryBufferRef)::Cstring
+end
+
+function LLVMGetBufferSize(MemBuf)
+    @ccall (MLIR_C_PATH[]).LLVMGetBufferSize(MemBuf::LLVMMemoryBufferRef)::Csize_t
+end
+
+function LLVMDisposeMemoryBuffer(MemBuf)
+    @ccall (MLIR_C_PATH[]).LLVMDisposeMemoryBuffer(MemBuf::LLVMMemoryBufferRef)::Cvoid
+end
+
+"""
+    LLVMCreatePassManager()
+
+Constructs a new whole-module pass pipeline. This type of pipeline is suitable for link-time optimization and whole-module transformations.
+
+# See also
+llvm::PassManager::PassManager
+"""
+function LLVMCreatePassManager()
+    @ccall (MLIR_C_PATH[]).LLVMCreatePassManager()::LLVMPassManagerRef
+end
+
+"""
+    LLVMCreateFunctionPassManagerForModule(M)
+
+Constructs a new function-by-function pass pipeline over the module provider. It does not take ownership of the module provider. This type of pipeline is suitable for code generation and JIT compilation tasks.
+
+# See also
+llvm::FunctionPassManager::FunctionPassManager
+"""
+function LLVMCreateFunctionPassManagerForModule(M)
+    @ccall (MLIR_C_PATH[]).LLVMCreateFunctionPassManagerForModule(
+        M::LLVMModuleRef
+    )::LLVMPassManagerRef
+end
+
+"""
+    LLVMCreateFunctionPassManager(MP)
+
+Deprecated: Use [`LLVMCreateFunctionPassManagerForModule`](@ref) instead.
+"""
+function LLVMCreateFunctionPassManager(MP)
+    @ccall (MLIR_C_PATH[]).LLVMCreateFunctionPassManager(
+        MP::LLVMModuleProviderRef
+    )::LLVMPassManagerRef
+end
+
+"""
+    LLVMRunPassManager(PM, M)
+
+Initializes, executes on the provided module, and finalizes all of the passes scheduled in the pass manager. Returns 1 if any of the passes modified the module, 0 otherwise.
+
+# See also
+llvm::PassManager::run(Module&)
+"""
+function LLVMRunPassManager(PM, M)
+    @ccall (MLIR_C_PATH[]).LLVMRunPassManager(
+        PM::LLVMPassManagerRef, M::LLVMModuleRef
+    )::LLVMBool
+end
+
+"""
+    LLVMInitializeFunctionPassManager(FPM)
+
+Initializes all of the function passes scheduled in the function pass manager. Returns 1 if any of the passes modified the module, 0 otherwise.
+
+# See also
+llvm::FunctionPassManager::doInitialization
+"""
+function LLVMInitializeFunctionPassManager(FPM)
+    @ccall (MLIR_C_PATH[]).LLVMInitializeFunctionPassManager(
+        FPM::LLVMPassManagerRef
+    )::LLVMBool
+end
+
+"""
+    LLVMRunFunctionPassManager(FPM, F)
+
+Executes all of the function passes scheduled in the function pass manager on the provided function. Returns 1 if any of the passes modified the function, false otherwise.
+
+# See also
+llvm::FunctionPassManager::run(Function&)
+"""
+function LLVMRunFunctionPassManager(FPM, F)
+    @ccall (MLIR_C_PATH[]).LLVMRunFunctionPassManager(
+        FPM::LLVMPassManagerRef, F::LLVMValueRef
+    )::LLVMBool
+end
+
+"""
+    LLVMFinalizeFunctionPassManager(FPM)
+
+Finalizes all of the function passes scheduled in the function pass manager. Returns 1 if any of the passes modified the module, 0 otherwise.
+
+# See also
+llvm::FunctionPassManager::doFinalization
+"""
+function LLVMFinalizeFunctionPassManager(FPM)
+    @ccall (MLIR_C_PATH[]).LLVMFinalizeFunctionPassManager(
+        FPM::LLVMPassManagerRef
+    )::LLVMBool
+end
+
+"""
+    LLVMDisposePassManager(PM)
+
+Frees the memory of a pass pipeline. For function pipelines, does not free the module provider.
+
+# See also
+llvm::PassManagerBase::~PassManagerBase.
+"""
+function LLVMDisposePassManager(PM)
+    @ccall (MLIR_C_PATH[]).LLVMDisposePassManager(PM::LLVMPassManagerRef)::Cvoid
+end
+
+"""
+    LLVMStartMultithreaded()
+
+Deprecated: Multi-threading can only be enabled/disabled with the compile time define [`LLVM_ENABLE_THREADS`](@ref). This function always returns [`LLVMIsMultithreaded`](@ref)().
+"""
+function LLVMStartMultithreaded()
+    @ccall (MLIR_C_PATH[]).LLVMStartMultithreaded()::LLVMBool
+end
+
+"""
+    LLVMStopMultithreaded()
+
+Deprecated: Multi-threading can only be enabled/disabled with the compile time define [`LLVM_ENABLE_THREADS`](@ref).
+"""
+function LLVMStopMultithreaded()
+    @ccall (MLIR_C_PATH[]).LLVMStopMultithreaded()::Cvoid
+end
+
+"""
+    LLVMIsMultithreaded()
+
+Check whether LLVM is executing in thread-safe mode or not.
+
+# See also
+llvm::llvm\\_is\\_multithreaded
+"""
+function LLVMIsMultithreaded()
+    @ccall (MLIR_C_PATH[]).LLVMIsMultithreaded()::LLVMBool
+end
+
+"""
     LLVMLoadLibraryPermanently(Filename)
 
 This function permanently loads the dynamic library at the given path. It is safe to call this function multiple times for the same library.
@@ -9841,6 +18736,80 @@ function mlirTranslateModuleToLLVMIR(_module, context)
     @ccall (MLIR_C_PATH[]).mlirTranslateModuleToLLVMIR(
         _module::MlirOperation, context::LLVMContextRef
     )::LLVMModuleRef
+end
+
+struct MlirTypeFromLLVMIRTranslator
+    ptr::Ptr{Cvoid}
+end
+
+"""
+    mlirTypeFromLLVMIRTranslatorCreate(ctx)
+
+Create an LLVM::TypeFromLLVMIRTranslator and transfer ownership to the caller.
+"""
+function mlirTypeFromLLVMIRTranslatorCreate(ctx)
+    @ccall (MLIR_C_PATH[]).mlirTypeFromLLVMIRTranslatorCreate(
+        ctx::MlirContext
+    )::MlirTypeFromLLVMIRTranslator
+end
+
+"""
+    mlirTypeFromLLVMIRTranslatorDestroy(translator)
+
+Takes an LLVM::TypeFromLLVMIRTranslator owned by the caller and destroys it. It is the responsibility of the user to only pass an LLVM::TypeFromLLVMIRTranslator class.
+"""
+function mlirTypeFromLLVMIRTranslatorDestroy(translator)
+    @ccall (MLIR_C_PATH[]).mlirTypeFromLLVMIRTranslatorDestroy(
+        translator::MlirTypeFromLLVMIRTranslator
+    )::Cvoid
+end
+
+"""
+    mlirTypeFromLLVMIRTranslatorTranslateType(translator, llvmType)
+
+Translates the given LLVM IR type to the MLIR LLVM dialect.
+"""
+function mlirTypeFromLLVMIRTranslatorTranslateType(translator, llvmType)
+    @ccall (MLIR_C_PATH[]).mlirTypeFromLLVMIRTranslatorTranslateType(
+        translator::MlirTypeFromLLVMIRTranslator, llvmType::LLVMTypeRef
+    )::MlirType
+end
+
+struct MlirTypeToLLVMIRTranslator
+    ptr::Ptr{Cvoid}
+end
+
+"""
+    mlirTypeToLLVMIRTranslatorCreate(ctx)
+
+Create an LLVM::TypeToLLVMIRTranslator and transfer ownership to the caller.
+"""
+function mlirTypeToLLVMIRTranslatorCreate(ctx)
+    @ccall (MLIR_C_PATH[]).mlirTypeToLLVMIRTranslatorCreate(
+        ctx::LLVMContextRef
+    )::MlirTypeToLLVMIRTranslator
+end
+
+"""
+    mlirTypeToLLVMIRTranslatorDestroy(translator)
+
+Takes an LLVM::TypeToLLVMIRTranslator owned by the caller and destroys it. It is the responsibility of the user to only pass an LLVM::TypeToLLVMIRTranslator class.
+"""
+function mlirTypeToLLVMIRTranslatorDestroy(translator)
+    @ccall (MLIR_C_PATH[]).mlirTypeToLLVMIRTranslatorDestroy(
+        translator::MlirTypeToLLVMIRTranslator
+    )::Cvoid
+end
+
+"""
+    mlirTypeToLLVMIRTranslatorTranslateType(translator, mlirType)
+
+Translates the given MLIR LLVM dialect to the LLVM IR type.
+"""
+function mlirTypeToLLVMIRTranslatorTranslateType(translator, mlirType)
+    @ccall (MLIR_C_PATH[]).mlirTypeToLLVMIRTranslatorTranslateType(
+        translator::MlirTypeToLLVMIRTranslator, mlirType::MlirType
+    )::LLVMTypeRef
 end
 
 function mlirRegisterTransformsPasses()
@@ -10016,6 +18985,60 @@ const MLIR_ENABLE_PDL_IN_PATTERNMATCH = 1
 const MLIR_ENABLE_NVPTXCOMPILER = 0
 
 const MLIR_ENABLE_ROCM_CONVERSIONS = 1
+
+const LLVM_DEFAULT_TARGET_TRIPLE = "x86_64-linux-gnu"
+
+const LLVM_ENABLE_THREADS = 1
+
+const LLVM_HAS_ATOMICS = 1
+
+const LLVM_HOST_TRIPLE = "x86_64-linux-gnu"
+
+const LLVM_NATIVE_ARCH = X86
+
+const LLVM_NATIVE_ASMPARSER = LLVMInitializeX86AsmParser
+
+const LLVM_NATIVE_ASMPRINTER = LLVMInitializeX86AsmPrinter
+
+const LLVM_NATIVE_DISASSEMBLER = LLVMInitializeX86Disassembler
+
+const LLVM_NATIVE_TARGET = LLVMInitializeX86Target
+
+const LLVM_NATIVE_TARGETINFO = LLVMInitializeX86TargetInfo
+
+const LLVM_NATIVE_TARGETMC = LLVMInitializeX86TargetMC
+
+const LLVM_ON_UNIX = 1
+
+const LLVM_USE_INTEL_JITEVENTS = 1
+
+const LLVM_USE_OPROFILE = 0
+
+const LLVM_USE_PERF = 1
+
+const LLVM_VERSION_MAJOR = 21
+
+const LLVM_VERSION_MINOR = 1
+
+const LLVM_VERSION_PATCH = 8
+
+const LLVM_VERSION_STRING = "21.1.8jl"
+
+const LLVM_FORCE_ENABLE_STATS = 0
+
+const LLVM_ENABLE_ZLIB = 1
+
+const LLVM_ENABLE_ZSTD = 1
+
+const LLVM_UNREACHABLE_OPTIMIZE = 1
+
+const LLVM_ENABLE_DIA_SDK = 0
+
+const LLVM_ENABLE_TELEMETRY = 1
+
+const LLVM_ENABLE_DEBUGLOC_TRACKING_COVERAGE = 0
+
+const LLVM_ENABLE_DEBUGLOC_TRACKING_ORIGIN = 0
 
 const INT64_MAX = Clonglong(9223372036854775807)
 

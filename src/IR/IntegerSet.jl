@@ -134,7 +134,7 @@ isconstrainteq(set::IntegerSet, i) = API.mlirIntegerSetIsConstraintEq(set, i)
 
 function Base.show(io::IO, set::IntegerSet)
     print(io, "IntegerSet(#= ")
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirIntegerSetPrint(set, c_print_callback, ref)
     return print(io, " =#)")

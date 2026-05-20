@@ -162,7 +162,7 @@ function lose_ownership!(block::Block)
 end
 
 function Base.show(io::IO, block::Block)
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     return API.mlirBlockPrint(block, c_print_callback, ref)
 end

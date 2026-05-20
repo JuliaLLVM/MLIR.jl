@@ -28,12 +28,6 @@ function mlirIsNull(val)
     return val.ptr == C_NULL
 end
 
-function print_callback(str::API.MlirStringRef, userdata)
-    data = unsafe_wrap(Array, Base.convert(Ptr{Cchar}, str.data), str.length; own=false)
-    write(userdata isa Base.RefValue ? userdata[] : userdata, data)
-    return Cvoid()
-end
-
 include("LogicalResult.jl")
 include("Context.jl")
 include("Dialect.jl")

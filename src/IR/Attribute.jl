@@ -885,7 +885,7 @@ end
 
 function Base.show(io::IO, attribute::Attribute)
     print(io, "Attribute(#= ")
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirAttributePrint(attribute, c_print_callback, ref)
     return print(io, " =#)")

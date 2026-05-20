@@ -236,7 +236,7 @@ This allows returning without worrying about ownership considerations.
 
 function Base.show(io::IO, map::AffineMap)
     print(io, "AffineMap(#= ")
-    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
+    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirAffineMapPrint(map, c_print_callback, ref)
     return print(io, " =#)")
