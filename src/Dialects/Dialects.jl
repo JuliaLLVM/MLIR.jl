@@ -1,8 +1,10 @@
 module Dialects
 
 using ..MLIR: MLIR_VERSION_MIN, MLIR_VERSION_MAX
+using ..IR: IR, NamedAttribute
 
-include("Utils.jl")
+operandsegmentsizes(segments) = NamedAttribute("operand_segment_sizes", Int32.(segments))
+resultsegmentsizes(segments) = NamedAttribute("result_segment_sizes", Int32.(segments))
 
 # generate versioned modules
 for version in Base.Filesystem.readdir(joinpath(@__DIR__))
@@ -19,7 +21,7 @@ end
 
 begin
     # list dialect operations
-    local dialectops = mapreduce(mergewith!(∪), [v14, v15, v16, v17, v18, v19]) do mod
+    local dialectops = mapreduce(mergewith!(∪), [v14, v15, v16, v17, v18, v19, v20, v21]) do mod
         dialects = filter(names(mod; all=true)) do dialect
             dialect ∉ [nameof(mod), :eval, :include] && !startswith(string(dialect), '#')
         end
@@ -35,11 +37,11 @@ begin
     for (dialect, ops) in dialectops
         mod = @eval module $dialect
             using ...MLIR: MLIR_VERSION, MLIRException
-            using ..Dialects: v14, v15, v16, v17, v18, v19
+            using ..Dialects: v14, v15, v16, v17, v18, v19, v20, v21
         end
 
         for op in ops
-            container_mods = filter([v14, v15, v16, v17, v18, v19]) do mod
+            container_mods = filter([v14, v15, v16, v17, v18, v19, v20, v21]) do mod
                 dialect in names(mod; all=true) &&
                     op in names(getproperty(mod, dialect); all=true)
             end
