@@ -80,7 +80,7 @@ function mlir_dialects(version::VersionNumber)
     end
 
     # dialect added in v17
-    if v"17" <= version
+    if v"16" <= version
         dialects["index"] = (; output_file="Index.jl", td_files=["Index/IR/IndexOps.td"])
     end
 
