@@ -2,11 +2,15 @@ module API
 
 using ..MLIR: MLIR_VERSION, MLIRException, MLIR_VERSION_MIN, MLIR_VERSION_MAX
 
+include("Types.jl")
+using .Types
+
 # generate versioned API modules
 for dir in Base.Filesystem.readdir(joinpath(@__DIR__))
     isdir(joinpath(@__DIR__, dir)) || continue
     @eval module $(Symbol(:v, dir))
         using ...MLIR: MLIR_VERSION, MLIR_C_PATH
+        using ..API.Types
         include(joinpath(@__DIR__, $dir, "libMLIR_h.jl"))
     end
 end
@@ -63,6 +67,12 @@ begin
             )
         end
     end
+end
+
+function print_callback(str::API.MlirStringRef, userdata)
+    data = unsafe_wrap(Array, Base.convert(Ptr{Cchar}, str.data), str.length; own=false)
+    write(userdata isa Base.RefValue ? userdata[] : userdata, data)
+    return Cvoid()
 end
 
 end # module API
