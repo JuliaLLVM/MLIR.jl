@@ -1,9 +1,7 @@
 module spirv
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `AccessChain`
@@ -49,7 +47,7 @@ function AccessChain(base_ptr::Value, indices::Vector{Value}; component_ptr::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.AccessChain", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -81,7 +79,7 @@ function mlir_addressof(; pointer::IR.Type, variable, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("variable", variable), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.addressof", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -124,7 +122,7 @@ function AtomicAnd(pointer::Value, value::Value; result=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicAnd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -179,7 +177,7 @@ function AtomicCompareExchange(pointer::Value, value::Value, comparator::Value; 
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("equal_semantics", equal_semantics), NamedAttribute("unequal_semantics", unequal_semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicCompareExchange", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -212,7 +210,7 @@ function AtomicCompareExchangeWeak(pointer::Value, value::Value, comparator::Val
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("equal_semantics", equal_semantics), NamedAttribute("unequal_semantics", unequal_semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicCompareExchangeWeak", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -255,7 +253,7 @@ function AtomicExchange(pointer::Value, value::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicExchange", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -298,7 +296,7 @@ function AtomicIAdd(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicIAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -340,7 +338,7 @@ function AtomicIDecrement(pointer::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicIDecrement", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -381,7 +379,7 @@ function AtomicIIncrement(pointer::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicIIncrement", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -425,7 +423,7 @@ function AtomicISub(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicISub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -468,7 +466,7 @@ function AtomicOr(pointer::Value, value::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicOr", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -512,7 +510,7 @@ function AtomicSMax(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicSMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -556,7 +554,7 @@ function AtomicSMin(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicSMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -600,7 +598,7 @@ function AtomicUMax(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicUMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -644,7 +642,7 @@ function AtomicUMin(pointer::Value, value::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicUMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -688,7 +686,7 @@ function AtomicXor(pointer::Value, value::Value; result=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.AtomicXor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -727,7 +725,7 @@ function BitCount(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitCount", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -774,7 +772,7 @@ function BitFieldInsert(base::Value, insert::Value, offset::Value, count::Value;
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitFieldInsert", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -821,7 +819,7 @@ function BitFieldSExtract(base::Value, offset::Value, count::Value; result=nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitFieldSExtract", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -850,7 +848,7 @@ function BitFieldUExtract(base::Value, offset::Value, count::Value; result=nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitFieldUExtract", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -885,7 +883,7 @@ function BitReverse(operand::Value; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitReverse", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -932,7 +930,7 @@ function Bitcast(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Bitcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -965,7 +963,7 @@ function BitwiseAnd(operand1::Value, operand2::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitwiseAnd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -998,7 +996,7 @@ function BitwiseOr(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitwiseOr", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1031,7 +1029,7 @@ function BitwiseXor(operand1::Value, operand2::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.BitwiseXor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1082,7 +1080,7 @@ function BranchConditional(condition::Value, trueTargetOperands::Vector{Value}, 
     push!(attributes, operandsegmentsizes([1, length(trueTargetOperands), length(falseTargetOperands), ]))
     !isnothing(branch_weights) && push!(attributes, NamedAttribute("branch_weights", branch_weights))
     
-    create_operation(
+    IR.create_operation(
         "spirv.BranchConditional", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1109,7 +1107,7 @@ function Branch(targetOperands::Vector{Value}; target::Block, location=Location(
     successors = Block[target, ]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Branch", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1143,7 +1141,7 @@ function CL_acos(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.acos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1177,7 +1175,7 @@ function CL_acosh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.acosh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1211,7 +1209,7 @@ function CL_asin(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.asin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1245,7 +1243,7 @@ function CL_asinh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.asinh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1279,7 +1277,7 @@ function CL_atan2(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.atan2", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1313,7 +1311,7 @@ function CL_atan(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.atan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1347,7 +1345,7 @@ function CL_atanh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.atanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1379,7 +1377,7 @@ function CL_ceil(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.ceil", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1411,7 +1409,7 @@ function CL_cos(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.cos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1443,7 +1441,7 @@ function CL_cosh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.cosh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1475,7 +1473,7 @@ function CL_erf(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.erf", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1509,7 +1507,7 @@ function CL_exp(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.exp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1543,7 +1541,7 @@ function CL_fabs(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.fabs", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1578,7 +1576,7 @@ function CL_fmax(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.fmax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1611,7 +1609,7 @@ function CL_fmin(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.fmin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1643,7 +1641,7 @@ function CL_floor(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.floor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1675,7 +1673,7 @@ function CL_fma(x::Value, y::Value, z::Value; result=nothing::Union{Nothing, IR.
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.fma", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1707,7 +1705,7 @@ function CL_log(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.log", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1742,7 +1740,7 @@ function CL_mix(x::Value, y::Value, z::Value; result=nothing::Union{Nothing, IR.
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.mix", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1774,7 +1772,7 @@ function CL_pow(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.pow", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1810,7 +1808,7 @@ function CL_printf(format::Value, arguments::Vector{Value}; result::IR.Type, loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.printf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1842,7 +1840,7 @@ function CL_rint(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.rint", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1874,7 +1872,7 @@ function CL_round(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.round", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1906,7 +1904,7 @@ function CL_rsqrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.rsqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1940,7 +1938,7 @@ function CL_s_abs(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.s_abs", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1972,7 +1970,7 @@ function CL_s_max(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.s_max", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2004,7 +2002,7 @@ function CL_s_min(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.s_min", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2036,7 +2034,7 @@ function CL_sin(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.sin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2068,7 +2066,7 @@ function CL_sinh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.sinh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2100,7 +2098,7 @@ function CL_sqrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.sqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2132,7 +2130,7 @@ function CL_tan(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.tan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2164,7 +2162,7 @@ function CL_tanh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.tanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2196,7 +2194,7 @@ function CL_u_max(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.u_max", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2228,7 +2226,7 @@ function CL_u_min(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.CL.u_min", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2278,7 +2276,7 @@ function CompositeConstruct(constituents::Vector{Value}; result::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.CompositeConstruct", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2322,7 +2320,7 @@ function CompositeExtract(composite::Value; component::IR.Type, indices, locatio
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("indices", indices), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.CompositeExtract", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2366,7 +2364,7 @@ function CompositeInsert(object::Value, composite::Value; result::IR.Type, indic
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("indices", indices), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.CompositeInsert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2416,7 +2414,7 @@ function Constant(; constant::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2466,7 +2464,7 @@ function ControlBarrier(; execution_scope, memory_scope, memory_semantics, locat
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ControlBarrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2498,7 +2496,7 @@ function ConvertFToS(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertFToS", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2531,7 +2529,7 @@ function ConvertFToU(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertFToU", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2564,7 +2562,7 @@ function ConvertPtrToU(pointer::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertPtrToU", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2596,7 +2594,7 @@ function ConvertSToF(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertSToF", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2628,7 +2626,7 @@ function ConvertUToF(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertUToF", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2662,7 +2660,7 @@ function ConvertUToPtr(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ConvertUToPtr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2710,7 +2708,7 @@ function CopyMemory(target::Value, source::Value; memory_access=nothing, alignme
     !isnothing(source_memory_access) && push!(attributes, NamedAttribute("source_memory_access", source_memory_access))
     !isnothing(source_alignment) && push!(attributes, NamedAttribute("source_alignment", source_alignment))
     
-    create_operation(
+    IR.create_operation(
         "spirv.CopyMemory", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2739,7 +2737,7 @@ function Dot(vector1::Value, vector2::Value; result::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Dot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2787,7 +2785,7 @@ function EXT_AtomicFAdd(pointer::Value, value::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("semantics", semantics), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.EXT.AtomicFAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -2813,7 +2811,7 @@ function EmitVertex(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.EmitVertex", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2839,7 +2837,7 @@ function EndPrimitive(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.EndPrimitive", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2895,7 +2893,7 @@ function EntryPoint(; execution_model, fn, interface, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_model", execution_model), NamedAttribute("fn", fn), NamedAttribute("interface", interface), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.EntryPoint", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2939,7 +2937,7 @@ function ExecutionMode(; fn, execution_mode, values, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("fn", fn), NamedAttribute("execution_mode", execution_mode), NamedAttribute("values", values), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ExecutionMode", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2972,7 +2970,7 @@ function FAdd(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3005,7 +3003,7 @@ function FConvert(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.FConvert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3039,7 +3037,7 @@ function FDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FDiv", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3075,7 +3073,7 @@ function FMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FMod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3108,7 +3106,7 @@ function FMul(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FMul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3140,7 +3138,7 @@ function FNegate(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FNegate", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3174,7 +3172,7 @@ function FOrdEqual(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3208,7 +3206,7 @@ function FOrdGreaterThanEqual(operand1::Value, operand2::Value; result=nothing::
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdGreaterThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3242,7 +3240,7 @@ function FOrdGreaterThan(operand1::Value, operand2::Value; result=nothing::Union
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdGreaterThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3276,7 +3274,7 @@ function FOrdLessThanEqual(operand1::Value, operand2::Value; result=nothing::Uni
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdLessThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3310,7 +3308,7 @@ function FOrdLessThan(operand1::Value, operand2::Value; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdLessThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3344,7 +3342,7 @@ function FOrdNotEqual(operand1::Value, operand2::Value; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FOrdNotEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3380,7 +3378,7 @@ function FRem(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FRem", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3413,7 +3411,7 @@ function FSub(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FSub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3447,7 +3445,7 @@ function FUnordEqual(operand1::Value, operand2::Value; result=nothing::Union{Not
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3481,7 +3479,7 @@ function FUnordGreaterThanEqual(operand1::Value, operand2::Value; result=nothing
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordGreaterThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3515,7 +3513,7 @@ function FUnordGreaterThan(operand1::Value, operand2::Value; result=nothing::Uni
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordGreaterThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3549,7 +3547,7 @@ function FUnordLessThanEqual(operand1::Value, operand2::Value; result=nothing::U
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordLessThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3583,7 +3581,7 @@ function FUnordLessThan(operand1::Value, operand2::Value; result=nothing::Union{
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordLessThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3617,7 +3615,7 @@ function FUnordNotEqual(operand1::Value, operand2::Value; result=nothing::Union{
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FUnordNotEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3687,7 +3685,7 @@ function func(; function_type, arg_attrs=nothing, res_attrs=nothing, sym_name, f
     !isnothing(res_attrs) && push!(attributes, NamedAttribute("res_attrs", res_attrs))
     !isnothing(linkage_attributes) && push!(attributes, NamedAttribute("linkage_attributes", linkage_attributes))
     
-    create_operation(
+    IR.create_operation(
         "spirv.func", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3726,7 +3724,7 @@ function FunctionCall(arguments::Vector{Value}; return_value=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("callee", callee), ]
     !isnothing(return_value) && push!(op_ty_results, return_value)
     
-    create_operation(
+    IR.create_operation(
         "spirv.FunctionCall", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3763,7 +3761,7 @@ function GL_Acos(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Acos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3800,7 +3798,7 @@ function GL_Asin(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Asin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3837,7 +3835,7 @@ function GL_Atan(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Atan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3872,7 +3870,7 @@ function GL_Ceil(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Ceil", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3906,7 +3904,7 @@ function GL_Cos(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Cos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3940,7 +3938,7 @@ function GL_Cosh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Cosh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -3978,7 +3976,7 @@ function GL_Cross(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Cross", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4009,7 +4007,7 @@ function GL_Distance(p0::Value, p1::Value; result=nothing::Union{Nothing, IR.Typ
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Distance", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4043,7 +4041,7 @@ function GL_Exp(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Exp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4077,7 +4075,7 @@ function GL_FAbs(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FAbs", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4117,7 +4115,7 @@ function GL_FClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FClamp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4152,7 +4150,7 @@ function GL_FMax(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4187,7 +4185,7 @@ function GL_FMin(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4221,7 +4219,7 @@ function GL_FMix(x::Value, y::Value, a::Value; result=nothing::Union{Nothing, IR
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FMix", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4255,7 +4253,7 @@ function GL_FSign(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FSign", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4284,7 +4282,7 @@ function GL_FindUMsb(operand::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FindUMsb", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4319,7 +4317,7 @@ function GL_Floor(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Floor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4369,7 +4367,7 @@ function GL_Fma(x::Value, y::Value, z::Value; result::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Fma", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4412,7 +4410,7 @@ function GL_FrexpStruct(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.FrexpStruct", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4446,7 +4444,7 @@ function GL_InverseSqrt(operand::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.InverseSqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4496,7 +4494,7 @@ function GL_Ldexp(x::Value, exp::Value; y=nothing::Union{Nothing, IR.Type}, loca
     attributes = NamedAttribute[]
     !isnothing(y) && push!(op_ty_results, y)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Ldexp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4531,7 +4529,7 @@ function GL_Log(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Log", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4563,7 +4561,7 @@ function GL_Normalize(operand::Value; result=nothing::Union{Nothing, IR.Type}, l
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Normalize", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4599,7 +4597,7 @@ function GL_Pow(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Pow", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4635,7 +4633,7 @@ function GL_Reflect(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Ty
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Reflect", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4671,7 +4669,7 @@ function GL_RoundEven(operand::Value; result=nothing::Union{Nothing, IR.Type}, l
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.RoundEven", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4708,7 +4706,7 @@ function GL_Round(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Round", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4741,7 +4739,7 @@ function GL_SAbs(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.SAbs", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4780,7 +4778,7 @@ function GL_SClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.SClamp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4814,7 +4812,7 @@ function GL_SMax(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.SMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4848,7 +4846,7 @@ function GL_SMin(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.SMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4881,7 +4879,7 @@ function GL_SSign(operand::Value; result=nothing::Union{Nothing, IR.Type}, locat
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.SSign", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4915,7 +4913,7 @@ function GL_Sin(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Sin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4949,7 +4947,7 @@ function GL_Sinh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Sinh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4983,7 +4981,7 @@ function GL_Sqrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Sqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5017,7 +5015,7 @@ function GL_Tan(operand::Value; result=nothing::Union{Nothing, IR.Type}, locatio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Tan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5051,7 +5049,7 @@ function GL_Tanh(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.Tanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5090,7 +5088,7 @@ function GL_UClamp(x::Value, y::Value, z::Value; result::IR.Type, location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.UClamp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5124,7 +5122,7 @@ function GL_UMax(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.UMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5158,7 +5156,7 @@ function GL_UMin(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GL.UMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5195,7 +5193,7 @@ function GenericCastToPtrExplicit(pointer::Value; result::IR.Type, location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GenericCastToPtrExplicit", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5229,7 +5227,7 @@ function GenericCastToPtr(pointer::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GenericCastToPtr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5290,7 +5288,7 @@ function GlobalVariable(; type, sym_name, initializer=nothing, location_=nothing
     !isnothing(builtin) && push!(attributes, NamedAttribute("builtin", builtin))
     !isnothing(linkage_attributes) && push!(attributes, NamedAttribute("linkage_attributes", linkage_attributes))
     
-    create_operation(
+    IR.create_operation(
         "spirv.GlobalVariable", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5338,7 +5336,7 @@ function GroupBroadcast(value::Value, localid::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupBroadcast", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5377,7 +5375,7 @@ function GroupFAdd(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupFAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5416,7 +5414,7 @@ function GroupFMax(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupFMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5455,7 +5453,7 @@ function GroupFMin(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupFMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5495,7 +5493,7 @@ function KHR_GroupFMul(x::Value; result=nothing::Union{Nothing, IR.Type}, execut
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.GroupFMul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5534,7 +5532,7 @@ function GroupIAdd(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupIAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5573,7 +5571,7 @@ function KHR_GroupIMul(x::Value; result=nothing::Union{Nothing, IR.Type}, execut
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.GroupIMul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5614,7 +5612,7 @@ function GroupNonUniformBallotFindLSB(value::Value; result::IR.Type, execution_s
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBallotFindLSB", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5655,7 +5653,7 @@ function GroupNonUniformBallotFindMSB(value::Value; result::IR.Type, execution_s
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBallotFindMSB", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5691,7 +5689,7 @@ function GroupNonUniformBallot(predicate::Value; result::IR.Type, execution_scop
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBallot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5738,7 +5736,7 @@ function GroupNonUniformBitwiseAnd(value::Value, cluster_size=nothing::Union{Not
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBitwiseAnd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5785,7 +5783,7 @@ function GroupNonUniformBitwiseOr(value::Value, cluster_size=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBitwiseOr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5832,7 +5830,7 @@ function GroupNonUniformBitwiseXor(value::Value, cluster_size=nothing::Union{Not
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBitwiseXor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5877,7 +5875,7 @@ function GroupNonUniformBroadcast(value::Value, id::Value; result=nothing::Union
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformBroadcast", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5906,7 +5904,7 @@ function GroupNonUniformElect(; result=nothing::Union{Nothing, IR.Type}, executi
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformElect", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -5954,7 +5952,7 @@ function GroupNonUniformFAdd(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformFAdd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6005,7 +6003,7 @@ function GroupNonUniformFMax(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformFMax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6056,7 +6054,7 @@ function GroupNonUniformFMin(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformFMin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6104,7 +6102,7 @@ function GroupNonUniformFMul(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformFMul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6150,7 +6148,7 @@ function GroupNonUniformIAdd(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformIAdd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6196,7 +6194,7 @@ function GroupNonUniformIMul(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformIMul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6243,7 +6241,7 @@ function GroupNonUniformLogicalAnd(value::Value, cluster_size=nothing::Union{Not
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformLogicalAnd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6290,7 +6288,7 @@ function GroupNonUniformLogicalOr(value::Value, cluster_size=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformLogicalOr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6337,7 +6335,7 @@ function GroupNonUniformLogicalXor(value::Value, cluster_size=nothing::Union{Not
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformLogicalXor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6383,7 +6381,7 @@ function GroupNonUniformSMax(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformSMax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6429,7 +6427,7 @@ function GroupNonUniformSMin(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformSMin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6470,7 +6468,7 @@ function GroupNonUniformShuffleDown(value::Value, delta::Value; result=nothing::
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformShuffleDown", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6509,7 +6507,7 @@ function GroupNonUniformShuffle(value::Value, id::Value; result=nothing::Union{N
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformShuffle", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6549,7 +6547,7 @@ function GroupNonUniformShuffleUp(value::Value, delta::Value; result=nothing::Un
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformShuffleUp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6589,7 +6587,7 @@ function GroupNonUniformShuffleXor(value::Value, mask::Value; result=nothing::Un
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformShuffleXor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6636,7 +6634,7 @@ function GroupNonUniformUMax(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformUMax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6683,7 +6681,7 @@ function GroupNonUniformUMin(value::Value, cluster_size=nothing::Union{Nothing, 
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(cluster_size) && push!(operands, cluster_size)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupNonUniformUMin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6723,7 +6721,7 @@ function GroupSMax(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupSMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6763,7 +6761,7 @@ function GroupSMin(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupSMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6802,7 +6800,7 @@ function GroupUMax(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupUMax", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6842,7 +6840,7 @@ function GroupUMin(x::Value; result=nothing::Union{Nothing, IR.Type}, execution_
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("group_operation", group_operation), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.GroupUMin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6886,7 +6884,7 @@ function IAddCarry(operand1::Value, operand2::Value; result::IR.Type, location=L
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.IAddCarry", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -6925,7 +6923,7 @@ function IAdd(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.IAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6959,7 +6957,7 @@ function IEqual(operand1::Value, operand2::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.IEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -6998,7 +6996,7 @@ function IMul(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.IMul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7037,7 +7035,7 @@ function INTEL_ControlBarrierArrive(; execution_scope, memory_scope, memory_sema
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.ControlBarrierArrive", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7079,7 +7077,7 @@ function INTEL_ControlBarrierWait(; execution_scope, memory_scope, memory_semant
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("execution_scope", execution_scope), NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.ControlBarrierWait", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7113,7 +7111,7 @@ function INTEL_ConvertBF16ToF(operand::Value; result::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.ConvertBF16ToF", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7149,7 +7147,7 @@ function INTEL_ConvertFToBF16(operand::Value; result::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.ConvertFToBF16", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7195,7 +7193,7 @@ function INTEL_SubgroupBlockRead(ptr::Value; value::IR.Type, location=Location()
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.SubgroupBlockRead", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7240,7 +7238,7 @@ function INTEL_SubgroupBlockWrite(ptr::Value, value::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.INTEL.SubgroupBlockWrite", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7275,7 +7273,7 @@ function INotEqual(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.INotEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7321,7 +7319,7 @@ function ISubBorrow(operand1::Value, operand2::Value; result::IR.Type, location=
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ISubBorrow", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7360,7 +7358,7 @@ function ISub(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ISub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7404,7 +7402,7 @@ function ImageDrefGather(sampledimage::Value, coordinate::Value, dref::Value, op
     attributes = NamedAttribute[]
     !isnothing(imageoperands) && push!(attributes, NamedAttribute("imageoperands", imageoperands))
     
-    create_operation(
+    IR.create_operation(
         "spirv.ImageDrefGather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7436,7 +7434,7 @@ function Image(sampledimage::Value; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Image", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7485,7 +7483,7 @@ function ImageQuerySize(image::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ImageQuerySize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7516,7 +7514,7 @@ function InBoundsPtrAccessChain(base_ptr::Value, element::Value, indices::Vector
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.InBoundsPtrAccessChain", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7549,7 +7547,7 @@ function IsInf(operand::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.IsInf", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7582,7 +7580,7 @@ function IsNan(operand::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.IsNan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7614,7 +7612,7 @@ function KHR_AssumeTrue(condition::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.AssumeTrue", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7645,7 +7643,7 @@ function KHR_CooperativeMatrixLength(; result=nothing::Union{Nothing, IR.Type}, 
     attributes = NamedAttribute[NamedAttribute("cooperative_matrix_type", cooperative_matrix_type), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.CooperativeMatrixLength", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7708,7 +7706,7 @@ function KHR_CooperativeMatrixLoad(pointer::Value, stride::Value; result::IR.Typ
     attributes = NamedAttribute[NamedAttribute("matrix_layout", matrix_layout), ]
     !isnothing(memory_operand) && push!(attributes, NamedAttribute("memory_operand", memory_operand))
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.CooperativeMatrixLoad", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7802,7 +7800,7 @@ function KHR_CooperativeMatrixMulAdd(a::Value, b::Value, c::Value; result=nothin
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(matrix_operands) && push!(attributes, NamedAttribute("matrix_operands", matrix_operands))
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.CooperativeMatrixMulAdd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -7863,7 +7861,7 @@ function KHR_CooperativeMatrixStore(pointer::Value, object::Value, stride::Value
     attributes = NamedAttribute[NamedAttribute("matrix_layout", matrix_layout), ]
     !isnothing(memory_operand) && push!(attributes, NamedAttribute("memory_operand", memory_operand))
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.CooperativeMatrixStore", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7908,7 +7906,7 @@ function KHR_SubgroupBallot(predicate::Value; result::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.KHR.SubgroupBallot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7958,7 +7956,7 @@ function Load(ptr::Value; value::IR.Type, memory_access=nothing, alignment=nothi
     !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
     !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
     
-    create_operation(
+    IR.create_operation(
         "spirv.Load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -7992,7 +7990,7 @@ function LogicalAnd(operand1::Value, operand2::Value; result=nothing::Union{Noth
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.LogicalAnd", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8026,7 +8024,7 @@ function LogicalEqual(operand1::Value, operand2::Value; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.LogicalEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8060,7 +8058,7 @@ function LogicalNotEqual(operand1::Value, operand2::Value; result=nothing::Union
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.LogicalNotEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8092,7 +8090,7 @@ function LogicalNot(operand::Value; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.LogicalNot", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8126,7 +8124,7 @@ function LogicalOr(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.LogicalOr", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8168,7 +8166,7 @@ function mlir_loop(; loop_control, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("loop_control", loop_control), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.loop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8205,7 +8203,7 @@ function MatrixTimesMatrix(leftmatrix::Value, rightmatrix::Value; result::IR.Typ
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.MatrixTimesMatrix", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8239,7 +8237,7 @@ function MatrixTimesScalar(matrix::Value, scalar::Value; result=nothing::Union{N
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.MatrixTimesScalar", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8270,7 +8268,7 @@ function MatrixTimesVector(matrix::Value, vector::Value; result::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.MatrixTimesVector", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8308,7 +8306,7 @@ function MemoryBarrier(; memory_scope, memory_semantics, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("memory_scope", memory_scope), NamedAttribute("memory_semantics", memory_semantics), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.MemoryBarrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8332,7 +8330,7 @@ function mlir_merge(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.merge", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8392,7 +8390,7 @@ function module_(; addressing_model, memory_model, vce_triple=nothing, sym_name=
     !isnothing(vce_triple) && push!(attributes, NamedAttribute("vce_triple", vce_triple))
     !isnothing(sym_name) && push!(attributes, NamedAttribute("sym_name", sym_name))
     
-    create_operation(
+    IR.create_operation(
         "spirv.module", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8426,7 +8424,7 @@ function Not(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Not", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8461,7 +8459,7 @@ function Ordered(operand1::Value, operand2::Value; result=nothing::Union{Nothing
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Ordered", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8515,7 +8513,7 @@ function PtrAccessChain(base_ptr::Value, element::Value, indices::Vector{Value};
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.PtrAccessChain", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8549,7 +8547,7 @@ function PtrCastToGeneric(pointer::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.PtrCastToGeneric", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8582,7 +8580,7 @@ function mlir_referenceof(; reference::IR.Type, spec_const, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("spec_const", spec_const), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.referenceof", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8608,7 +8606,7 @@ function Return(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Return", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8638,7 +8636,7 @@ function ReturnValue(value::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.ReturnValue", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8671,7 +8669,7 @@ function SConvert(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.SConvert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8707,7 +8705,7 @@ function SDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SDiv", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8763,7 +8761,7 @@ function SDotAccSat(vector1::Value, vector2::Value, accumulator::Value; result=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.SDotAccSat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8813,7 +8811,7 @@ function SDot(vector1::Value, vector2::Value; result::IR.Type, format=nothing, l
     attributes = NamedAttribute[]
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.SDot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -8847,7 +8845,7 @@ function SGreaterThanEqual(operand1::Value, operand2::Value; result=nothing::Uni
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SGreaterThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8882,7 +8880,7 @@ function SGreaterThan(operand1::Value, operand2::Value; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SGreaterThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8916,7 +8914,7 @@ function SLessThanEqual(operand1::Value, operand2::Value; result=nothing::Union{
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SLessThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8951,7 +8949,7 @@ function SLessThan(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SLessThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -8989,7 +8987,7 @@ function SMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SMod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9029,7 +9027,7 @@ function SMulExtended(operand1::Value, operand2::Value; result::IR.Type, locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.SMulExtended", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9065,7 +9063,7 @@ function SNegate(operand::Value; result=nothing::Union{Nothing, IR.Type}, locati
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SNegate", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9103,7 +9101,7 @@ function SRem(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.SRem", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9161,7 +9159,7 @@ function SUDotAccSat(vector1::Value, vector2::Value, accumulator::Value; result=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.SUDotAccSat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9213,7 +9211,7 @@ function SUDot(vector1::Value, vector2::Value; result::IR.Type, format=nothing, 
     attributes = NamedAttribute[]
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.SUDot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9255,7 +9253,7 @@ function Select(condition::Value, true_value::Value, false_value::Value; result=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Select", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9291,7 +9289,7 @@ function mlir_selection(; selection_control, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("selection_control", selection_control), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.selection", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9332,7 +9330,7 @@ function ShiftLeftLogical(operand1::Value, operand2::Value; result=nothing::Unio
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ShiftLeftLogical", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9370,7 +9368,7 @@ function ShiftRightArithmetic(operand1::Value, operand2::Value; result=nothing::
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ShiftRightArithmetic", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9409,7 +9407,7 @@ function ShiftRightLogical(operand1::Value, operand2::Value; result=nothing::Uni
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ShiftRightLogical", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9460,7 +9458,7 @@ function SpecConstantComposite(; type, sym_name, constituents, location=Location
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("type", type), NamedAttribute("sym_name", sym_name), NamedAttribute("constituents", constituents), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.SpecConstantComposite", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9506,7 +9504,7 @@ function SpecConstant(; sym_name, default_value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("default_value", default_value), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.SpecConstant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9590,7 +9588,7 @@ function SpecConstantOperation(; result::IR.Type, body::Region, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.SpecConstantOperation", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9636,7 +9634,7 @@ function Store(ptr::Value, value::Value; memory_access=nothing, alignment=nothin
     !isnothing(memory_access) && push!(attributes, NamedAttribute("memory_access", memory_access))
     !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
     
-    create_operation(
+    IR.create_operation(
         "spirv.Store", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9670,7 +9668,7 @@ function Transpose(matrix::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Transpose", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9704,7 +9702,7 @@ function UConvert(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.UConvert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9739,7 +9737,7 @@ function UDiv(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.UDiv", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9797,7 +9795,7 @@ function UDotAccSat(vector1::Value, vector2::Value, accumulator::Value; result=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.UDotAccSat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9849,7 +9847,7 @@ function UDot(vector1::Value, vector2::Value; result::IR.Type, format=nothing, l
     attributes = NamedAttribute[]
     !isnothing(format) && push!(attributes, NamedAttribute("format", format))
     
-    create_operation(
+    IR.create_operation(
         "spirv.UDot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -9883,7 +9881,7 @@ function UGreaterThanEqual(operand1::Value, operand2::Value; result=nothing::Uni
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.UGreaterThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9917,7 +9915,7 @@ function UGreaterThan(operand1::Value, operand2::Value; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.UGreaterThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9951,7 +9949,7 @@ function ULessThanEqual(operand1::Value, operand2::Value; result=nothing::Union{
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ULessThanEqual", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -9985,7 +9983,7 @@ function ULessThan(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.ULessThan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -10020,7 +10018,7 @@ function UMod(operand1::Value, operand2::Value; result=nothing::Union{Nothing, I
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.UMod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -10061,7 +10059,7 @@ function UMulExtended(operand1::Value, operand2::Value; result::IR.Type, locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.UMulExtended", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10092,7 +10090,7 @@ function Undef(; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Undef", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10127,7 +10125,7 @@ function Unordered(operand1::Value, operand2::Value; result=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Unordered", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -10147,7 +10145,7 @@ function Unreachable(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.Unreachable", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10205,7 +10203,7 @@ function Variable(initializer=nothing::Union{Nothing, Value}; pointer::IR.Type, 
     attributes = NamedAttribute[NamedAttribute("storage_class", storage_class), ]
     !isnothing(initializer) && push!(operands, initializer)
     
-    create_operation(
+    IR.create_operation(
         "spirv.Variable", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10243,7 +10241,7 @@ function VectorExtractDynamic(vector::Value, index::Value; result=nothing::Union
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.VectorExtractDynamic", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -10283,7 +10281,7 @@ function VectorInsertDynamic(vector::Value, component::Value, index::Value; resu
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "spirv.VectorInsertDynamic", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -10334,7 +10332,7 @@ function VectorShuffle(vector1::Value, vector2::Value; result::IR.Type, componen
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("components", components), ]
     
-    create_operation(
+    IR.create_operation(
         "spirv.VectorShuffle", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10367,7 +10365,7 @@ function VectorTimesScalar(vector::Value, scalar::Value; result::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.VectorTimesScalar", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -10398,12 +10396,11 @@ function mlir_yield(operand::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "spirv.mlir.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # spirv

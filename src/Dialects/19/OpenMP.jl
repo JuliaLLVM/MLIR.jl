@@ -1,9 +1,7 @@
 module omp
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `atomic_capture`
@@ -47,7 +45,7 @@ function atomic_capture(; hint_val=nothing, memory_order_val=nothing, region::Re
     !isnothing(hint_val) && push!(attributes, NamedAttribute("hint_val", hint_val))
     !isnothing(memory_order_val) && push!(attributes, NamedAttribute("memory_order_val", memory_order_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.atomic.capture", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -79,7 +77,7 @@ function atomic_read(x::Value, v::Value; element_type, hint_val=nothing, memory_
     !isnothing(hint_val) && push!(attributes, NamedAttribute("hint_val", hint_val))
     !isnothing(memory_order_val) && push!(attributes, NamedAttribute("memory_order_val", memory_order_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.atomic.read", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -127,7 +125,7 @@ function atomic_update(x::Value; hint_val=nothing, memory_order_val=nothing, reg
     !isnothing(hint_val) && push!(attributes, NamedAttribute("hint_val", hint_val))
     !isnothing(memory_order_val) && push!(attributes, NamedAttribute("memory_order_val", memory_order_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.atomic.update", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -161,7 +159,7 @@ function atomic_write(x::Value, expr::Value; hint_val=nothing, memory_order_val=
     !isnothing(hint_val) && push!(attributes, NamedAttribute("hint_val", hint_val))
     !isnothing(memory_order_val) && push!(attributes, NamedAttribute("memory_order_val", memory_order_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.atomic.write", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -182,7 +180,7 @@ function barrier(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.barrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -204,7 +202,7 @@ function cancel(if_expr=nothing::Union{Nothing, Value}; cancellation_construct_t
     attributes = NamedAttribute[NamedAttribute("cancellation_construct_type_val", cancellation_construct_type_val), ]
     !isnothing(if_expr) && push!(operands, if_expr)
     
-    create_operation(
+    IR.create_operation(
         "omp.cancel", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -226,7 +224,7 @@ function cancellation_point(; cancellation_construct_type_val, location=Location
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("cancellation_construct_type_val", cancellation_construct_type_val), ]
     
-    create_operation(
+    IR.create_operation(
         "omp.cancellation_point", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -253,7 +251,7 @@ function critical_declare(; sym_name, hint_val=nothing, location=Location())
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     !isnothing(hint_val) && push!(attributes, NamedAttribute("hint_val", hint_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.critical.declare", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -279,7 +277,7 @@ function critical(; name=nothing, region::Region, location=Location())
     attributes = NamedAttribute[]
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "omp.critical", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -323,7 +321,7 @@ function declare_reduction(; sym_name, type, initializerRegion::Region, reductio
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
     
-    create_operation(
+    IR.create_operation(
         "omp.declare_reduction", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -390,7 +388,7 @@ function distribute(chunk_size=nothing::Union{Nothing, Value}; allocate_vars::Ve
     !isnothing(order_val) && push!(attributes, NamedAttribute("order_val", order_val))
     !isnothing(order_mod) && push!(attributes, NamedAttribute("order_mod", order_mod))
     
-    create_operation(
+    IR.create_operation(
         "omp.distribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -413,7 +411,7 @@ function flush(varList::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.flush", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -465,7 +463,7 @@ function loop_nest(lowerBound::Vector{Value}, upperBound::Vector{Value}, step::V
     attributes = NamedAttribute[]
     !isnothing(inclusive) && push!(attributes, NamedAttribute("inclusive", inclusive))
     
-    create_operation(
+    IR.create_operation(
         "omp.loop_nest", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -559,7 +557,7 @@ function map_bounds(lower_bound=nothing::Union{Nothing, Value}; upper_bound=noth
     push!(attributes, operandsegmentsizes([Int(!isnothing(lower_bound)), Int(!isnothing(upper_bound)), Int(!isnothing(extent)), Int(!isnothing(stride)), Int(!isnothing(start_idx)), ]))
     !isnothing(stride_in_bytes) && push!(attributes, NamedAttribute("stride_in_bytes", stride_in_bytes))
     
-    create_operation(
+    IR.create_operation(
         "omp.map.bounds", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -637,7 +635,7 @@ function map_info(var_ptr::Value, var_ptr_ptr=nothing::Union{Nothing, Value}; me
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     !isnothing(partial_map) && push!(attributes, NamedAttribute("partial_map", partial_map))
     
-    create_operation(
+    IR.create_operation(
         "omp.map.info", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -665,7 +663,7 @@ function masked(filtered_thread_id=nothing::Union{Nothing, Value}; region::Regio
     attributes = NamedAttribute[]
     !isnothing(filtered_thread_id) && push!(operands, filtered_thread_id)
     
-    create_operation(
+    IR.create_operation(
         "omp.masked", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -686,7 +684,7 @@ function master(; region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.master", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -721,7 +719,7 @@ function ordered(depend_vec_vars::Vector{Value}; depend_type_val=nothing, num_lo
     !isnothing(depend_type_val) && push!(attributes, NamedAttribute("depend_type_val", depend_type_val))
     !isnothing(num_loops_val) && push!(attributes, NamedAttribute("num_loops_val", num_loops_val))
     
-    create_operation(
+    IR.create_operation(
         "omp.ordered", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -748,7 +746,7 @@ function ordered_region(; simd=nothing, region::Region, location=Location())
     attributes = NamedAttribute[]
     !isnothing(simd) && push!(attributes, NamedAttribute("simd", simd))
     
-    create_operation(
+    IR.create_operation(
         "omp.ordered.region", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -803,7 +801,7 @@ function parallel(if_expr=nothing::Union{Nothing, Value}; num_threads_var=nothin
     !isnothing(proc_bind_val) && push!(attributes, NamedAttribute("proc_bind_val", proc_bind_val))
     !isnothing(privatizers) && push!(attributes, NamedAttribute("privatizers", privatizers))
     
-    create_operation(
+    IR.create_operation(
         "omp.parallel", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -885,7 +883,7 @@ function private(; sym_name, type, data_sharing_type, alloc_region::Region, copy
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), NamedAttribute("data_sharing_type", data_sharing_type), ]
     
-    create_operation(
+    IR.create_operation(
         "omp.private", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -910,7 +908,7 @@ function section(; region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.section", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -960,7 +958,7 @@ function sections(reduction_vars::Vector{Value}, allocate_vars::Vector{Value}, a
     !isnothing(reductions) && push!(attributes, NamedAttribute("reductions", reductions))
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     
-    create_operation(
+    IR.create_operation(
         "omp.sections", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1028,7 +1026,7 @@ function simd(aligned_vars::Vector{Value}, if_expr=nothing::Union{Nothing, Value
     !isnothing(safelen) && push!(attributes, NamedAttribute("safelen", safelen))
     !isnothing(simdlen) && push!(attributes, NamedAttribute("simdlen", simdlen))
     
-    create_operation(
+    IR.create_operation(
         "omp.simd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1067,7 +1065,7 @@ function single(allocate_vars::Vector{Value}, allocators_vars::Vector{Value}, co
     !isnothing(copyprivate_funcs) && push!(attributes, NamedAttribute("copyprivate_funcs", copyprivate_funcs))
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     
-    create_operation(
+    IR.create_operation(
         "omp.single", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1113,7 +1111,7 @@ function target_data(if_expr=nothing::Union{Nothing, Value}; device=nothing::Uni
     !isnothing(device) && push!(operands, device)
     push!(attributes, operandsegmentsizes([Int(!isnothing(if_expr)), Int(!isnothing(device)), length(use_device_ptr), length(use_device_addr), length(map_operands), ]))
     
-    create_operation(
+    IR.create_operation(
         "omp.target_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1158,7 +1156,7 @@ function target_enter_data(if_expr=nothing::Union{Nothing, Value}; device=nothin
     !isnothing(depends) && push!(attributes, NamedAttribute("depends", depends))
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     
-    create_operation(
+    IR.create_operation(
         "omp.target_enter_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1203,7 +1201,7 @@ function target_exit_data(if_expr=nothing::Union{Nothing, Value}; device=nothing
     !isnothing(depends) && push!(attributes, NamedAttribute("depends", depends))
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     
-    create_operation(
+    IR.create_operation(
         "omp.target_exit_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1257,7 +1255,7 @@ function target(if_expr=nothing::Union{Nothing, Value}; device=nothing::Union{No
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     !isnothing(privatizers) && push!(attributes, NamedAttribute("privatizers", privatizers))
     
-    create_operation(
+    IR.create_operation(
         "omp.target", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1310,7 +1308,7 @@ function target_update(if_expr=nothing::Union{Nothing, Value}; device=nothing::U
     !isnothing(depends) && push!(attributes, NamedAttribute("depends", depends))
     !isnothing(nowait) && push!(attributes, NamedAttribute("nowait", nowait))
     
-    create_operation(
+    IR.create_operation(
         "omp.target_update", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1382,7 +1380,7 @@ function task(if_expr=nothing::Union{Nothing, Value}; final_expr=nothing::Union{
     !isnothing(in_reductions) && push!(attributes, NamedAttribute("in_reductions", in_reductions))
     !isnothing(depends) && push!(attributes, NamedAttribute("depends", depends))
     
-    create_operation(
+    IR.create_operation(
         "omp.task", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1428,7 +1426,7 @@ function taskgroup(task_reduction_vars::Vector{Value}, allocate_vars::Vector{Val
     !isnothing(task_reduction_vars_byref) && push!(attributes, NamedAttribute("task_reduction_vars_byref", task_reduction_vars_byref))
     !isnothing(task_reductions) && push!(attributes, NamedAttribute("task_reductions", task_reductions))
     
-    create_operation(
+    IR.create_operation(
         "omp.taskgroup", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1561,7 +1559,7 @@ function taskloop(if_expr=nothing::Union{Nothing, Value}; final_expr=nothing::Un
     !isnothing(reductions) && push!(attributes, NamedAttribute("reductions", reductions))
     !isnothing(nogroup) && push!(attributes, NamedAttribute("nogroup", nogroup))
     
-    create_operation(
+    IR.create_operation(
         "omp.taskloop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1582,7 +1580,7 @@ function taskwait(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.taskwait", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1603,7 +1601,7 @@ function taskyield(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.taskyield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1660,7 +1658,7 @@ function teams(num_teams_lower=nothing::Union{Nothing, Value}; num_teams_upper=n
     !isnothing(reduction_vars_byref) && push!(attributes, NamedAttribute("reduction_vars_byref", reduction_vars_byref))
     !isnothing(reductions) && push!(attributes, NamedAttribute("reductions", reductions))
     
-    create_operation(
+    IR.create_operation(
         "omp.teams", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1683,7 +1681,7 @@ function terminator(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.terminator", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1716,7 +1714,7 @@ function threadprivate(sym_addr::Value; tls_addr::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.threadprivate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1801,7 +1799,7 @@ function wsloop(linear_vars::Vector{Value}, linear_step_vars::Vector{Value}, red
     !isnothing(order_val) && push!(attributes, NamedAttribute("order_val", order_val))
     !isnothing(order_mod) && push!(attributes, NamedAttribute("order_mod", order_mod))
     
-    create_operation(
+    IR.create_operation(
         "omp.wsloop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1823,12 +1821,11 @@ function yield(results::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "omp.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # omp

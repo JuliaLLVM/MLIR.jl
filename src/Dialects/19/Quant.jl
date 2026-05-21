@@ -1,9 +1,7 @@
 module quant
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `dcast`
@@ -26,7 +24,7 @@ function dcast(arg::Value; res::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.dcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -65,7 +63,7 @@ function qcast(arg::Value; res::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.qcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -101,12 +99,11 @@ function scast(arg::Value; res::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.scast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # quant

@@ -1,9 +1,7 @@
 module scf
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `condition`
@@ -20,7 +18,7 @@ function condition(condition::Value, args::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.condition", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -76,7 +74,7 @@ function execute_region(; result_0::Vector{IR.Type}, region::Region, location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.execute_region", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -180,7 +178,7 @@ function for_(lowerBound::Value, upperBound::Value, step::Value, initArgs::Vecto
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.for", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -322,7 +320,7 @@ function foreach_thread(num_threads::Vector{Value}, outputs::Vector{Value}; resu
     push!(attributes, operandsegmentsizes([length(num_threads), length(outputs), ]))
     !isnothing(mapping) && push!(attributes, NamedAttribute("mapping", mapping))
     
-    create_operation(
+    IR.create_operation(
         "scf.foreach_thread", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -383,7 +381,7 @@ function if_(condition::Value; results::Vector{IR.Type}, thenRegion::Region, els
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.if", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -429,7 +427,7 @@ function index_switch(arg::Value; results::Vector{IR.Type}, cases, defaultRegion
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("cases", cases), ]
     
-    create_operation(
+    IR.create_operation(
         "scf.index_switch", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -491,7 +489,7 @@ function parallel(lowerBound::Vector{Value}, upperBound::Vector{Value}, step::Ve
     attributes = NamedAttribute[]
     push!(attributes, operandsegmentsizes([length(lowerBound), length(upperBound), length(step), length(initVals), ]))
     
-    create_operation(
+    IR.create_operation(
         "scf.parallel", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -517,7 +515,7 @@ function foreach_thread_perform_concurrently(; region::Region, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.foreach_thread.perform_concurrently", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -568,7 +566,7 @@ function reduce(operand::Value; reductionOperator::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.reduce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -594,7 +592,7 @@ function reduce_return(result::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.reduce.return", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -723,7 +721,7 @@ function while_(inits::Vector{Value}; results::Vector{IR.Type}, before::Region, 
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.while", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -751,12 +749,11 @@ function yield(results::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "scf.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # scf

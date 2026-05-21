@@ -1,9 +1,7 @@
 module builtin
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `module_`
@@ -33,7 +31,7 @@ function module_(; sym_name=nothing, sym_visibility=nothing, bodyRegion::Region,
     !isnothing(sym_name) && push!(attributes, NamedAttribute("sym_name", sym_name))
     !isnothing(sym_visibility) && push!(attributes, NamedAttribute("sym_visibility", sym_visibility))
     
-    create_operation(
+    IR.create_operation(
         "builtin.module", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -82,12 +80,11 @@ function unrealized_conversion_cast(inputs::Vector{Value}; outputs::Vector{IR.Ty
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "builtin.unrealized_conversion_cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # builtin

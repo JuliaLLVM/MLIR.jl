@@ -1,9 +1,7 @@
 module ptr
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `from_ptr`
@@ -35,7 +33,7 @@ function from_ptr(ptr::Value, metadata=nothing::Union{Nothing, Value}; result::I
     attributes = NamedAttribute[]
     !isnothing(metadata) && push!(operands, metadata)
     
-    create_operation(
+    IR.create_operation(
         "ptr.from_ptr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -62,7 +60,7 @@ function get_metadata(ptr::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "ptr.get_metadata", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -90,7 +88,7 @@ function ptr_add(base::Value, offset::Value; result::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "ptr.ptr_add", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -121,7 +119,7 @@ function to_ptr(ptr::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "ptr.to_ptr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -152,12 +150,11 @@ function type_offset(; result::IR.Type, elementType, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("elementType", elementType), ]
     
-    create_operation(
+    IR.create_operation(
         "ptr.type_offset", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # ptr

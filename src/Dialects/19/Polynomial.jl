@@ -1,9 +1,7 @@
 module polynomial
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `add`
@@ -35,7 +33,7 @@ function add(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.add", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -64,7 +62,7 @@ function constant(; output=nothing::Union{Nothing, IR.Type}, value, location=Loc
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.constant", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -100,7 +98,7 @@ function from_tensor(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "polynomial.from_tensor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -130,7 +128,7 @@ function intt(input::Value; output::IR.Type, root=nothing, location=Location())
     attributes = NamedAttribute[]
     !isnothing(root) && push!(attributes, NamedAttribute("root", root))
     
-    create_operation(
+    IR.create_operation(
         "polynomial.intt", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -163,7 +161,7 @@ function leading_term(input::Value; degree::IR.Type, coefficient::IR.Type, locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "polynomial.leading_term", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -191,7 +189,7 @@ function monic_monomial_mul(input::Value, monomialDegree::Value; output=nothing:
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.monic_monomial_mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -225,7 +223,7 @@ function monomial(coefficient::Value, degree::Value; output::IR.Type, location=L
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "polynomial.monomial", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -263,7 +261,7 @@ function mul(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -301,7 +299,7 @@ function mul_scalar(polynomial::Value, scalar::Value; output=nothing::Union{Noth
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.mul_scalar", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -334,7 +332,7 @@ function ntt(input::Value; output::IR.Type, root=nothing, location=Location())
     attributes = NamedAttribute[]
     !isnothing(root) && push!(attributes, NamedAttribute("root", root))
     
-    create_operation(
+    IR.create_operation(
         "polynomial.ntt", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -372,7 +370,7 @@ function sub(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "polynomial.sub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -414,12 +412,11 @@ function to_tensor(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "polynomial.to_tensor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # polynomial

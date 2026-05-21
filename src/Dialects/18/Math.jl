@@ -1,9 +1,7 @@
 module math
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `absf`
@@ -28,7 +26,7 @@ function absf(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.absf", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -58,7 +56,7 @@ function absi(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "math.absi", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -89,7 +87,7 @@ function acos(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.acos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -126,7 +124,7 @@ function acosh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.acosh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -163,7 +161,7 @@ function asin(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.asin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -200,7 +198,7 @@ function asinh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.asinh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -238,7 +236,7 @@ function atan2(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, 
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.atan2", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -269,7 +267,7 @@ function atan(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.atan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -306,7 +304,7 @@ function atanh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.atanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -339,7 +337,7 @@ function cbrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.cbrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -370,7 +368,7 @@ function ceil(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.ceil", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -402,7 +400,7 @@ function copysign(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.copysign", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -433,7 +431,7 @@ function cos(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.cos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -464,7 +462,7 @@ function cosh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.cosh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -493,7 +491,7 @@ function ctlz(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "math.ctlz", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -522,7 +520,7 @@ function cttz(operand::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "math.cttz", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -551,7 +549,7 @@ function ctpop(operand::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "math.ctpop", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -582,7 +580,7 @@ function erf(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.erf", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -613,7 +611,7 @@ function exp2(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.exp2", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -646,7 +644,7 @@ function expm1(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.expm1", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -677,7 +675,7 @@ function exp(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.exp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -720,7 +718,7 @@ function fpowi(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, 
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.fpowi", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -751,7 +749,7 @@ function floor(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.floor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -787,7 +785,7 @@ function fma(a::Value, b::Value, c::Value; result=nothing::Union{Nothing, IR.Typ
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.fma", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -817,7 +815,7 @@ function ipowi(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, 
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "math.ipowi", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -850,7 +848,7 @@ function log1p(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.log1p", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -881,7 +879,7 @@ function log2(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.log2", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -912,7 +910,7 @@ function log10(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.log10", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -943,7 +941,7 @@ function log(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.log", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -974,7 +972,7 @@ function powf(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, f
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.powf", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1008,7 +1006,7 @@ function roundeven(operand::Value; result=nothing::Union{Nothing, IR.Type}, fast
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.roundeven", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1042,7 +1040,7 @@ function round(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.round", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1073,7 +1071,7 @@ function rsqrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.rsqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1104,7 +1102,7 @@ function sin(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.sin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1135,7 +1133,7 @@ function sinh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.sinh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1166,7 +1164,7 @@ function sqrt(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.sqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1197,7 +1195,7 @@ function tan(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.tan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1228,7 +1226,7 @@ function tanh(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath=
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.tanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1261,12 +1259,11 @@ function trunc(operand::Value; result=nothing::Union{Nothing, IR.Type}, fastmath
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(fastmath) && push!(attributes, NamedAttribute("fastmath", fastmath))
     
-    create_operation(
+    IR.create_operation(
         "math.trunc", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
         result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
-
 end # math

@@ -1,9 +1,7 @@
 module amdgpu
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `dpp`
@@ -35,7 +33,7 @@ function dpp(old::Value, src::Value; result=nothing::Union{Nothing, IR.Type}, ki
     !isnothing(bank_mask) && push!(attributes, NamedAttribute("bank_mask", bank_mask))
     !isnothing(bound_ctrl) && push!(attributes, NamedAttribute("bound_ctrl", bound_ctrl))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.dpp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -65,7 +63,7 @@ function ext_packed_fp8(source::Value; res::IR.Type, index, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.ext_packed_fp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -121,7 +119,7 @@ function fat_raw_buffer_cast(source::Value, validBytes=nothing::Union{Nothing, V
     push!(attributes, operandsegmentsizes([1, Int(!isnothing(validBytes)), Int(!isnothing(cacheSwizzleStride)), ]))
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.fat_raw_buffer_cast", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -159,7 +157,7 @@ function gather_to_lds(src::Value, srcIndices::Vector{Value}, dst::Value, dstInd
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("transferType", transferType), ]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.gather_to_lds", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -194,7 +192,7 @@ function lds_barrier(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.lds_barrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -246,7 +244,7 @@ function mfma(sourceA::Value, sourceB::Value, destC::Value; destD=nothing::Union
     !isnothing(negateB) && push!(attributes, NamedAttribute("negateB", negateB))
     !isnothing(negateC) && push!(attributes, NamedAttribute("negateC", negateC))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.mfma", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -274,7 +272,7 @@ function packed_scaled_trunc(source::Value, scale::Value, existing=nothing::Unio
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     !isnothing(existing) && push!(operands, existing)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.packed_scaled_trunc", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -304,7 +302,7 @@ function packed_stoch_round_fp8(source::Value, stochiasticParam::Value, existing
     attributes = NamedAttribute[NamedAttribute("storeIndex", storeIndex), ]
     !isnothing(existing) && push!(operands, existing)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.packed_stoch_round_fp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -335,7 +333,7 @@ function packed_trunc_2xfp8(sourceA::Value, sourceB=nothing::Union{Nothing, Valu
     !isnothing(existing) && push!(operands, existing)
     push!(attributes, operandsegmentsizes([1, Int(!isnothing(sourceB)), Int(!isnothing(existing)), ]))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.packed_trunc_2xfp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -374,7 +372,7 @@ function raw_buffer_atomic_cmpswap(src::Value, cmp::Value, memref::Value, indice
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_cmpswap", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -413,7 +411,7 @@ function raw_buffer_atomic_fadd(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_fadd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -451,7 +449,7 @@ function raw_buffer_atomic_fmax(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_fmax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -489,7 +487,7 @@ function raw_buffer_atomic_smax(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_smax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -527,7 +525,7 @@ function raw_buffer_atomic_umin(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_umin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -578,7 +576,7 @@ function raw_buffer_load(memref::Value, indices::Vector{Value}, sgprOffset=nothi
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -617,7 +615,7 @@ function raw_buffer_store(value::Value, memref::Value, indices::Vector{Value}, s
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_store", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -647,7 +645,7 @@ function scaled_ext_packed(source::Value, scale::Value; res::IR.Type, index, loc
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.scaled_ext_packed", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -690,7 +688,7 @@ function scaled_mfma(sourceA::Value, sourceB::Value, destC::Value, scalesA::Valu
     attributes = NamedAttribute[NamedAttribute("m", m), NamedAttribute("n", n), NamedAttribute("k", k), NamedAttribute("scalesIdxA", scalesIdxA), NamedAttribute("scalesIdxB", scalesIdxB), ]
     !isnothing(destD) && push!(op_ty_results, destD)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.scaled_mfma", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -712,7 +710,7 @@ function sched_barrier(; opts, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("opts", opts), ]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.sched_barrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -737,7 +735,7 @@ function swizzle_bitmode(src::Value; result=nothing::Union{Nothing, IR.Type}, an
     attributes = NamedAttribute[NamedAttribute("and_mask", and_mask), NamedAttribute("or_mask", or_mask), NamedAttribute("xor_mask", xor_mask), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.swizzle_bitmode", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -777,7 +775,7 @@ function transpose_load(src::Value, srcIndices::Vector{Value}; result::IR.Type, 
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.transpose_load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -818,12 +816,11 @@ function wmma(sourceA::Value, sourceB::Value, destC::Value; destD=nothing::Union
     !isnothing(unsignedB) && push!(attributes, NamedAttribute("unsignedB", unsignedB))
     !isnothing(clamp) && push!(attributes, NamedAttribute("clamp", clamp))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.wmma", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
         result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
-
 end # amdgpu

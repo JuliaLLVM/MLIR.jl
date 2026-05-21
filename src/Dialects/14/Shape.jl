@@ -1,9 +1,7 @@
 module shape
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `add`
@@ -23,7 +21,7 @@ function add(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.add", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -54,7 +52,7 @@ function any(inputs::Vector{Value}; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.any", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -89,7 +87,7 @@ function assuming_all(inputs::Vector{Value}; result::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.assuming_all", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -114,7 +112,7 @@ function assuming(witness::Value; results::Vector{IR.Type}, doRegion::Region, lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.assuming", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -137,7 +135,7 @@ function assuming_yield(operands::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.assuming_yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -176,7 +174,7 @@ function broadcast(shapes::Vector{Value}; result::IR.Type, error=nothing, locati
     attributes = NamedAttribute[]
     !isnothing(error) && push!(attributes, NamedAttribute("error", error))
     
-    create_operation(
+    IR.create_operation(
         "shape.broadcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -203,7 +201,7 @@ function concat(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.concat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -232,7 +230,7 @@ function const_shape(; result=nothing::Union{Nothing, IR.Type}, shape, location=
     attributes = NamedAttribute[NamedAttribute("shape", shape), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.const_shape", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -257,7 +255,7 @@ function const_size(; result=nothing::Union{Nothing, IR.Type}, value, location=L
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.const_size", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -288,7 +286,7 @@ function const_witness(; result=nothing::Union{Nothing, IR.Type}, passing, locat
     attributes = NamedAttribute[NamedAttribute("passing", passing), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.const_witness", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -319,7 +317,7 @@ function cstr_broadcastable(shapes::Vector{Value}; result=nothing::Union{Nothing
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.cstr_broadcastable", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -348,7 +346,7 @@ function cstr_eq(shapes::Vector{Value}; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.cstr_eq", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -383,7 +381,7 @@ function cstr_require(pred::Value; result=nothing::Union{Nothing, IR.Type}, msg,
     attributes = NamedAttribute[NamedAttribute("msg", msg), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.cstr_require", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -405,7 +403,7 @@ function debug_print(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.debug_print", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -438,7 +436,7 @@ function div(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.div", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -461,7 +459,7 @@ function from_extent_tensor(input::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.from_extent_tensor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -489,7 +487,7 @@ function from_extents(extents::Vector{Value}; shape::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.from_extents", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -523,7 +521,7 @@ function function_library(; mapping, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("mapping", mapping), ]
     
-    create_operation(
+    IR.create_operation(
         "shape.function_library", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -545,7 +543,7 @@ function get_extent(shape::Value, dim::Value; extent=nothing::Union{Nothing, IR.
     attributes = NamedAttribute[]
     !isnothing(extent) && push!(op_ty_results, extent)
     
-    create_operation(
+    IR.create_operation(
         "shape.get_extent", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -570,7 +568,7 @@ function index_to_size(arg::Value; result=nothing::Union{Nothing, IR.Type}, loca
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.index_to_size", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -604,7 +602,7 @@ function is_broadcastable(shapes::Vector{Value}; result=nothing::Union{Nothing, 
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.is_broadcastable", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -628,7 +626,7 @@ function max(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.max", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -672,7 +670,7 @@ function meet(arg0::Value, arg1::Value; result=nothing::Union{Nothing, IR.Type},
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(error) && push!(attributes, NamedAttribute("error", error))
     
-    create_operation(
+    IR.create_operation(
         "shape.meet", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -696,7 +694,7 @@ function min(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.min", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -722,7 +720,7 @@ function mul(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -747,7 +745,7 @@ function num_elements(shape::Value; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.num_elements", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -768,7 +766,7 @@ function rank(shape::Value; rank=nothing::Union{Nothing, IR.Type}, location=Loca
     attributes = NamedAttribute[]
     !isnothing(rank) && push!(op_ty_results, rank)
     
-    create_operation(
+    IR.create_operation(
         "shape.rank", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -816,7 +814,7 @@ function reduce(shape::Value, initVals::Vector{Value}; result::Vector{IR.Type}, 
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.reduce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -841,7 +839,7 @@ function shape_eq(shapes::Vector{Value}; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.shape_eq", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -863,7 +861,7 @@ function shape_of(arg::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.shape_of", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -887,7 +885,7 @@ function size_to_index(arg::Value; result=nothing::Union{Nothing, IR.Type}, loca
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.size_to_index", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -926,7 +924,7 @@ function split_at(operand::Value, index::Value; head::IR.Type, tail::IR.Type, lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.split_at", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -950,7 +948,7 @@ function to_extent_tensor(input::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.to_extent_tensor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -982,7 +980,7 @@ function value_as_shape(arg::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.value_as_shape", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1033,7 +1031,7 @@ function with_shape(operand::Value, shape::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "shape.with_shape", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1052,12 +1050,11 @@ function yield(operands::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "shape.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # shape

@@ -1,9 +1,7 @@
 module irdl
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `all_of`
@@ -42,7 +40,7 @@ function all_of(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.all_of", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -83,7 +81,7 @@ function any_of(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.any_of", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -118,7 +116,7 @@ function any(; output=nothing::Union{Nothing, IR.Type}, location=Location())
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.any", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -159,7 +157,7 @@ function attribute(; sym_name, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "irdl.attribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -200,7 +198,7 @@ function attributes(attributeValues::Vector{Value}; attributeValueNames, locatio
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("attributeValueNames", attributeValueNames), ]
     
-    create_operation(
+    IR.create_operation(
         "irdl.attributes", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -245,7 +243,7 @@ function c_pred(; output=nothing::Union{Nothing, IR.Type}, pred, location=Locati
     attributes = NamedAttribute[NamedAttribute("pred", pred), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.c_pred", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -276,7 +274,7 @@ function dialect(; sym_name, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "irdl.dialect", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -312,7 +310,7 @@ function is(; output=nothing::Union{Nothing, IR.Type}, expected, location=Locati
     attributes = NamedAttribute[NamedAttribute("expected", expected), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.is", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -365,7 +363,7 @@ function operands(args::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "irdl.operands", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -410,7 +408,7 @@ function operation(; sym_name, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "irdl.operation", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -447,7 +445,7 @@ function parameters(args::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "irdl.parameters", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -490,7 +488,7 @@ function parametric(args::Vector{Value}; output=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[NamedAttribute("base_type", base_type), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "irdl.parametric", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -543,7 +541,7 @@ function results(args::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "irdl.results", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -582,12 +580,11 @@ function type(; sym_name, body::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "irdl.type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # irdl

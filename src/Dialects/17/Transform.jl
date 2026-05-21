@@ -1,9 +1,7 @@
 module transform
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `affine_simplify_bounded_affine_ops`
@@ -41,18 +39,15 @@ function affine_simplify_bounded_affine_ops(target::Value, bounded_values::Vecto
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("lower_bounds", lower_bounds), NamedAttribute("upper_bounds", upper_bounds), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.affine.simplify_bounded_affine_ops", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `bufferization_buffer_loop_hoisting`
@@ -70,7 +65,7 @@ function bufferization_buffer_loop_hoisting(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.bufferization.buffer_loop_hoisting", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -128,7 +123,7 @@ function bufferization_eliminate_empty_tensors(target::Value; location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.bufferization.eliminate_empty_tensors", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -154,7 +149,7 @@ function bufferization_empty_tensor_to_alloc_tensor(target::Value; transformed::
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.bufferization.empty_tensor_to_alloc_tensor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -201,18 +196,15 @@ function bufferization_one_shot_bufferize(target::Value; transformed::IR.Type, f
     !isnothing(print_conflicts) && push!(attributes, NamedAttribute("print_conflicts", print_conflicts))
     !isnothing(memcpy_op) && push!(attributes, NamedAttribute("memcpy_op", memcpy_op))
     
-    create_operation(
+    IR.create_operation(
         "transform.bufferization.one_shot_bufferize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_gpu_eliminate_barriers`
@@ -248,7 +240,7 @@ function apply_patterns_gpu_eliminate_barriers(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.gpu.eliminate_barriers", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -303,7 +295,7 @@ function gpu_map_forall_to_blocks(target::Value; result::IR.Type, grid_dims=noth
     !isnothing(grid_dims) && push!(attributes, NamedAttribute("grid_dims", grid_dims))
     !isnothing(generate_gpu_launch) && push!(attributes, NamedAttribute("generate_gpu_launch", generate_gpu_launch))
     
-    create_operation(
+    IR.create_operation(
         "transform.gpu.map_forall_to_blocks", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -412,18 +404,15 @@ function gpu_map_nested_forall_to_threads(target::Value; result::IR.Type, block_
     !isnothing(warp_dims) && push!(attributes, NamedAttribute("warp_dims", warp_dims))
     !isnothing(sync_after_distribute) && push!(attributes, NamedAttribute("sync_after_distribute", sync_after_distribute))
     
-    create_operation(
+    IR.create_operation(
         "transform.gpu.map_nested_forall_to_threads", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `match_structured_body`
@@ -466,7 +455,7 @@ function match_structured_body(operand_handle::Value; reduction_position=nothing
     !isnothing(passthrough) && push!(attributes, NamedAttribute("passthrough", passthrough))
     !isnothing(contraction) && push!(attributes, NamedAttribute("contraction", contraction))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.body", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -509,7 +498,7 @@ function match_structured_classify_contraction_dims(operand_handle::Value; batch
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.classify_contraction_dims", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -578,7 +567,7 @@ function match_structured_dim(operand_handle::Value; result=nothing::Union{Nothi
     !isnothing(parallel) && push!(attributes, NamedAttribute("parallel", parallel))
     !isnothing(reduction) && push!(attributes, NamedAttribute("reduction", reduction))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.dim", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -608,7 +597,7 @@ function match_structured_elemental_bitwidth(operand_handle::Value; result::IR.T
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.elemental_bitwidth", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -689,7 +678,7 @@ function match_structured_init(operand_handle::Value; result=nothing::Union{Noth
     !isnothing(permutation) && push!(attributes, NamedAttribute("permutation", permutation))
     !isnothing(projected_permutation) && push!(attributes, NamedAttribute("projected_permutation", projected_permutation))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.init", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -771,7 +760,7 @@ function match_structured_input(operand_handle::Value; result=nothing::Union{Not
     !isnothing(permutation) && push!(attributes, NamedAttribute("permutation", permutation))
     !isnothing(projected_permutation) && push!(attributes, NamedAttribute("projected_permutation", projected_permutation))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.input", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -804,7 +793,7 @@ function match_structured_num_inits(operand_handle::Value; result::IR.Type, loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.num_inits", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -837,7 +826,7 @@ function match_structured_num_inputs(operand_handle::Value; result::IR.Type, loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.num_inputs", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -890,7 +879,7 @@ function match_structured(current::Value; outputs::Vector{IR.Type}, failure_prop
     attributes = NamedAttribute[]
     !isnothing(failure_propagation_mode) && push!(attributes, NamedAttribute("failure_propagation_mode", failure_propagation_mode))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -923,7 +912,7 @@ function match_structured_rank(operand_handle::Value; rank::IR.Type, location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.rank", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -972,7 +961,7 @@ function match_structured_result(operand_handle::Value; result::IR.Type, positio
     !isnothing(any) && push!(attributes, NamedAttribute("any", any))
     !isnothing(single) && push!(attributes, NamedAttribute("single", single))
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.result", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -993,18 +982,15 @@ function match_structured_yield(handles::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.structured.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_linalg_erase_unnecessary_inputs`
@@ -1019,7 +1005,7 @@ function apply_patterns_linalg_erase_unnecessary_inputs(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.linalg.erase_unnecessary_inputs", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1040,7 +1026,7 @@ function apply_patterns_linalg_fold_unit_extent_dims_via_reshapes(; location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.linalg.fold_unit_extent_dims_via_reshapes", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1061,7 +1047,7 @@ function apply_patterns_linalg_fold_unit_extent_dims_via_slices(; location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.linalg.fold_unit_extent_dims_via_slices", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1081,7 +1067,7 @@ function apply_patterns_linalg_tiling_canonicalization(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.linalg.tiling_canonicalization", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1161,7 +1147,7 @@ function structured_bufferize_to_allocation(target::Value; allocated_buffer::IR.
     !isnothing(alloc_op) && push!(attributes, NamedAttribute("alloc_op", alloc_op))
     !isnothing(bufferize_destination_only) && push!(attributes, NamedAttribute("bufferize_destination_only", bufferize_destination_only))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.bufferize_to_allocation", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1224,7 +1210,7 @@ function structured_convert_conv2d_to_img2col(target::Value; img2col_tensor::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.convert_conv2d_to_img2col", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1244,7 +1230,7 @@ function structured_decompose_interface(target::Value; transformed::IR.Type, loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.decompose_interface", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1274,7 +1260,7 @@ function structured_decompose(target::Value; transformed::IR.Type, location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.decompose", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1343,7 +1329,7 @@ function structured_eliminate_empty_tensors(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.eliminate_empty_tensors", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1393,7 +1379,7 @@ function structured_fuse_into_containing_op(producer_op::Value, containing_op::V
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.fuse_into_containing_op", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1416,7 +1402,7 @@ function structured_fuse(target::Value; transformed::IR.Type, loops::Vector{IR.T
     !isnothing(tile_sizes) && push!(attributes, NamedAttribute("tile_sizes", tile_sizes))
     !isnothing(tile_interchange) && push!(attributes, NamedAttribute("tile_interchange", tile_interchange))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.fuse", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1446,7 +1432,7 @@ function structured_generalize(target::Value; transformed::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.generalize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1480,7 +1466,7 @@ function structured_hoist_pad_build_packing_loop_nest(target::Value, loop::Value
     attributes = NamedAttribute[]
     !isnothing(transpose) && push!(attributes, NamedAttribute("transpose", transpose))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.hoist_pad.build_packing_loop_nest", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1517,7 +1503,7 @@ function structured_hoist_pad(target::Value; transformed::IR.Type, num_loops, tr
     attributes = NamedAttribute[NamedAttribute("num_loops", num_loops), ]
     !isnothing(transpose) && push!(attributes, NamedAttribute("transpose", transpose))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.hoist_pad", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1555,7 +1541,7 @@ function structured_hoist_redundant_tensor_subsets(target::Value; location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.hoist_redundant_tensor_subsets", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1590,7 +1576,7 @@ function structured_hoist_redundant_vector_transfers(target::Value; transformed:
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.hoist_redundant_vector_transfers", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1620,7 +1606,7 @@ function structured_insert_slice_to_copy(target::Value; transformed::IR.Type, lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.insert_slice_to_copy", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1652,7 +1638,7 @@ function structured_interchange(target::Value; transformed::IR.Type, iterator_in
     attributes = NamedAttribute[]
     !isnothing(iterator_interchange) && push!(attributes, NamedAttribute("iterator_interchange", iterator_interchange))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.interchange", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1681,7 +1667,7 @@ function structured_lower_pack(target::Value; pad_op::IR.Type, expand_shape_op::
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.lower_pack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1711,7 +1697,7 @@ function structured_lower_unpack(target::Value; empty_op::IR.Type, transpose_op:
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.lower_unpack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1749,7 +1735,7 @@ function structured_gpu_map_copy_to_threads(target::Value; forall_op::IR.Type, t
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("total_num_threads", total_num_threads), NamedAttribute("desired_bit_alignment", desired_bit_alignment), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.gpu.map_copy_to_threads", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1790,7 +1776,7 @@ function structured_masked_vectorize(target::Value, vector_sizes::Vector{Value};
     !isnothing(scalable_sizes) && push!(attributes, NamedAttribute("scalable_sizes", scalable_sizes))
     !isnothing(static_vector_sizes) && push!(attributes, NamedAttribute("static_vector_sizes", static_vector_sizes))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.masked_vectorize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1839,7 +1825,7 @@ function structured_match(target::Value; results::IR.Type, ops=nothing, interfac
     !isnothing(op_attrs) && push!(attributes, NamedAttribute("op_attrs", op_attrs))
     !isnothing(filter_result_type) && push!(attributes, NamedAttribute("filter_result_type", filter_result_type))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.match", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1911,7 +1897,7 @@ function structured_multitile_sizes(target::Value; low_size::IR.Type, high_size:
     attributes = NamedAttribute[NamedAttribute("dimension", dimension), NamedAttribute("target_size", target_size), ]
     !isnothing(divisor) && push!(attributes, NamedAttribute("divisor", divisor))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.multitile_sizes", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1986,7 +1972,7 @@ function structured_pack_greedily(target::Value, matmul_packed_sizes::Vector{Val
     !isnothing(matmul_padded_sizes_next_multiple_of) && push!(attributes, NamedAttribute("matmul_padded_sizes_next_multiple_of", matmul_padded_sizes_next_multiple_of))
     !isnothing(matmul_inner_dims_order) && push!(attributes, NamedAttribute("matmul_inner_dims_order", matmul_inner_dims_order))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.pack_greedily", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2063,7 +2049,7 @@ function structured_pack(target::Value, packed_sizes::Vector{Value}; packed_op::
     attributes = NamedAttribute[]
     !isnothing(static_packed_sizes) && push!(attributes, NamedAttribute("static_packed_sizes", static_packed_sizes))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.pack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2118,7 +2104,7 @@ function structured_pack_transpose(target_pack_or_un_pack_op::Value, target_lina
     !isnothing(outer_perm) && push!(attributes, NamedAttribute("outer_perm", outer_perm))
     !isnothing(inner_perm) && push!(attributes, NamedAttribute("inner_perm", inner_perm))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.pack_transpose", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2157,7 +2143,7 @@ function structured_pad(target::Value; padded::IR.Type, pad::IR.Type, padding_va
     !isnothing(transpose_paddings) && push!(attributes, NamedAttribute("transpose_paddings", transpose_paddings))
     !isnothing(copy_back) && push!(attributes, NamedAttribute("copy_back", copy_back))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.pad", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2197,7 +2183,7 @@ function structured_promote(target::Value; transformed::IR.Type, operands_to_pro
     !isnothing(mapping) && push!(attributes, NamedAttribute("mapping", mapping))
     !isnothing(alignment) && push!(attributes, NamedAttribute("alignment", alignment))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.promote", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2225,7 +2211,7 @@ function structured_replace(target::Value; replacement::IR.Type, bodyRegion::Reg
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.replace", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2263,7 +2249,7 @@ function structured_rewrite_in_destination_passing_style(target::Value; transfor
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.rewrite_in_destination_passing_style", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2302,7 +2288,7 @@ function structured_scalarize(target::Value; result::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.scalarize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2339,7 +2325,7 @@ function structured_split(target::Value, dynamic_split_point=nothing::Union{Noth
     attributes = NamedAttribute[NamedAttribute("dimension", dimension), NamedAttribute("static_split_point", static_split_point), ]
     !isnothing(dynamic_split_point) && push!(operands, dynamic_split_point)
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.split", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2495,7 +2481,7 @@ function structured_split_reduction(target::Value; init_or_alloc_op::IR.Type, fi
     !isnothing(use_scaling_algorithm) && push!(attributes, NamedAttribute("use_scaling_algorithm", use_scaling_algorithm))
     !isnothing(use_alloc) && push!(attributes, NamedAttribute("use_alloc", use_alloc))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.split_reduction", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2552,7 +2538,7 @@ function structured_tile(target::Value, dynamic_sizes::Vector{Value}; tiled_lina
     !isnothing(interchange) && push!(attributes, NamedAttribute("interchange", interchange))
     !isnothing(scalable_sizes) && push!(attributes, NamedAttribute("scalable_sizes", scalable_sizes))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.tile", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2637,7 +2623,7 @@ function structured_tile_reduction_using_forall(target::Value; forall_op::IR.Typ
     !isnothing(tile_sizes) && push!(attributes, NamedAttribute("tile_sizes", tile_sizes))
     !isnothing(mapping) && push!(attributes, NamedAttribute("mapping", mapping))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.tile_reduction_using_forall", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2723,7 +2709,7 @@ function structured_tile_reduction_using_scf(target::Value; for_op::IR.Type, fil
     attributes = NamedAttribute[]
     !isnothing(tile_sizes) && push!(attributes, NamedAttribute("tile_sizes", tile_sizes))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.tile_reduction_using_scf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2801,7 +2787,7 @@ function structured_tile_to_forall_op(target::Value, num_threads::Vector{Value},
     !isnothing(static_tile_sizes) && push!(attributes, NamedAttribute("static_tile_sizes", static_tile_sizes))
     !isnothing(mapping) && push!(attributes, NamedAttribute("mapping", mapping))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.tile_to_forall_op", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2857,7 +2843,7 @@ function structured_tile_to_scf_for(target::Value, dynamic_sizes::Vector{Value};
     !isnothing(static_sizes) && push!(attributes, NamedAttribute("static_sizes", static_sizes))
     !isnothing(interchange) && push!(attributes, NamedAttribute("interchange", interchange))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.tile_to_scf_for", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2913,18 +2899,15 @@ function structured_vectorize(target::Value; transformed::IR.Type, vectorize_pad
     !isnothing(disable_multi_reduction_to_contract_patterns) && push!(attributes, NamedAttribute("disable_multi_reduction_to_contract_patterns", disable_multi_reduction_to_contract_patterns))
     !isnothing(disable_transfer_permutation_map_lowering_patterns) && push!(attributes, NamedAttribute("disable_transfer_permutation_map_lowering_patterns", disable_transfer_permutation_map_lowering_patterns))
     
-    create_operation(
+    IR.create_operation(
         "transform.structured.vectorize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_memref_expand_ops`
@@ -2944,7 +2927,7 @@ function apply_patterns_memref_expand_ops(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.memref.expand_ops", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2965,7 +2948,7 @@ function apply_patterns_memref_expand_strided_metadata(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.memref.expand_strided_metadata", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2998,7 +2981,7 @@ function apply_patterns_memref_extract_address_computations(; location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.memref.extract_address_computations", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3021,7 +3004,7 @@ function apply_patterns_memref_fold_memref_alias_ops(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.memref.fold_memref_alias_ops", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3043,7 +3026,7 @@ function apply_patterns_memref_resolve_ranked_shaped_type_result_dims(; location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.memref.resolve_ranked_shaped_type_result_dims", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3083,7 +3066,7 @@ function memref_make_loop_independent(target::Value; transformed::IR.Type, num_l
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("num_loops", num_loops), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.memref.make_loop_independent", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3116,18 +3099,15 @@ function memref_multibuffer(target::Value; transformed::IR.Type, factor, skip_an
     attributes = NamedAttribute[NamedAttribute("factor", factor), ]
     !isnothing(skip_analysis) && push!(attributes, NamedAttribute("skip_analysis", skip_analysis))
     
-    create_operation(
+    IR.create_operation(
         "transform.memref.multibuffer", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `nvgpu_create_async_groups`
@@ -3156,7 +3136,7 @@ function nvgpu_create_async_groups(target::Value; result::IR.Type, bypass_l1=not
     attributes = NamedAttribute[]
     !isnothing(bypass_l1) && push!(attributes, NamedAttribute("bypass_l1", bypass_l1))
     
-    create_operation(
+    IR.create_operation(
         "transform.nvgpu.create_async_groups", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3207,7 +3187,7 @@ function nvgpu_pipeline_shared_memory_copies(for_op::Value; result::IR.Type, dep
     !isnothing(peel_epilogue) && push!(attributes, NamedAttribute("peel_epilogue", peel_epilogue))
     !isnothing(failure_propagation_mode) && push!(attributes, NamedAttribute("failure_propagation_mode", failure_propagation_mode))
     
-    create_operation(
+    IR.create_operation(
         "transform.nvgpu.pipeline_shared_memory_copies", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3231,18 +3211,15 @@ function nvgpu_rewrite_matmul_as_mma_sync(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.nvgpu.rewrite_matmul_as_mma_sync", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_scf_for_loop_canonicalization`
@@ -3258,7 +3235,7 @@ function apply_patterns_scf_for_loop_canonicalization(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.scf.for_loop_canonicalization", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3285,7 +3262,7 @@ function loop_get_parent_for(target::Value; parent::IR.Type, num_loops=nothing, 
     !isnothing(num_loops) && push!(attributes, NamedAttribute("num_loops", num_loops))
     !isnothing(affine) && push!(attributes, NamedAttribute("affine", affine))
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.get_parent_for", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3311,7 +3288,7 @@ function loop_coalesce(target::Value; transformed::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.coalesce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3346,7 +3323,7 @@ function loop_outline(target::Value; function_::IR.Type, call::IR.Type, func_nam
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("func_name", func_name), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.outline", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3386,7 +3363,7 @@ function loop_peel(target::Value; transformed::IR.Type, fail_if_already_divisibl
     attributes = NamedAttribute[]
     !isnothing(fail_if_already_divisible) && push!(attributes, NamedAttribute("fail_if_already_divisible", fail_if_already_divisible))
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.peel", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3426,7 +3403,7 @@ function loop_pipeline(target::Value; transformed::IR.Type, iteration_interval=n
     !isnothing(iteration_interval) && push!(attributes, NamedAttribute("iteration_interval", iteration_interval))
     !isnothing(read_latency) && push!(attributes, NamedAttribute("read_latency", read_latency))
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.pipeline", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3454,7 +3431,7 @@ function loop_promote_if_one_iteration(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.promote_if_one_iteration", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3486,7 +3463,7 @@ function loop_unroll(target::Value; factor, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("factor", factor), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.loop.unroll", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3523,18 +3500,15 @@ function scf_take_assumed_branch(target::Value; take_else_branch=nothing, locati
     attributes = NamedAttribute[]
     !isnothing(take_else_branch) && push!(attributes, NamedAttribute("take_else_branch", take_else_branch))
     
-    create_operation(
+    IR.create_operation(
         "transform.scf.take_assumed_branch", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_tensor_drop_redundant_insert_slice_rank_expansion`
@@ -3550,7 +3524,7 @@ function apply_patterns_tensor_drop_redundant_insert_slice_rank_expansion(; loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.drop_redundant_insert_slice_rank_expansion", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3571,7 +3545,7 @@ function apply_patterns_tensor_fold_into_pack_and_unpack(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.fold_into_pack_and_unpack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3596,7 +3570,7 @@ function apply_patterns_tensor_fold_tensor_empty(; fold_single_use_only=nothing,
     attributes = NamedAttribute[]
     !isnothing(fold_single_use_only) && push!(attributes, NamedAttribute("fold_single_use_only", fold_single_use_only))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.fold_tensor_empty", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3618,7 +3592,7 @@ function apply_patterns_tensor_fold_tensor_subset_ops_into_vector_transfers(; lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.fold_tensor_subset_ops_into_vector_transfers", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3639,7 +3613,7 @@ function apply_patterns_tensor_fold_tensor_subset_ops(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.fold_tensor_subset_ops", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3661,7 +3635,7 @@ function apply_patterns_tensor_merge_consecutive_insert_extract_slice(; location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.merge_consecutive_insert_extract_slice", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3683,7 +3657,7 @@ function apply_patterns_tensor_reassociative_reshape_folding(; location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.reassociative_reshape_folding", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3704,7 +3678,7 @@ function apply_patterns_tensor_rewrite_as_constant(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.tensor.rewrite_as_constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3747,18 +3721,15 @@ function tensor_make_loop_independent(target::Value; transformed::IR.Type, num_l
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("num_loops", num_loops), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.tensor.make_loop_independent", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `alternatives`
@@ -3829,7 +3800,7 @@ function alternatives(scope=nothing::Union{Nothing, Value}; results::Vector{IR.T
     attributes = NamedAttribute[]
     !isnothing(scope) && push!(operands, scope)
     
-    create_operation(
+    IR.create_operation(
         "transform.alternatives", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3857,7 +3828,7 @@ function annotate(target::Value, param=nothing::Union{Nothing, Value}; name, loc
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     !isnothing(param) && push!(operands, param)
     
-    create_operation(
+    IR.create_operation(
         "transform.annotate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3878,7 +3849,7 @@ function apply_patterns_canonicalization(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.canonicalization", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3905,7 +3876,7 @@ function apply_cse(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_cse", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3933,7 +3904,7 @@ function apply_dce(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_dce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -3960,7 +3931,7 @@ function apply_licm(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_licm", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4006,7 +3977,7 @@ function apply_patterns(target::Value; apply_cse=nothing, patterns::Region, loca
     attributes = NamedAttribute[]
     !isnothing(apply_cse) && push!(attributes, NamedAttribute("apply_cse", apply_cse))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4037,7 +4008,7 @@ function apply_registered_pass(target::Value; result::IR.Type, pass_name, option
     attributes = NamedAttribute[NamedAttribute("pass_name", pass_name), ]
     !isnothing(options) && push!(attributes, NamedAttribute("options", options))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_registered_pass", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4056,7 +4027,7 @@ function cast(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4123,7 +4094,7 @@ function foreach_match(root::Value; updated::IR.Type, matchers, actions, locatio
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("matchers", matchers), NamedAttribute("actions", actions), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.foreach_match", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4160,7 +4131,7 @@ function foreach(target::Value; results::Vector{IR.Type}, body::Region, location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.foreach", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4186,7 +4157,7 @@ function get_consumers_of_result(target::Value; consumers::IR.Type, result_numbe
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("result_number", result_number), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.get_consumers_of_result", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4209,7 +4180,7 @@ function get_defining_op(target::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.get_defining_op", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4249,7 +4220,7 @@ function get_parent_op(target::Value; parent::IR.Type, isolated_from_above=nothi
     !isnothing(op_name) && push!(attributes, NamedAttribute("op_name", op_name))
     !isnothing(deduplicate) && push!(attributes, NamedAttribute("deduplicate", deduplicate))
     
-    create_operation(
+    IR.create_operation(
         "transform.get_parent_op", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4274,7 +4245,7 @@ function get_producer_of_operand(target::Value; producer::IR.Type, operand_numbe
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("operand_number", operand_number), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.get_producer_of_operand", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4298,7 +4269,7 @@ function get_result(target::Value; result::IR.Type, result_number, location=Loca
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("result_number", result_number), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.get_result", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4322,7 +4293,7 @@ function get_type(value::Value; type_param::IR.Type, elemental=nothing, location
     attributes = NamedAttribute[]
     !isnothing(elemental) && push!(attributes, NamedAttribute("elemental", elemental))
     
-    create_operation(
+    IR.create_operation(
         "transform.get_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4357,7 +4328,7 @@ function include_(operands::Vector{Value}; results::Vector{IR.Type}, target, fai
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("target", target), NamedAttribute("failure_propagation_mode", failure_propagation_mode), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.include", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4381,7 +4352,7 @@ function match_operation_name(operand_handle::Value; op_names, location=Location
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("op_names", op_names), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.operation_name", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4404,7 +4375,7 @@ function match_param_cmpi(param::Value, reference::Value; predicate, location=Lo
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("predicate", predicate), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.match.param.cmpi", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4433,7 +4404,7 @@ function merge_handles(handles::Vector{Value}; result=nothing::Union{Nothing, IR
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(deduplicate) && push!(attributes, NamedAttribute("deduplicate", deduplicate))
     
-    create_operation(
+    IR.create_operation(
         "transform.merge_handles", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -4478,7 +4449,7 @@ function named_sequence(; sym_name, function_type, sym_visibility=nothing, arg_a
     !isnothing(arg_attrs) && push!(attributes, NamedAttribute("arg_attrs", arg_attrs))
     !isnothing(res_attrs) && push!(attributes, NamedAttribute("res_attrs", res_attrs))
     
-    create_operation(
+    IR.create_operation(
         "transform.named_sequence", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4501,7 +4472,7 @@ function param_constant(; param::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.param.constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4527,7 +4498,7 @@ function print(target=nothing::Union{Nothing, Value}; name=nothing, location=Loc
     !isnothing(target) && push!(operands, target)
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "transform.print", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4567,7 +4538,7 @@ function replicate(pattern::Value, handles::Vector{Value}; replicated::Vector{IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.replicate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4595,7 +4566,7 @@ function select(target::Value; result::IR.Type, op_name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("op_name", op_name), ]
     
-    create_operation(
+    IR.create_operation(
         "transform.select", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4663,7 +4634,7 @@ function sequence(root=nothing::Union{Nothing, Value}; extra_bindings::Vector{Va
     !isnothing(root) && push!(operands, root)
     push!(attributes, operandsegmentsizes([Int(!isnothing(root)), length(extra_bindings), ]))
     
-    create_operation(
+    IR.create_operation(
         "transform.sequence", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4705,7 +4676,7 @@ function split_handle(handle::Value; results::Vector{IR.Type}, pass_through_empt
     !isnothing(fail_on_payload_too_small) && push!(attributes, NamedAttribute("fail_on_payload_too_small", fail_on_payload_too_small))
     !isnothing(overflow_result) && push!(attributes, NamedAttribute("overflow_result", overflow_result))
     
-    create_operation(
+    IR.create_operation(
         "transform.split_handle", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4733,7 +4704,7 @@ function verify(target::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.verify", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4755,18 +4726,15 @@ function yield(operands::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_patterns_vector_cast_away_vector_leading_one_dim`
@@ -4785,7 +4753,7 @@ function apply_patterns_vector_cast_away_vector_leading_one_dim(; location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.cast_away_vector_leading_one_dim", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4809,7 +4777,7 @@ function apply_patterns_vector_lower_broadcast(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_broadcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4834,7 +4802,7 @@ function apply_patterns_vector_lower_contraction(; lowering_strategy=nothing, lo
     attributes = NamedAttribute[]
     !isnothing(lowering_strategy) && push!(attributes, NamedAttribute("lowering_strategy", lowering_strategy))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_contraction", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4855,7 +4823,7 @@ function apply_patterns_vector_lower_gather(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_gather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4879,7 +4847,7 @@ function apply_patterns_vector_lower_masked_transfers(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_masked_transfers", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4903,7 +4871,7 @@ function apply_patterns_vector_lower_masks(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_masks", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4928,7 +4896,7 @@ function apply_patterns_vector_lower_multi_reduction(; lowering_strategy=nothing
     attributes = NamedAttribute[]
     !isnothing(lowering_strategy) && push!(attributes, NamedAttribute("lowering_strategy", lowering_strategy))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_multi_reduction", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4952,7 +4920,7 @@ function apply_patterns_vector_lower_outerproduct(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_outerproduct", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4973,7 +4941,7 @@ function apply_patterns_vector_lower_scan(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_scan", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -4997,7 +4965,7 @@ function apply_patterns_vector_lower_shape_cast(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_shape_cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5022,7 +4990,7 @@ function apply_patterns_vector_lower_transfer(; max_transfer_rank=nothing, locat
     attributes = NamedAttribute[]
     !isnothing(max_transfer_rank) && push!(attributes, NamedAttribute("max_transfer_rank", max_transfer_rank))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_transfer", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5048,7 +5016,7 @@ function apply_patterns_vector_lower_transpose(; lowering_strategy=nothing, avx2
     !isnothing(lowering_strategy) && push!(attributes, NamedAttribute("lowering_strategy", lowering_strategy))
     !isnothing(avx2_lowering_strategy) && push!(attributes, NamedAttribute("avx2_lowering_strategy", avx2_lowering_strategy))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.lower_transpose", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5072,7 +5040,7 @@ function apply_patterns_vector_materialize_masks(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.materialize_masks", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5098,7 +5066,7 @@ function apply_patterns_vector_rank_reducing_subview_patterns(; location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.rank_reducing_subview_patterns", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5123,7 +5091,7 @@ function apply_patterns_vector_split_transfer_full_partial(; split_transfer_stra
     attributes = NamedAttribute[]
     !isnothing(split_transfer_strategy) && push!(attributes, NamedAttribute("split_transfer_strategy", split_transfer_strategy))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.split_transfer_full_partial", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5154,7 +5122,7 @@ function apply_patterns_vector_transfer_permutation_patterns(; location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.transfer_permutation_patterns", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -5180,12 +5148,11 @@ function apply_patterns_vector_transfer_to_scf(; max_transfer_rank=nothing, full
     !isnothing(max_transfer_rank) && push!(attributes, NamedAttribute("max_transfer_rank", max_transfer_rank))
     !isnothing(full_unroll) && push!(attributes, NamedAttribute("full_unroll", full_unroll))
     
-    create_operation(
+    IR.create_operation(
         "transform.apply_patterns.vector.transfer_to_scf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # transform

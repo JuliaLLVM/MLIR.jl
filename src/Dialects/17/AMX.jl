@@ -1,9 +1,7 @@
 module amx
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `tdpbf16ps`
@@ -16,7 +14,7 @@ function tdpbf16ps(operand_0::Value, operand_1::Value, operand_2::Value, operand
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tdpbf16ps", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -35,7 +33,7 @@ function tdpbssd(operand_0::Value, operand_1::Value, operand_2::Value, operand_3
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tdpbssd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -54,7 +52,7 @@ function tdpbsud(operand_0::Value, operand_1::Value, operand_2::Value, operand_3
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tdpbsud", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -73,7 +71,7 @@ function tdpbusd(operand_0::Value, operand_1::Value, operand_2::Value, operand_3
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tdpbusd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -92,7 +90,7 @@ function tdpbuud(operand_0::Value, operand_1::Value, operand_2::Value, operand_3
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tdpbuud", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -111,7 +109,7 @@ function tileloadd64(operand_0::Value, operand_1::Value, operand_2::Value, opera
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tileloadd64", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -130,7 +128,7 @@ function tilestored64(operand_0::Value, operand_1::Value, operand_2::Value, oper
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tilestored64", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -149,7 +147,7 @@ function tilezero(operand_0::Value, operand_1::Value; res::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tilezero", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -178,7 +176,7 @@ function tile_load(base::Value, indices::Vector{Value}; res::IR.Type, location=L
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -208,7 +206,7 @@ function tile_mulf(lhs::Value, rhs::Value, acc::Value; res::IR.Type, location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_mulf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -243,7 +241,7 @@ function tile_muli(lhs::Value, rhs::Value, acc::Value; res::IR.Type, isZextLhs=n
     !isnothing(isZextLhs) && push!(attributes, NamedAttribute("isZextLhs", isZextLhs))
     !isnothing(isZextRhs) && push!(attributes, NamedAttribute("isZextRhs", isZextRhs))
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_muli", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -272,7 +270,7 @@ function tile_store(base::Value, indices::Vector{Value}, val::Value; location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_store", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -300,12 +298,11 @@ function tile_zero(; res::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_zero", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # amx

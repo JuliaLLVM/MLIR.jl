@@ -1,9 +1,7 @@
 module emitc
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply`
@@ -30,7 +28,7 @@ function apply(operand::Value; result::IR.Type, applicableOperator, location=Loc
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("applicableOperator", applicableOperator), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.apply", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -66,7 +64,7 @@ function call(operands::Vector{Value}; result_0::Vector{IR.Type}, callee, args=n
     !isnothing(args) && push!(attributes, NamedAttribute("args", args))
     !isnothing(template_args) && push!(attributes, NamedAttribute("template_args", template_args))
     
-    create_operation(
+    IR.create_operation(
         "emitc.call", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -102,7 +100,7 @@ function constant(; result_0::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -140,12 +138,11 @@ function include_(; include_, is_standard_include=nothing, location=Location())
     attributes = NamedAttribute[NamedAttribute("include", include_), ]
     !isnothing(is_standard_include) && push!(attributes, NamedAttribute("is_standard_include", is_standard_include))
     
-    create_operation(
+    IR.create_operation(
         "emitc.include", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # emitc

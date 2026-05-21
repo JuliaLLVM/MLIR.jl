@@ -1,9 +1,7 @@
 module sparse_tensor
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `binary`
@@ -120,7 +118,7 @@ function binary(x::Value, y::Value; output::IR.Type, left_identity=nothing, righ
     !isnothing(left_identity) && push!(attributes, NamedAttribute("left_identity", left_identity))
     !isnothing(right_identity) && push!(attributes, NamedAttribute("right_identity", right_identity))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.binary", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -160,7 +158,7 @@ function compress(values::Value, filled::Value, added::Value, count::Value, tens
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.compress", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -194,7 +192,7 @@ function concatenate(inputs::Vector{Value}; result::IR.Type, dimension, location
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("dimension", dimension), ]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.concatenate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -248,7 +246,7 @@ function convert(source::Value; dest::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.convert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -297,7 +295,7 @@ function expand(tensor::Value; values::IR.Type, filled::IR.Type, added::IR.Type,
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.expand", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -387,7 +385,7 @@ function foreach(tensor::Value, initArgs::Vector{Value}; results::Vector{IR.Type
     attributes = NamedAttribute[]
     !isnothing(order) && push!(attributes, NamedAttribute("order", order))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.foreach", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -416,7 +414,7 @@ function storage_specifier_get(specifier::Value; result=nothing::Union{Nothing, 
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(level) && push!(attributes, NamedAttribute("level", level))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.storage_specifier.get", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -461,7 +459,7 @@ function insert(value::Value, tensor::Value, lvlCoords::Vector{Value}; result=no
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.insert", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -506,7 +504,7 @@ function load(tensor::Value; result=nothing::Union{Nothing, IR.Type}, hasInserts
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(hasInserts) && push!(attributes, NamedAttribute("hasInserts", hasInserts))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.load", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -543,7 +541,7 @@ function new(source::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.new", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -573,7 +571,7 @@ function number_of_entries(tensor::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.number_of_entries", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -607,7 +605,7 @@ function out(tensor::Value, dest::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.out", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -659,7 +657,7 @@ function pack(values::Value, levels::Vector{Value}; result::IR.Type, location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.pack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -722,7 +720,7 @@ function push_back(curSize::Value, inBuffer::Value, value::Value, n=nothing::Uni
     !isnothing(newSize) && push!(op_ty_results, newSize)
     !isnothing(inbounds) && push!(attributes, NamedAttribute("inbounds", inbounds))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.push_back", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -780,7 +778,7 @@ function reduce(x::Value, y::Value, identity::Value; output=nothing::Union{Nothi
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.reduce", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -846,7 +844,7 @@ function select(x::Value; output=nothing::Union{Nothing, IR.Type}, region::Regio
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.select", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -876,7 +874,7 @@ function storage_specifier_set(specifier::Value, value::Value; result=nothing::U
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(level) && push!(attributes, NamedAttribute("level", level))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.storage_specifier.set", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -921,7 +919,7 @@ function sort_coo(n::Value, xy::Value, ys::Vector{Value}; nx=nothing, ny=nothing
     !isnothing(nx) && push!(attributes, NamedAttribute("nx", nx))
     !isnothing(ny) && push!(attributes, NamedAttribute("ny", ny))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.sort_coo", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -978,7 +976,7 @@ function sort(n::Value, xs::Vector{Value}, ys::Vector{Value}; algorithm, locatio
     attributes = NamedAttribute[NamedAttribute("algorithm", algorithm), ]
     push!(attributes, operandsegmentsizes([1, length(xs), length(ys), ]))
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.sort", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1021,7 +1019,7 @@ function storage_specifier_init(source=nothing::Union{Nothing, Value}; result::I
     attributes = NamedAttribute[]
     !isnothing(source) && push!(operands, source)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.storage_specifier.init", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1061,7 +1059,7 @@ function coordinates_buffer(tensor::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.coordinates_buffer", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1096,7 +1094,7 @@ function coordinates(tensor::Value; result::IR.Type, level, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("level", level), ]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.coordinates", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1131,7 +1129,7 @@ function positions(tensor::Value; result::IR.Type, level, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("level", level), ]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.positions", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1168,7 +1166,7 @@ function slice_offset(slice::Value; offset=nothing::Union{Nothing, IR.Type}, dim
     attributes = NamedAttribute[NamedAttribute("dim", dim), ]
     !isnothing(offset) && push!(op_ty_results, offset)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.slice.offset", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1206,7 +1204,7 @@ function slice_stride(slice::Value; stride=nothing::Union{Nothing, IR.Type}, dim
     attributes = NamedAttribute[NamedAttribute("dim", dim), ]
     !isnothing(stride) && push!(op_ty_results, stride)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.slice.stride", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1240,7 +1238,7 @@ function values(tensor::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.values", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1339,7 +1337,7 @@ function unary(x::Value; output::IR.Type, presentRegion::Region, absentRegion::R
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.unary", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1386,7 +1384,7 @@ function unpack(tensor::Value, out_values::Value, out_levels::Vector{Value}; ret
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.unpack", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1421,12 +1419,11 @@ function yield(result=nothing::Union{Nothing, Value}; location=Location())
     attributes = NamedAttribute[]
     !isnothing(result) && push!(operands, result)
     
-    create_operation(
+    IR.create_operation(
         "sparse_tensor.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # sparse_tensor

@@ -1,9 +1,7 @@
 module quant
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `const_fake_quant`
@@ -23,7 +21,7 @@ function const_fake_quant(inputs::Value; outputs=nothing::Union{Nothing, IR.Type
     !isnothing(narrow_range) && push!(attributes, NamedAttribute("narrow_range", narrow_range))
     !isnothing(is_signed) && push!(attributes, NamedAttribute("is_signed", is_signed))
     
-    create_operation(
+    IR.create_operation(
         "quant.const_fake_quant", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -50,7 +48,7 @@ function const_fake_quant_per_axis(inputs::Value; outputs=nothing::Union{Nothing
     !isnothing(narrow_range) && push!(attributes, NamedAttribute("narrow_range", narrow_range))
     !isnothing(is_signed) && push!(attributes, NamedAttribute("is_signed", is_signed))
     
-    create_operation(
+    IR.create_operation(
         "quant.const_fake_quant_per_axis", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -76,7 +74,7 @@ function coupled_ref(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, coup
     attributes = NamedAttribute[NamedAttribute("coupledKey", coupledKey), ]
     !isnothing(result_0) && push!(op_ty_results, result_0)
     
-    create_operation(
+    IR.create_operation(
         "quant.coupled_ref", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -95,7 +93,7 @@ function dcast(arg::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.dcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -114,7 +112,7 @@ function qcast(arg::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.qcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -133,7 +131,7 @@ function region(inputs::Vector{Value}; outputs::Vector{IR.Type}, input_specs, ou
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("input_specs", input_specs), NamedAttribute("output_specs", output_specs), NamedAttribute("logical_kernel", logical_kernel), ]
     
-    create_operation(
+    IR.create_operation(
         "quant.region", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -152,7 +150,7 @@ function return_(results::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.return", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -190,7 +188,7 @@ function stats(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, layerStats
     !isnothing(axisStats) && push!(attributes, NamedAttribute("axisStats", axisStats))
     !isnothing(axis) && push!(attributes, NamedAttribute("axis", axis))
     
-    create_operation(
+    IR.create_operation(
         "quant.stats", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -215,7 +213,7 @@ function stats_ref(arg::Value; result_0=nothing::Union{Nothing, IR.Type}, statsK
     attributes = NamedAttribute[NamedAttribute("statsKey", statsKey), ]
     !isnothing(result_0) && push!(op_ty_results, result_0)
     
-    create_operation(
+    IR.create_operation(
         "quant.stats_ref", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -234,12 +232,11 @@ function scast(arg::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "quant.scast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # quant

@@ -1,9 +1,7 @@
 module complex
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `abs`
@@ -23,7 +21,7 @@ function abs(complex::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "complex.abs", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -50,7 +48,7 @@ function add(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.add", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -76,7 +74,7 @@ function angle(complex::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "complex.angle", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -104,7 +102,7 @@ function atan2(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, 
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.atan2", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -132,7 +130,7 @@ function conj(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.conj", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -159,7 +157,7 @@ function constant(; complex::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "complex.constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -187,7 +185,7 @@ function cos(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.cos", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -214,7 +212,7 @@ function create(real::Value, imaginary::Value; complex::IR.Type, location=Locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "complex.create", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -240,7 +238,7 @@ function div(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.div", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -267,7 +265,7 @@ function eq(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.eq", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -296,7 +294,7 @@ function exp(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.exp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -329,7 +327,7 @@ function expm1(complex::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.expm1", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -355,7 +353,7 @@ function im(complex::Value; imaginary::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "complex.im", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -385,7 +383,7 @@ function log1p(complex::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.log1p", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -414,7 +412,7 @@ function log(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.log", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -439,7 +437,7 @@ function mul(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -466,7 +464,7 @@ function neg(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.neg", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -494,7 +492,7 @@ function neq(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.neq", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -522,7 +520,7 @@ function pow(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.pow", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -548,7 +546,7 @@ function re(complex::Value; real::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "complex.re", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -575,7 +573,7 @@ function rsqrt(complex::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.rsqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -603,7 +601,7 @@ function sign(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.sign", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -631,7 +629,7 @@ function sin(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.sin", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -658,7 +656,7 @@ function sqrt(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.sqrt", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -685,7 +683,7 @@ function sub(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, lo
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.sub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -713,7 +711,7 @@ function tan(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=L
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.tan", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -741,12 +739,11 @@ function tanh(complex::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "complex.tanh", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
         result_inference=(length(op_ty_results) == 0 ? true : false)
     )
 end
-
 end # complex

@@ -1,9 +1,7 @@
 module emitc
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `add`
@@ -31,7 +29,7 @@ function add(lhs::Value, rhs::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.add", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -64,7 +62,7 @@ function apply(operand::Value; result::IR.Type, applicableOperator, location=Loc
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("applicableOperator", applicableOperator), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.apply", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -98,7 +96,7 @@ function assign(var::Value, value::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.assign", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -129,7 +127,7 @@ function bitwise_and(lhs::Value, rhs::Value; result_0::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_and", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -160,7 +158,7 @@ function bitwise_left_shift(lhs::Value, rhs::Value; result_0::IR.Type, location=
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_left_shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -191,7 +189,7 @@ function bitwise_not(operand_0::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_not", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -222,7 +220,7 @@ function bitwise_or(lhs::Value, rhs::Value; result_0::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_or", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -253,7 +251,7 @@ function bitwise_right_shift(lhs::Value, rhs::Value; result_0::IR.Type, location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_right_shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -284,7 +282,7 @@ function bitwise_xor(lhs::Value, rhs::Value; result_0::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.bitwise_xor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -315,7 +313,7 @@ function call(operands::Vector{Value}; result_0::Vector{IR.Type}, callee, arg_at
     !isnothing(arg_attrs) && push!(attributes, NamedAttribute("arg_attrs", arg_attrs))
     !isnothing(res_attrs) && push!(attributes, NamedAttribute("res_attrs", res_attrs))
     
-    create_operation(
+    IR.create_operation(
         "emitc.call", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -352,7 +350,7 @@ function call_opaque(operands::Vector{Value}; result_0::Vector{IR.Type}, callee,
     !isnothing(args) && push!(attributes, NamedAttribute("args", args))
     !isnothing(template_args) && push!(attributes, NamedAttribute("template_args", template_args))
     
-    create_operation(
+    IR.create_operation(
         "emitc.call_opaque", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -385,7 +383,7 @@ function cast(source::Value; dest::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -433,7 +431,7 @@ function class(; sym_name, final_specifier=nothing, body::Region, location=Locat
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     !isnothing(final_specifier) && push!(attributes, NamedAttribute("final_specifier", final_specifier))
     
-    create_operation(
+    IR.create_operation(
         "emitc.class", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -480,7 +478,7 @@ function cmp(lhs::Value, rhs::Value; result_0::IR.Type, predicate, location=Loca
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("predicate", predicate), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.cmp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -519,7 +517,7 @@ function conditional(condition::Value, true_value::Value, false_value::Value; re
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.conditional", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -555,7 +553,7 @@ function constant(; result_0::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.constant", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -604,7 +602,7 @@ function declare_func(; sym_name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.declare_func", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -638,7 +636,7 @@ function div(operand_0::Value, operand_1::Value; result_0::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.div", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -690,7 +688,7 @@ function expression(; result::IR.Type, do_not_inline=nothing, region::Region, lo
     attributes = NamedAttribute[]
     !isnothing(do_not_inline) && push!(attributes, NamedAttribute("do_not_inline", do_not_inline))
     
-    create_operation(
+    IR.create_operation(
         "emitc.expression", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -721,7 +719,7 @@ function field(; sym_name, type, attrs=nothing, location=Location())
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
     !isnothing(attrs) && push!(attributes, NamedAttribute("attrs", attrs))
     
-    create_operation(
+    IR.create_operation(
         "emitc.field", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -755,7 +753,7 @@ function file(; id, bodyRegion::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("id", id), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.file", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -802,7 +800,7 @@ function for_(lowerBound::Value, upperBound::Value, step::Value; region::Region,
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.for", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -860,7 +858,7 @@ function func(; sym_name, function_type, specifiers=nothing, arg_attrs=nothing, 
     !isnothing(arg_attrs) && push!(attributes, NamedAttribute("arg_attrs", arg_attrs))
     !isnothing(res_attrs) && push!(attributes, NamedAttribute("res_attrs", res_attrs))
     
-    create_operation(
+    IR.create_operation(
         "emitc.func", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -887,7 +885,7 @@ function get_field(; result::IR.Type, field_name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("field_name", field_name), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.get_field", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -916,7 +914,7 @@ function get_global(; result::IR.Type, name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.get_global", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -968,7 +966,7 @@ function global_(; sym_name, type, initial_value=nothing, extern_specifier=nothi
     !isnothing(static_specifier) && push!(attributes, NamedAttribute("static_specifier", static_specifier))
     !isnothing(const_specifier) && push!(attributes, NamedAttribute("const_specifier", const_specifier))
     
-    create_operation(
+    IR.create_operation(
         "emitc.global", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1003,7 +1001,7 @@ function if_(condition::Value; thenRegion::Region, elseRegion::Region, location=
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.if", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1041,7 +1039,7 @@ function include_(; include_, is_standard_include=nothing, location=Location())
     attributes = NamedAttribute[NamedAttribute("include", include_), ]
     !isnothing(is_standard_include) && push!(attributes, NamedAttribute("is_standard_include", is_standard_include))
     
-    create_operation(
+    IR.create_operation(
         "emitc.include", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1073,7 +1071,7 @@ function literal(; result::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.literal", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1105,7 +1103,7 @@ function load(operand::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1136,7 +1134,7 @@ function logical_and(lhs::Value, rhs::Value; result_0::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.logical_and", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1167,7 +1165,7 @@ function logical_not(operand_0::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.logical_not", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1198,7 +1196,7 @@ function logical_or(lhs::Value, rhs::Value; result_0::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.logical_or", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1227,7 +1225,7 @@ function member_of_ptr(operand::Value; result_0::IR.Type, member, location=Locat
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("member", member), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.member_of_ptr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1255,7 +1253,7 @@ function member(operand::Value; result_0::IR.Type, member, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("member", member), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.member", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1289,7 +1287,7 @@ function mul(operand_0::Value, operand_1::Value; result_0::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.mul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1321,7 +1319,7 @@ function rem(operand_0::Value, operand_1::Value; result_0::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.rem", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1354,7 +1352,7 @@ function return_(operand=nothing::Union{Nothing, Value}; location=Location())
     attributes = NamedAttribute[]
     !isnothing(operand) && push!(operands, operand)
     
-    create_operation(
+    IR.create_operation(
         "emitc.return", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1391,7 +1389,7 @@ function sub(lhs::Value, rhs::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.sub", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1423,7 +1421,7 @@ function subscript(value::Value, indices::Vector{Value}; result::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.subscript", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1493,7 +1491,7 @@ function switch(arg::Value; cases, defaultRegion::Region, caseRegions::Vector{Re
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("cases", cases), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.switch", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1524,7 +1522,7 @@ function unary_minus(operand_0::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.unary_minus", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1555,7 +1553,7 @@ function unary_plus(operand_0::Value; result_0::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "emitc.unary_plus", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1604,7 +1602,7 @@ function variable(; result_0::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.variable", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1668,7 +1666,7 @@ function verbatim(fmtArgs::Vector{Value}; value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "emitc.verbatim", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1696,12 +1694,11 @@ function yield(result=nothing::Union{Nothing, Value}; location=Location())
     attributes = NamedAttribute[]
     !isnothing(result) && push!(operands, result)
     
-    create_operation(
+    IR.create_operation(
         "emitc.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # emitc

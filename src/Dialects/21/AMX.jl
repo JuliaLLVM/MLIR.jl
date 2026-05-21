@@ -1,9 +1,7 @@
 module amx
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `tile_load`
@@ -26,7 +24,7 @@ function tile_load(base::Value, indices::Vector{Value}; res::IR.Type, location=L
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -56,7 +54,7 @@ function tile_mulf(lhs::Value, rhs::Value, acc::Value; res::IR.Type, location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_mulf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -91,7 +89,7 @@ function tile_muli(lhs::Value, rhs::Value, acc::Value; res::IR.Type, isZextLhs=n
     !isnothing(isZextLhs) && push!(attributes, NamedAttribute("isZextLhs", isZextLhs))
     !isnothing(isZextRhs) && push!(attributes, NamedAttribute("isZextRhs", isZextRhs))
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_muli", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -120,7 +118,7 @@ function tile_store(base::Value, indices::Vector{Value}, val::Value; location=Lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_store", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -148,12 +146,11 @@ function tile_zero(; res::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amx.tile_zero", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # amx

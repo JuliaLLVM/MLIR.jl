@@ -1,9 +1,7 @@
 module tensor
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `bitcast`
@@ -26,7 +24,7 @@ function bitcast(source::Value; dest::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.bitcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -64,7 +62,7 @@ function cast(source::Value; dest::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -104,7 +102,7 @@ function collapse_shape(src::Value; result::IR.Type, reassociation, location=Loc
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("reassociation", reassociation), ]
     
-    create_operation(
+    IR.create_operation(
         "tensor.collapse_shape", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -142,7 +140,7 @@ function concat(inputs::Vector{Value}; result::IR.Type, dim, location=Location()
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("dim", dim), ]
     
-    create_operation(
+    IR.create_operation(
         "tensor.concat", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -183,7 +181,7 @@ function dim(source::Value, index::Value; result=nothing::Union{Nothing, IR.Type
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "tensor.dim", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -214,7 +212,7 @@ function empty(dynamicSizes::Vector{Value}; result::IR.Type, location=Location()
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.empty", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -254,7 +252,7 @@ function expand_shape(src::Value; result::IR.Type, reassociation, location=Locat
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("reassociation", reassociation), ]
     
-    create_operation(
+    IR.create_operation(
         "tensor.expand_shape", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -285,7 +283,7 @@ function extract(tensor::Value, indices::Vector{Value}; result=nothing::Union{No
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "tensor.extract", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -361,7 +359,7 @@ function extract_slice(source::Value, offsets::Vector{Value}, sizes::Vector{Valu
     attributes = NamedAttribute[NamedAttribute("static_offsets", static_offsets), NamedAttribute("static_sizes", static_sizes), NamedAttribute("static_strides", static_strides), ]
     push!(attributes, operandsegmentsizes([1, length(offsets), length(sizes), length(strides), ]))
     
-    create_operation(
+    IR.create_operation(
         "tensor.extract_slice", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -394,7 +392,7 @@ function from_elements(elements::Vector{Value}; result::IR.Type, location=Locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.from_elements", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -507,7 +505,7 @@ function gather(source::Value, indices::Value; result::IR.Type, gather_dims, uni
     attributes = NamedAttribute[NamedAttribute("gather_dims", gather_dims), ]
     !isnothing(unique) && push!(attributes, NamedAttribute("unique", unique))
     
-    create_operation(
+    IR.create_operation(
         "tensor.gather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -544,7 +542,7 @@ function generate(dynamicExtents::Vector{Value}; result::IR.Type, body::Region, 
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.generate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -579,7 +577,7 @@ function insert(scalar::Value, dest::Value, indices::Vector{Value}; result=nothi
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "tensor.insert", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -650,7 +648,7 @@ function insert_slice(source::Value, dest::Value, offsets::Vector{Value}, sizes:
     push!(attributes, operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides), ]))
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "tensor.insert_slice", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -735,7 +733,7 @@ function pack(source::Value, dest::Value, padding_value=nothing::Union{Nothing, 
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(outer_dims_perm) && push!(attributes, NamedAttribute("outer_dims_perm", outer_dims_perm))
     
-    create_operation(
+    IR.create_operation(
         "tensor.pack", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -840,7 +838,7 @@ function pad(source::Value, low::Vector{Value}, high::Vector{Value}; result::IR.
     push!(attributes, operandsegmentsizes([1, length(low), length(high), ]))
     !isnothing(nofold) && push!(attributes, NamedAttribute("nofold", nofold))
     
-    create_operation(
+    IR.create_operation(
         "tensor.pad", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -916,7 +914,7 @@ function parallel_insert_slice(source::Value, dest::Value, offsets::Vector{Value
     attributes = NamedAttribute[NamedAttribute("static_offsets", static_offsets), NamedAttribute("static_sizes", static_sizes), NamedAttribute("static_strides", static_strides), ]
     push!(attributes, operandsegmentsizes([1, 1, length(offsets), length(sizes), length(strides), ]))
     
-    create_operation(
+    IR.create_operation(
         "tensor.parallel_insert_slice", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -944,7 +942,7 @@ function rank(tensor::Value; result_0=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result_0) && push!(op_ty_results, result_0)
     
-    create_operation(
+    IR.create_operation(
         "tensor.rank", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -993,7 +991,7 @@ function reshape(source::Value, shape::Value; result::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.reshape", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1109,7 +1107,7 @@ function scatter(source::Value, dest::Value, indices::Value; result::IR.Type, sc
     attributes = NamedAttribute[NamedAttribute("scatter_dims", scatter_dims), ]
     !isnothing(unique) && push!(attributes, NamedAttribute("unique", unique))
     
-    create_operation(
+    IR.create_operation(
         "tensor.scatter", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1150,7 +1148,7 @@ function splat(input::Value, dynamicSizes::Vector{Value}; aggregate::IR.Type, lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.splat", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1206,7 +1204,7 @@ function unpack(source::Value, dest::Value, inner_tiles::Vector{Value}; result=n
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(outer_dims_perm) && push!(attributes, NamedAttribute("outer_dims_perm", outer_dims_perm))
     
-    create_operation(
+    IR.create_operation(
         "tensor.unpack", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1228,12 +1226,11 @@ function yield(value::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tensor.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # tensor

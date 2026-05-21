@@ -1,9 +1,7 @@
 module bufferization
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `clone`
@@ -28,7 +26,7 @@ function clone(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "bufferization.clone", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -60,7 +58,7 @@ function to_memref(tensor::Value; memref::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "bufferization.to_memref", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -96,12 +94,11 @@ function to_tensor(memref::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "bufferization.to_tensor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # bufferization

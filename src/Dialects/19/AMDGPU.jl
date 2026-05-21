@@ -1,9 +1,7 @@
 module amdgpu
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `ext_packed_fp8`
@@ -26,7 +24,7 @@ function ext_packed_fp8(source::Value; res::IR.Type, index, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.ext_packed_fp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -61,7 +59,7 @@ function lds_barrier(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.lds_barrier", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -112,7 +110,7 @@ function mfma(sourceA::Value, sourceB::Value, destC::Value; destD::IR.Type, m, n
     !isnothing(negateB) && push!(attributes, NamedAttribute("negateB", negateB))
     !isnothing(negateC) && push!(attributes, NamedAttribute("negateC", negateC))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.mfma", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -142,7 +140,7 @@ function packed_stoch_round_fp8(source::Value, stochiasticParam::Value, existing
     attributes = NamedAttribute[NamedAttribute("storeIndex", storeIndex), ]
     !isnothing(existing) && push!(operands, existing)
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.packed_stoch_round_fp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -173,7 +171,7 @@ function packed_trunc_2xfp8(sourceA::Value, sourceB=nothing::Union{Nothing, Valu
     !isnothing(existing) && push!(operands, existing)
     push!(attributes, operandsegmentsizes([1, Int(!isnothing(sourceB)), Int(!isnothing(existing)), ]))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.packed_trunc_2xfp8", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -211,7 +209,7 @@ function raw_buffer_atomic_cmpswap(src::Value, cmp::Value, memref::Value, indice
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_cmpswap", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -250,7 +248,7 @@ function raw_buffer_atomic_fadd(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_fadd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -288,7 +286,7 @@ function raw_buffer_atomic_fmax(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_fmax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -326,7 +324,7 @@ function raw_buffer_atomic_smax(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_smax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -364,7 +362,7 @@ function raw_buffer_atomic_umin(value::Value, memref::Value, indices::Vector{Val
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_atomic_umin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -415,7 +413,7 @@ function raw_buffer_load(memref::Value, indices::Vector{Value}, sgprOffset=nothi
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -454,7 +452,7 @@ function raw_buffer_store(value::Value, memref::Value, indices::Vector{Value}, s
     !isnothing(boundsCheck) && push!(attributes, NamedAttribute("boundsCheck", boundsCheck))
     !isnothing(indexOffset) && push!(attributes, NamedAttribute("indexOffset", indexOffset))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.raw_buffer_store", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -490,12 +488,11 @@ function wmma(sourceA::Value, sourceB::Value, destC::Value; destD::IR.Type, subw
     !isnothing(unsignedB) && push!(attributes, NamedAttribute("unsignedB", unsignedB))
     !isnothing(clamp) && push!(attributes, NamedAttribute("clamp", clamp))
     
-    create_operation(
+    IR.create_operation(
         "amdgpu.wmma", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # amdgpu

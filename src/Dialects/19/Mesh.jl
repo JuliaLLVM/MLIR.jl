@@ -1,9 +1,7 @@
 module mesh
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `all_gather`
@@ -49,7 +47,7 @@ function all_gather(input::Value; result::IR.Type, mesh, mesh_axes=nothing, gath
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("gather_axis", gather_axis), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.all_gather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -83,7 +81,7 @@ function all_reduce(input::Value; result::IR.Type, mesh, mesh_axes=nothing, redu
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     !isnothing(reduction) && push!(attributes, NamedAttribute("reduction", reduction))
     
-    create_operation(
+    IR.create_operation(
         "mesh.all_reduce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -139,7 +137,7 @@ function all_slice(input::Value; result::IR.Type, mesh, mesh_axes=nothing, slice
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("slice_axis", slice_axis), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.all_slice", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -190,7 +188,7 @@ function all_to_all(input::Value; result::IR.Type, mesh, mesh_axes=nothing, spli
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("split_axis", split_axis), NamedAttribute("concat_axis", concat_axis), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.all_to_all", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -242,7 +240,7 @@ function broadcast(input::Value, root_dynamic::Vector{Value}; result::IR.Type, m
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("root", root), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.broadcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -300,7 +298,7 @@ function gather(input::Value, root_dynamic::Vector{Value}; result::IR.Type, mesh
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("gather_axis", gather_axis), NamedAttribute("root", root), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.gather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -352,7 +350,7 @@ function mesh_(; sym_name, shape, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("shape", shape), ]
     
-    create_operation(
+    IR.create_operation(
         "mesh.mesh", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -372,7 +370,7 @@ function mesh_shape(; result::Vector{IR.Type}, mesh, axes=nothing, location=Loca
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), ]
     !isnothing(axes) && push!(attributes, NamedAttribute("axes", axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.mesh_shape", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -398,7 +396,7 @@ function process_linear_index(; result=nothing::Union{Nothing, IR.Type}, mesh, l
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "mesh.process_linear_index", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -421,7 +419,7 @@ function process_multi_index(; result::Vector{IR.Type}, mesh, axes=nothing, loca
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), ]
     !isnothing(axes) && push!(attributes, NamedAttribute("axes", axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.process_multi_index", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -443,7 +441,7 @@ function recv(input::Value, source_dynamic::Vector{Value}; result::IR.Type, mesh
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     !isnothing(source) && push!(attributes, NamedAttribute("source", source))
     
-    create_operation(
+    IR.create_operation(
         "mesh.recv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -481,7 +479,7 @@ function reduce(input::Value, root_dynamic::Vector{Value}; result::IR.Type, mesh
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     !isnothing(reduction) && push!(attributes, NamedAttribute("reduction", reduction))
     
-    create_operation(
+    IR.create_operation(
         "mesh.reduce", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -541,7 +539,7 @@ function reduce_scatter(input::Value; result::IR.Type, mesh, mesh_axes=nothing, 
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     !isnothing(reduction) && push!(attributes, NamedAttribute("reduction", reduction))
     
-    create_operation(
+    IR.create_operation(
         "mesh.reduce_scatter", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -604,7 +602,7 @@ function scatter(input::Value, root_dynamic::Vector{Value}; result::IR.Type, mes
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("scatter_axis", scatter_axis), NamedAttribute("root", root), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.scatter", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -625,7 +623,7 @@ function send(input::Value, destination_dynamic::Vector{Value}; result::IR.Type,
     attributes = NamedAttribute[NamedAttribute("mesh", mesh), NamedAttribute("destination", destination), ]
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     
-    create_operation(
+    IR.create_operation(
         "mesh.send", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -719,7 +717,7 @@ function shard(src::Value; result=nothing::Union{Nothing, IR.Type}, shard, annot
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(annotate_for_users) && push!(attributes, NamedAttribute("annotate_for_users", annotate_for_users))
     
-    create_operation(
+    IR.create_operation(
         "mesh.shard", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -775,12 +773,11 @@ function shift(input::Value; result::IR.Type, mesh, mesh_axes=nothing, shift_axi
     !isnothing(mesh_axes) && push!(attributes, NamedAttribute("mesh_axes", mesh_axes))
     !isnothing(rotate) && push!(attributes, NamedAttribute("rotate", rotate))
     
-    create_operation(
+    IR.create_operation(
         "mesh.shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # mesh

@@ -1,9 +1,7 @@
 module mpi
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `comm_rank`
@@ -21,7 +19,7 @@ function comm_rank(; retval=nothing::Union{Nothing, IR.Type}, rank::IR.Type, loc
     attributes = NamedAttribute[]
     !isnothing(retval) && push!(op_ty_results, retval)
     
-    create_operation(
+    IR.create_operation(
         "mpi.comm_rank", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -42,7 +40,7 @@ function error_class(val::Value; errclass::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "mpi.error_class", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -68,7 +66,7 @@ function finalize(; retval=nothing::Union{Nothing, IR.Type}, location=Location()
     attributes = NamedAttribute[]
     !isnothing(retval) && push!(op_ty_results, retval)
     
-    create_operation(
+    IR.create_operation(
         "mpi.finalize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -95,7 +93,7 @@ function init(; retval=nothing::Union{Nothing, IR.Type}, location=Location())
     attributes = NamedAttribute[]
     !isnothing(retval) && push!(op_ty_results, retval)
     
-    create_operation(
+    IR.create_operation(
         "mpi.init", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -126,7 +124,7 @@ function recv(ref::Value, tag::Value, rank::Value; retval=nothing::Union{Nothing
     attributes = NamedAttribute[]
     !isnothing(retval) && push!(op_ty_results, retval)
     
-    create_operation(
+    IR.create_operation(
         "mpi.recv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -147,7 +145,7 @@ function retval_check(val::Value; res::IR.Type, errclass, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("errclass", errclass), ]
     
-    create_operation(
+    IR.create_operation(
         "mpi.retval_check", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -175,12 +173,11 @@ function send(ref::Value, tag::Value, rank::Value; retval=nothing::Union{Nothing
     attributes = NamedAttribute[]
     !isnothing(retval) && push!(op_ty_results, retval)
     
-    create_operation(
+    IR.create_operation(
         "mpi.send", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # mpi

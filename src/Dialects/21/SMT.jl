@@ -1,9 +1,7 @@
 module smt
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `and`
@@ -24,7 +22,7 @@ function and(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.and", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -47,7 +45,7 @@ function apply_func(func::Value, args::Vector{Value}; result=nothing::Union{Noth
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.apply_func", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -82,7 +80,7 @@ function array_broadcast(value::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.array.broadcast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -106,7 +104,7 @@ function array_select(array::Value, index::Value; result=nothing::Union{Nothing,
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.array.select", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -131,7 +129,7 @@ function array_store(array::Value, index::Value, value::Value; result=nothing::U
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.array.store", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -147,7 +145,7 @@ function assert(input::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.assert", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -172,7 +170,7 @@ function bv2int(input::Value; result=nothing::Union{Nothing, IR.Type}, is_signed
     !isnothing(result) && push!(op_ty_results, result)
     !isnothing(is_signed) && push!(attributes, NamedAttribute("is_signed", is_signed))
     
-    create_operation(
+    IR.create_operation(
         "smt.bv2int", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -197,7 +195,7 @@ function bv_ashr(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.ashr", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -222,7 +220,7 @@ function bv_add(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.add", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -247,7 +245,7 @@ function bv_and(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.and", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -276,7 +274,7 @@ function bv_cmp(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[NamedAttribute("pred", pred), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.cmp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -307,7 +305,7 @@ function bv_constant(; result=nothing::Union{Nothing, IR.Type}, value, location=
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.constant", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -332,7 +330,7 @@ function bv_lshr(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.lshr", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -357,7 +355,7 @@ function bv_mul(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -382,7 +380,7 @@ function bv_neg(input::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.neg", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -407,7 +405,7 @@ function bv_not(input::Value; result=nothing::Union{Nothing, IR.Type}, location=
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.not", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -432,7 +430,7 @@ function bv_or(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}, 
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.or", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -457,7 +455,7 @@ function bv_sdiv(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.sdiv", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -482,7 +480,7 @@ function bv_smod(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.smod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -507,7 +505,7 @@ function bv_srem(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.srem", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -532,7 +530,7 @@ function bv_shl(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.shl", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -557,7 +555,7 @@ function bv_udiv(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.udiv", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -582,7 +580,7 @@ function bv_urem(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.urem", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -607,7 +605,7 @@ function bv_xor(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.xor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -630,7 +628,7 @@ function constant(; result=nothing::Union{Nothing, IR.Type}, value, location=Loc
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.constant", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -668,7 +666,7 @@ function check(; results::Vector{IR.Type}, satRegion::Region, unknownRegion::Reg
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.check", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -699,7 +697,7 @@ function bv_concat(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Typ
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.concat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -750,7 +748,7 @@ function declare_fun(; result::IR.Type, namePrefix=nothing, location=Location())
     attributes = NamedAttribute[]
     !isnothing(namePrefix) && push!(attributes, NamedAttribute("namePrefix", namePrefix))
     
-    create_operation(
+    IR.create_operation(
         "smt.declare_fun", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -793,7 +791,7 @@ function distinct(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.distinct", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -824,7 +822,7 @@ function eq(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type}, loca
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.eq", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -877,7 +875,7 @@ function exists(; result::IR.Type, weight=nothing, noPattern=nothing, boundVarNa
     !isnothing(noPattern) && push!(attributes, NamedAttribute("noPattern", noPattern))
     !isnothing(boundVarNames) && push!(attributes, NamedAttribute("boundVarNames", boundVarNames))
     
-    create_operation(
+    IR.create_operation(
         "smt.exists", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -909,7 +907,7 @@ function bv_extract(input::Value; result::IR.Type, lowBit, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("lowBit", lowBit), ]
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.extract", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -962,7 +960,7 @@ function forall(; result::IR.Type, weight=nothing, noPattern=nothing, boundVarNa
     !isnothing(noPattern) && push!(attributes, NamedAttribute("noPattern", noPattern))
     !isnothing(boundVarNames) && push!(attributes, NamedAttribute("boundVarNames", boundVarNames))
     
-    create_operation(
+    IR.create_operation(
         "smt.forall", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -986,7 +984,7 @@ function implies(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.implies", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1011,7 +1009,7 @@ function int2bv(input::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.int2bv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1035,7 +1033,7 @@ function int_abs(input::Value; result=nothing::Union{Nothing, IR.Type}, location
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.abs", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1059,7 +1057,7 @@ function int_add(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.add", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1085,7 +1083,7 @@ function int_cmp(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[NamedAttribute("pred", pred), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.cmp", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1111,7 +1109,7 @@ function int_constant(; result=nothing::Union{Nothing, IR.Type}, value, location
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.constant", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1135,7 +1133,7 @@ function int_div(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.div", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1159,7 +1157,7 @@ function int_mod(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.mod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1183,7 +1181,7 @@ function int_mul(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type},
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.mul", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1207,7 +1205,7 @@ function int_sub(lhs::Value, rhs::Value; result=nothing::Union{Nothing, IR.Type}
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.int.sub", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1232,7 +1230,7 @@ function ite(cond::Value, thenValue::Value, elseValue::Value; result=nothing::Un
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.ite", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1256,7 +1254,7 @@ function not(input::Value; result=nothing::Union{Nothing, IR.Type}, location=Loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.not", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1283,7 +1281,7 @@ function or(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type}, loca
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.or", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1299,7 +1297,7 @@ function pop(; count, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("count", count), ]
     
-    create_operation(
+    IR.create_operation(
         "smt.pop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1315,7 +1313,7 @@ function push(; count, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("count", count), ]
     
-    create_operation(
+    IR.create_operation(
         "smt.push", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1352,7 +1350,7 @@ function bv_repeat(input::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.bv.repeat", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1368,7 +1366,7 @@ function reset(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.reset", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1384,7 +1382,7 @@ function set_logic(; logic, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("logic", logic), ]
     
-    create_operation(
+    IR.create_operation(
         "smt.set_logic", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1437,7 +1435,7 @@ function solver(inputs::Vector{Value}; results::Vector{IR.Type}, bodyRegion::Reg
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.solver", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1464,7 +1462,7 @@ function xor(inputs::Vector{Value}; result=nothing::Union{Nothing, IR.Type}, loc
     attributes = NamedAttribute[]
     !isnothing(result) && push!(op_ty_results, result)
     
-    create_operation(
+    IR.create_operation(
         "smt.xor", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1480,12 +1478,11 @@ function yield(values::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "smt.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # smt

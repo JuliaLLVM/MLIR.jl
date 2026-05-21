@@ -1,9 +1,7 @@
 module acc
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `atomic_capture`
@@ -39,7 +37,7 @@ function atomic_capture(; region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.atomic.capture", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -62,7 +60,7 @@ function atomic_read(x::Value, v::Value; element_type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("element_type", element_type), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.atomic.read", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -101,7 +99,7 @@ function atomic_update(x::Value; region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.atomic.update", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -126,7 +124,7 @@ function atomic_write(x::Value, expr::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.atomic.write", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -179,7 +177,7 @@ function attach(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds:
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.attach", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -232,7 +230,7 @@ function cache(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds::
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.cache", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -285,7 +283,7 @@ function copyin(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds:
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.copyin", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -334,7 +332,7 @@ function copyout(accPtr::Value, varPtr::Value, bounds::Vector{Value}, asyncOpera
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.copyout", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -387,7 +385,7 @@ function create(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds:
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.create", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -446,7 +444,7 @@ function bounds(lowerbound=nothing::Union{Nothing, Value}; upperbound=nothing::U
     push!(attributes, operandsegmentsizes([Int(!isnothing(lowerbound)), Int(!isnothing(upperbound)), Int(!isnothing(extent)), Int(!isnothing(stride)), Int(!isnothing(startIdx)), ]))
     !isnothing(strideInBytes) && push!(attributes, NamedAttribute("strideInBytes", strideInBytes))
     
-    create_operation(
+    IR.create_operation(
         "acc.bounds", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -492,7 +490,7 @@ function data(ifCond=nothing::Union{Nothing, Value}; asyncOperands::Vector{Value
     !isnothing(waitOnly) && push!(attributes, NamedAttribute("waitOnly", waitOnly))
     !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
     
-    create_operation(
+    IR.create_operation(
         "acc.data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -545,7 +543,7 @@ function declare_device_resident(varPtr::Value, varPtrPtr=nothing::Union{Nothing
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.declare_device_resident", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -574,7 +572,7 @@ function declare_enter(dataClauseOperands::Vector{Value}; token::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.declare_enter", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -606,7 +604,7 @@ function declare_exit(token=nothing::Union{Nothing, Value}; dataClauseOperands::
     !isnothing(token) && push!(operands, token)
     push!(attributes, operandsegmentsizes([Int(!isnothing(token)), length(dataClauseOperands), ]))
     
-    create_operation(
+    IR.create_operation(
         "acc.declare_exit", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -659,7 +657,7 @@ function declare_link(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; b
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.declare_link", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -689,7 +687,7 @@ function declare(dataClauseOperands::Vector{Value}; region::Region, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.declare", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -738,7 +736,7 @@ function delete(accPtr::Value, bounds::Vector{Value}, asyncOperands::Vector{Valu
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.delete", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -787,7 +785,7 @@ function detach(accPtr::Value, bounds::Vector{Value}, asyncOperands::Vector{Valu
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.detach", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -840,7 +838,7 @@ function deviceptr(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; boun
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.deviceptr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -872,7 +870,7 @@ function enter_data(ifCond=nothing::Union{Nothing, Value}; asyncOperand=nothing:
     !isnothing(async) && push!(attributes, NamedAttribute("async", async))
     !isnothing(wait) && push!(attributes, NamedAttribute("wait", wait))
     
-    create_operation(
+    IR.create_operation(
         "acc.enter_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -905,7 +903,7 @@ function exit_data(ifCond=nothing::Union{Nothing, Value}; asyncOperand=nothing::
     !isnothing(wait) && push!(attributes, NamedAttribute("wait", wait))
     !isnothing(finalize) && push!(attributes, NamedAttribute("finalize", finalize))
     
-    create_operation(
+    IR.create_operation(
         "acc.exit_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -958,7 +956,7 @@ function firstprivate(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; b
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.firstprivate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1017,7 +1015,7 @@ function firstprivate_recipe(; sym_name, type, initRegion::Region, copyRegion::R
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.firstprivate.recipe", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1076,7 +1074,7 @@ function getdeviceptr(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; b
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.getdeviceptr", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1112,7 +1110,7 @@ function global_ctor(; sym_name, region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.global_ctor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1149,7 +1147,7 @@ function global_dtor(; sym_name, region::Region, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.global_dtor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1181,7 +1179,7 @@ function host_data(ifCond=nothing::Union{Nothing, Value}; dataClauseOperands::Ve
     push!(attributes, operandsegmentsizes([Int(!isnothing(ifCond)), length(dataClauseOperands), ]))
     !isnothing(ifPresent) && push!(attributes, NamedAttribute("ifPresent", ifPresent))
     
-    create_operation(
+    IR.create_operation(
         "acc.host_data", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1213,7 +1211,7 @@ function init(deviceNumOperand=nothing::Union{Nothing, Value}; ifCond=nothing::U
     push!(attributes, operandsegmentsizes([Int(!isnothing(deviceNumOperand)), Int(!isnothing(ifCond)), ]))
     !isnothing(device_types) && push!(attributes, NamedAttribute("device_types", device_types))
     
-    create_operation(
+    IR.create_operation(
         "acc.init", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1265,7 +1263,7 @@ function kernels(asyncOperands::Vector{Value}, waitOperands::Vector{Value}, numG
     !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
     !isnothing(combined) && push!(attributes, NamedAttribute("combined", combined))
     
-    create_operation(
+    IR.create_operation(
         "acc.kernels", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1325,7 +1323,7 @@ function loop(lowerbound::Vector{Value}, upperbound::Vector{Value}, step::Vector
     !isnothing(reductionRecipes) && push!(attributes, NamedAttribute("reductionRecipes", reductionRecipes))
     !isnothing(combined) && push!(attributes, NamedAttribute("combined", combined))
     
-    create_operation(
+    IR.create_operation(
         "acc.loop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1378,7 +1376,7 @@ function nocreate(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bound
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.nocreate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1432,7 +1430,7 @@ function parallel(asyncOperands::Vector{Value}, waitOperands::Vector{Value}, num
     !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
     !isnothing(combined) && push!(attributes, NamedAttribute("combined", combined))
     
-    create_operation(
+    IR.create_operation(
         "acc.parallel", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1485,7 +1483,7 @@ function present(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.present", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1538,7 +1536,7 @@ function private(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bounds
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.private", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1589,7 +1587,7 @@ function private_recipe(; sym_name, type, initRegion::Region, destroyRegion::Reg
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.private.recipe", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1642,7 +1640,7 @@ function reduction(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; boun
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.reduction", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1715,7 +1713,7 @@ function reduction_recipe(; sym_name, type, reductionOperator, initRegion::Regio
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("sym_name", sym_name), NamedAttribute("type", type), NamedAttribute("reductionOperator", reductionOperator), ]
     
-    create_operation(
+    IR.create_operation(
         "acc.reduction.recipe", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1763,7 +1761,7 @@ function routine(; sym_name, func_name, bindName=nothing, bindNameDeviceType=not
     !isnothing(gangDim) && push!(attributes, NamedAttribute("gangDim", gangDim))
     !isnothing(gangDimDeviceType) && push!(attributes, NamedAttribute("gangDimDeviceType", gangDimDeviceType))
     
-    create_operation(
+    IR.create_operation(
         "acc.routine", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1811,7 +1809,7 @@ function serial(asyncOperands::Vector{Value}, waitOperands::Vector{Value}, ifCon
     !isnothing(defaultAttr) && push!(attributes, NamedAttribute("defaultAttr", defaultAttr))
     !isnothing(combined) && push!(attributes, NamedAttribute("combined", combined))
     
-    create_operation(
+    IR.create_operation(
         "acc.serial", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1842,7 +1840,7 @@ function set(defaultAsync=nothing::Union{Nothing, Value}; deviceNum=nothing::Uni
     push!(attributes, operandsegmentsizes([Int(!isnothing(defaultAsync)), Int(!isnothing(deviceNum)), Int(!isnothing(ifCond)), ]))
     !isnothing(device_type) && push!(attributes, NamedAttribute("device_type", device_type))
     
-    create_operation(
+    IR.create_operation(
         "acc.set", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1874,7 +1872,7 @@ function shutdown(deviceNumOperand=nothing::Union{Nothing, Value}; ifCond=nothin
     push!(attributes, operandsegmentsizes([Int(!isnothing(deviceNumOperand)), Int(!isnothing(ifCond)), ]))
     !isnothing(device_types) && push!(attributes, NamedAttribute("device_types", device_types))
     
-    create_operation(
+    IR.create_operation(
         "acc.shutdown", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1897,7 +1895,7 @@ function terminator(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.terminator", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1950,7 +1948,7 @@ function update_device(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; 
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.update_device", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1999,7 +1997,7 @@ function update_host(accPtr::Value, varPtr::Value, bounds::Vector{Value}, asyncO
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.update_host", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2041,7 +2039,7 @@ function update(ifCond=nothing::Union{Nothing, Value}; asyncOperands::Vector{Val
     !isnothing(waitOnly) && push!(attributes, NamedAttribute("waitOnly", waitOnly))
     !isnothing(ifPresent) && push!(attributes, NamedAttribute("ifPresent", ifPresent))
     
-    create_operation(
+    IR.create_operation(
         "acc.update", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2094,7 +2092,7 @@ function use_device(varPtr::Value, varPtrPtr=nothing::Union{Nothing, Value}; bou
     !isnothing(implicit) && push!(attributes, NamedAttribute("implicit", implicit))
     !isnothing(name) && push!(attributes, NamedAttribute("name", name))
     
-    create_operation(
+    IR.create_operation(
         "acc.use_device", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2132,7 +2130,7 @@ function wait(waitOperands::Vector{Value}, asyncOperand=nothing::Union{Nothing, 
     push!(attributes, operandsegmentsizes([length(waitOperands), Int(!isnothing(asyncOperand)), Int(!isnothing(waitDevnum)), Int(!isnothing(ifCond)), ]))
     !isnothing(async) && push!(attributes, NamedAttribute("async", async))
     
-    create_operation(
+    IR.create_operation(
         "acc.wait", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -2154,12 +2152,11 @@ function yield(operands::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "acc.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # acc

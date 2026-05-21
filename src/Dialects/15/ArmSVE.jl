@@ -1,9 +1,7 @@
 module arm_sve
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `intr_fadd`
@@ -16,7 +14,7 @@ function intr_fadd(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.fadd", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -38,7 +36,7 @@ function masked_addf(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.addf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -57,7 +55,7 @@ function intr_add(operand_0::Value, operand_1::Value, operand_2::Value; res::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.add", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -79,7 +77,7 @@ function masked_addi(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.addi", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -98,7 +96,7 @@ function intr_fdiv(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.fdiv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -120,7 +118,7 @@ function masked_divf(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.divf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -139,7 +137,7 @@ function intr_fmul(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.fmul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -161,7 +159,7 @@ function masked_mulf(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.mulf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -180,7 +178,7 @@ function intr_mul(operand_0::Value, operand_1::Value, operand_2::Value; res::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.mul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -202,7 +200,7 @@ function masked_muli(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.muli", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -221,7 +219,7 @@ function intr_sdiv(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.sdiv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -243,7 +241,7 @@ function masked_divi_signed(mask::Value, src1::Value, src2::Value; res::IR.Type,
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.divi_signed", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -262,7 +260,7 @@ function intr_fsub(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.fsub", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -284,7 +282,7 @@ function masked_subf(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.subf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -303,7 +301,7 @@ function intr_sub(operand_0::Value, operand_1::Value, operand_2::Value; res::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.sub", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -325,7 +323,7 @@ function masked_subi(mask::Value, src1::Value, src2::Value; res::IR.Type, locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.subi", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -344,7 +342,7 @@ function intr_udiv(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.udiv", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -366,7 +364,7 @@ function masked_divi_unsigned(mask::Value, src1::Value, src2::Value; res::IR.Typ
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.masked.divi_unsigned", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -385,7 +383,7 @@ function intr_sdot(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.sdot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -414,7 +412,7 @@ function sdot(acc::Value, src1::Value, src2::Value; dst::IR.Type, location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.sdot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -433,7 +431,7 @@ function intr_smmla(operand_0::Value, operand_1::Value, operand_2::Value; res::I
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.smmla", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -465,7 +463,7 @@ function smmla(acc::Value, src1::Value, src2::Value; dst::IR.Type, location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.smmla", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -484,7 +482,7 @@ function intr_udot(operand_0::Value, operand_1::Value, operand_2::Value; res::IR
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.udot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -513,7 +511,7 @@ function udot(acc::Value, src1::Value, src2::Value; dst::IR.Type, location=Locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.udot", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -532,7 +530,7 @@ function intr_ummla(operand_0::Value, operand_1::Value, operand_2::Value; res::I
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.intr.ummla", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -564,12 +562,11 @@ function ummla(acc::Value, src1::Value, src2::Value; dst::IR.Type, location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "arm_sve.ummla", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # arm_sve

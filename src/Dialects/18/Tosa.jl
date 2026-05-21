@@ -1,9 +1,7 @@
 module tosa
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `abs`
@@ -23,7 +21,7 @@ function abs(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.abs", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -54,7 +52,7 @@ function add(input1::Value, input2::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.add", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -79,7 +77,7 @@ function apply_scale(value::Value, multiplier::Value, shift::Value; output::IR.T
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("double_round", double_round), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.apply_scale", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -100,7 +98,7 @@ function argmax(input::Value; output::IR.Type, axis, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.argmax", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -121,7 +119,7 @@ function arithmetic_right_shift(input1::Value, input2::Value; output::IR.Type, r
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("round", round), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.arithmetic_right_shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -144,7 +142,7 @@ function avg_pool2d(input::Value; output::IR.Type, kernel, stride, pad, acc_type
     attributes = NamedAttribute[NamedAttribute("kernel", kernel), NamedAttribute("stride", stride), NamedAttribute("pad", pad), NamedAttribute("acc_type", acc_type), ]
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     
-    create_operation(
+    IR.create_operation(
         "tosa.avg_pool2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -165,7 +163,7 @@ function bitwise_and(input1::Value, input2::Value; output::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.bitwise_and", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -185,7 +183,7 @@ function bitwise_not(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.bitwise_not", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -206,7 +204,7 @@ function bitwise_or(input1::Value, input2::Value; output::IR.Type, location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.bitwise_or", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -227,7 +225,7 @@ function bitwise_xor(input1::Value, input2::Value; output::IR.Type, location=Loc
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.bitwise_xor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -268,7 +266,7 @@ function cast(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.cast", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -288,7 +286,7 @@ function ceil(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.ceil", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -312,7 +310,7 @@ function clamp(input::Value; output::IR.Type, min_int, max_int, min_fp, max_fp, 
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("min_int", min_int), NamedAttribute("max_int", max_int), NamedAttribute("min_fp", min_fp), NamedAttribute("max_fp", max_fp), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.clamp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -332,7 +330,7 @@ function clz(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.clz", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -354,7 +352,7 @@ function concat(input1::Vector{Value}; output=nothing::Union{Nothing, IR.Type}, 
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.concat", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -383,7 +381,7 @@ function const_(; output=nothing::Union{Nothing, IR.Type}, value, location=Locat
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.const", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -406,7 +404,7 @@ function conv2d(input::Value, weight::Value, bias::Value; output::IR.Type, pad, 
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.conv2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -428,7 +426,7 @@ function conv3d(input::Value, weight::Value, bias::Value; output::IR.Type, pad, 
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.conv3d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -473,7 +471,7 @@ function custom(inputs::Vector{Value}; outputs::Vector{IR.Type}, operator_name, 
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("operator_name", operator_name), NamedAttribute("domain_name", domain_name), NamedAttribute("implementation_attrs", implementation_attrs), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.custom", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -496,7 +494,7 @@ function depthwise_conv2d(input::Value, weight::Value, bias::Value; output::IR.T
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.depthwise_conv2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -517,7 +515,7 @@ function div(input1::Value, input2::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.div", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -538,7 +536,7 @@ function equal(input1::Value, input2::Value; output=nothing::Union{Nothing, IR.T
     attributes = NamedAttribute[]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.equal", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -561,7 +559,7 @@ function erf(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.erf", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -581,7 +579,7 @@ function exp(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.exp", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -612,7 +610,7 @@ function fft2d(input_real::Value, input_imag::Value; output_real::IR.Type, outpu
     attributes = NamedAttribute[NamedAttribute("inverse", inverse), ]
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.fft2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -632,7 +630,7 @@ function floor(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.floor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -653,7 +651,7 @@ function fully_connected(input::Value, weight::Value, bias::Value; output::IR.Ty
     attributes = NamedAttribute[]
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     
-    create_operation(
+    IR.create_operation(
         "tosa.fully_connected", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -674,7 +672,7 @@ function gather(values::Value, indices::Value; output::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.gather", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -694,7 +692,7 @@ function greater_equal(input1::Value, input2::Value; output::IR.Type, location=L
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.greater_equal", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -714,7 +712,7 @@ function greater(input1::Value, input2::Value; output::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.greater", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -735,7 +733,7 @@ function identity(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.identity", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -756,7 +754,7 @@ function cond_if(cond::Value, inputs::Vector{Value}; output::Vector{IR.Type}, th
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.cond_if", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -776,7 +774,7 @@ function log(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.log", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -797,7 +795,7 @@ function logical_and(input1::Value, input2::Value; z::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_and", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -818,7 +816,7 @@ function logical_left_shift(input1::Value, input2::Value; output::IR.Type, locat
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_left_shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -838,7 +836,7 @@ function logical_not(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_not", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -859,7 +857,7 @@ function logical_or(input1::Value, input2::Value; z::IR.Type, location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_or", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -880,7 +878,7 @@ function logical_right_shift(input1::Value, input2::Value; output::IR.Type, loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_right_shift", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -901,7 +899,7 @@ function logical_xor(input1::Value, input2::Value; z::IR.Type, location=Location
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.logical_xor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -924,7 +922,7 @@ function matmul(a::Value, b::Value; c::IR.Type, quantization_info=nothing, locat
     attributes = NamedAttribute[]
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     
-    create_operation(
+    IR.create_operation(
         "tosa.matmul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -947,7 +945,7 @@ function max_pool2d(input::Value; output::IR.Type, kernel, stride, pad, location
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("kernel", kernel), NamedAttribute("stride", stride), NamedAttribute("pad", pad), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.max_pool2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -968,7 +966,7 @@ function maximum(input1::Value, input2::Value; output::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.maximum", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -989,7 +987,7 @@ function minimum(input1::Value, input2::Value; output::IR.Type, location=Locatio
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.minimum", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1011,7 +1009,7 @@ function mul(input1::Value, input2::Value; output::IR.Type, shift, location=Loca
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("shift", shift), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.mul", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1032,7 +1030,7 @@ function negate(input1::Value; output::IR.Type, quantization_info=nothing, locat
     attributes = NamedAttribute[]
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     
-    create_operation(
+    IR.create_operation(
         "tosa.negate", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1070,7 +1068,7 @@ function pad(input1::Value, padding::Value, pad_const=nothing::Union{Nothing, Va
     !isnothing(pad_const) && push!(operands, pad_const)
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     
-    create_operation(
+    IR.create_operation(
         "tosa.pad", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1091,7 +1089,7 @@ function pow(input1::Value, input2::Value; z::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.pow", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1123,7 +1121,7 @@ function rfft2d(input::Value; output_real::IR.Type, output_imag::IR.Type, local_
     attributes = NamedAttribute[]
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.rfft2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1144,7 +1142,7 @@ function reciprocal(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.reciprocal", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1165,7 +1163,7 @@ function reduce_all(input::Value; output=nothing::Union{Nothing, IR.Type}, axis,
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_all", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1186,7 +1184,7 @@ function reduce_any(input::Value; output=nothing::Union{Nothing, IR.Type}, axis,
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_any", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1207,7 +1205,7 @@ function reduce_max(input::Value; output=nothing::Union{Nothing, IR.Type}, axis,
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_max", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1228,7 +1226,7 @@ function reduce_min(input::Value; output=nothing::Union{Nothing, IR.Type}, axis,
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_min", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1249,7 +1247,7 @@ function reduce_prod(input::Value; output=nothing::Union{Nothing, IR.Type}, axis
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_prod", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1270,7 +1268,7 @@ function reduce_sum(input::Value; output=nothing::Union{Nothing, IR.Type}, axis,
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reduce_sum", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1305,7 +1303,7 @@ function rescale(input::Value; output::IR.Type, input_zp, output_zp, multiplier,
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("input_zp", input_zp), NamedAttribute("output_zp", output_zp), NamedAttribute("multiplier", multiplier), NamedAttribute("shift", shift), NamedAttribute("scale32", scale32), NamedAttribute("double_round", double_round), NamedAttribute("per_channel", per_channel), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.rescale", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1328,7 +1326,7 @@ function reshape(input1::Value; output=nothing::Union{Nothing, IR.Type}, new_sha
     attributes = NamedAttribute[NamedAttribute("new_shape", new_shape), ]
     !isnothing(output) && push!(op_ty_results, output)
     
-    create_operation(
+    IR.create_operation(
         "tosa.reshape", location;
         operands, owned_regions, successors, attributes,
         results=(length(op_ty_results) == 0 ? nothing : op_ty_results),
@@ -1353,7 +1351,7 @@ function resize(input::Value; output::IR.Type, scale, offset, border, mode, loca
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("scale", scale), NamedAttribute("offset", offset), NamedAttribute("border", border), NamedAttribute("mode", mode), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.resize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1375,7 +1373,7 @@ function reverse(input::Value; output::IR.Type, axis, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("axis", axis), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.reverse", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1396,7 +1394,7 @@ function rsqrt(input1::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.rsqrt", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1417,7 +1415,7 @@ function scatter(values_in::Value, indices::Value, input::Value; values_out::IR.
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.scatter", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1437,7 +1435,7 @@ function select(pred::Value, on_true::Value, on_false::Value; output::IR.Type, l
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.select", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1461,7 +1459,7 @@ function sigmoid(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.sigmoid", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1483,7 +1481,7 @@ function slice(input::Value; output::IR.Type, start, size, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("start", start), NamedAttribute("size", size), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.slice", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1504,7 +1502,7 @@ function sub(input1::Value, input2::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.sub", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1537,7 +1535,7 @@ function table(input::Value, table::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.table", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1560,7 +1558,7 @@ function tanh(input::Value; output::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.tanh", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1580,7 +1578,7 @@ function tile(input1::Value; output::IR.Type, multiples, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("multiples", multiples), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.tile", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1603,7 +1601,7 @@ function transpose_conv2d(input::Value, filter::Value, bias::Value; output::IR.T
     !isnothing(quantization_info) && push!(attributes, NamedAttribute("quantization_info", quantization_info))
     !isnothing(local_bound) && push!(attributes, NamedAttribute("local_bound", local_bound))
     
-    create_operation(
+    IR.create_operation(
         "tosa.transpose_conv2d", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1623,7 +1621,7 @@ function transpose(input1::Value, perms::Value; output::IR.Type, location=Locati
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.transpose", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1645,7 +1643,7 @@ function variable(; name, type, initial_value=nothing, location=Location())
     attributes = NamedAttribute[NamedAttribute("name", name), NamedAttribute("type", type), ]
     !isnothing(initial_value) && push!(attributes, NamedAttribute("initial_value", initial_value))
     
-    create_operation(
+    IR.create_operation(
         "tosa.variable", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1665,7 +1663,7 @@ function variable_read(; value::IR.Type, name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.variable.read", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1685,7 +1683,7 @@ function variable_write(value::Value; name, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     
-    create_operation(
+    IR.create_operation(
         "tosa.variable.write", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1708,7 +1706,7 @@ function while_loop(inputs::Vector{Value}; output::Vector{IR.Type}, cond::Region
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.while_loop", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1730,12 +1728,11 @@ function yield(inputs::Vector{Value}; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "tosa.yield", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # tosa

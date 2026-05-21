@@ -1,9 +1,7 @@
 module pdl_interp
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `apply_constraint`
@@ -30,7 +28,7 @@ function apply_constraint(args::Vector{Value}; name, constParams=nothing, trueDe
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     !isnothing(constParams) && push!(attributes, NamedAttribute("constParams", constParams))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.apply_constraint", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -73,7 +71,7 @@ function apply_rewrite(args::Vector{Value}; results::Vector{IR.Type}, name, cons
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     !isnothing(constParams) && push!(attributes, NamedAttribute("constParams", constParams))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.apply_rewrite", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -101,7 +99,7 @@ function are_equal(lhs::Value, rhs::Value; trueDest::Block, falseDest::Block, lo
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.are_equal", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -129,7 +127,7 @@ function branch(; dest::Block, location=Location())
     successors = Block[dest, ]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.branch", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -157,7 +155,7 @@ function check_attribute(attribute::Value; constantValue, trueDest::Block, false
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[NamedAttribute("constantValue", constantValue), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_attribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -192,7 +190,7 @@ function check_operand_count(operation::Value; count, compareAtLeast=nothing, tr
     attributes = NamedAttribute[NamedAttribute("count", count), ]
     !isnothing(compareAtLeast) && push!(attributes, NamedAttribute("compareAtLeast", compareAtLeast))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_operand_count", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -220,7 +218,7 @@ function check_operation_name(operation::Value; name, trueDest::Block, falseDest
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_operation_name", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -255,7 +253,7 @@ function check_result_count(operation::Value; count, compareAtLeast=nothing, tru
     attributes = NamedAttribute[NamedAttribute("count", count), ]
     !isnothing(compareAtLeast) && push!(attributes, NamedAttribute("compareAtLeast", compareAtLeast))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_result_count", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -283,7 +281,7 @@ function check_type(value::Value; type, trueDest::Block, falseDest::Block, locat
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[NamedAttribute("type", type), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -311,7 +309,7 @@ function check_types(value::Value; types, trueDest::Block, falseDest::Block, loc
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[NamedAttribute("types", types), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.check_types", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -339,7 +337,7 @@ function continue_(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.continue", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -366,7 +364,7 @@ function create_attribute(; attribute::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.create_attribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -397,7 +395,7 @@ function create_operation(operands::Vector{Value}, attributes::Vector{Value}, ty
     attributes = NamedAttribute[NamedAttribute("name", name), NamedAttribute("attributeNames", attributeNames), ]
     push!(attributes, operandsegmentsizes([length(operands), length(attributes), length(types), ]))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.create_operation", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -424,7 +422,7 @@ function create_type(; result::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.create_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -451,7 +449,7 @@ function create_types(; result::IR.Type, value, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("value", value), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.create_types", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -479,7 +477,7 @@ function erase(operation::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.erase", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -507,7 +505,7 @@ function extract(range::Value; result::IR.Type, index, location=Location())
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.extract", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -534,7 +532,7 @@ function finalize(; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.finalize", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -568,7 +566,7 @@ function foreach(values::Value; region::Region, successor::Block, location=Locat
     successors = Block[successor, ]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.foreach", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -596,7 +594,7 @@ function get_attribute(operation::Value; attribute::IR.Type, name, location=Loca
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("name", name), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_attribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -623,7 +621,7 @@ function get_attribute_type(value::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_attribute_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -652,7 +650,7 @@ function get_defining_op(value::Value; operation::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_defining_op", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -680,7 +678,7 @@ function get_operand(operation::Value; value::IR.Type, index, location=Location(
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_operand", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -719,7 +717,7 @@ function get_operands(operation::Value; value::IR.Type, index=nothing, location=
     attributes = NamedAttribute[]
     !isnothing(index) && push!(attributes, NamedAttribute("index", index))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_operands", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -747,7 +745,7 @@ function get_result(operation::Value; value::IR.Type, index, location=Location()
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("index", index), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_result", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -786,7 +784,7 @@ function get_results(operation::Value; value::IR.Type, index=nothing, location=L
     attributes = NamedAttribute[]
     !isnothing(index) && push!(attributes, NamedAttribute("index", index))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_results", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -818,7 +816,7 @@ function get_users(value::Value; operations::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_users", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -849,7 +847,7 @@ function get_value_type(value::Value; result::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.get_value_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -877,7 +875,7 @@ function inferred_types(; type::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.inferred_types", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -906,7 +904,7 @@ function is_not_null(value::Value; trueDest::Block, falseDest::Block, location=L
     successors = Block[trueDest, falseDest, ]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.is_not_null", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -939,7 +937,7 @@ function record_match(inputs::Vector{Value}, matchedOps::Vector{Value}; rewriter
     !isnothing(rootKind) && push!(attributes, NamedAttribute("rootKind", rootKind))
     !isnothing(generatedOps) && push!(attributes, NamedAttribute("generatedOps", generatedOps))
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.record_match", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -969,7 +967,7 @@ function replace(operation::Value, replValues::Vector{Value}; location=Location(
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.replace", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -998,7 +996,7 @@ function switch_attribute(attribute::Value; caseValues, defaultDest::Block, case
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_attribute", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1027,7 +1025,7 @@ function switch_operand_count(operation::Value; caseValues, defaultDest::Block, 
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_operand_count", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1056,7 +1054,7 @@ function switch_operation_name(operation::Value; caseValues, defaultDest::Block,
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_operation_name", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1085,7 +1083,7 @@ function switch_result_count(operation::Value; caseValues, defaultDest::Block, c
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_result_count", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1114,7 +1112,7 @@ function switch_type(value::Value; caseValues, defaultDest::Block, cases::Vector
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_type", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -1143,12 +1141,11 @@ function switch_types(value::Value; caseValues, defaultDest::Block, cases::Vecto
     successors = Block[defaultDest, cases..., ]
     attributes = NamedAttribute[NamedAttribute("caseValues", caseValues), ]
     
-    create_operation(
+    IR.create_operation(
         "pdl_interp.switch_types", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # pdl_interp

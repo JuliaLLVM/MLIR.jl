@@ -1,9 +1,7 @@
 module nvgpu
 
-import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, create_operation, context, IndexType
+import ...IR: IR, NamedAttribute, Value, Location, Block, Region, Attribute, context, IndexType
 import ..Dialects: operandsegmentsizes, resultsegmentsizes
-import ...API
-
 
 """
 `device_async_copy`
@@ -65,7 +63,7 @@ function device_async_copy(dst::Value, dstIndices::Vector{Value}, src::Value, sr
     push!(attributes, operandsegmentsizes([1, length(dstIndices), 1, length(srcIndices), Int(!isnothing(srcElements)), ]))
     !isnothing(bypassL1) && push!(attributes, NamedAttribute("bypassL1", bypassL1))
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.device_async_copy", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -100,7 +98,7 @@ function device_async_create_group(inputTokens::Vector{Value}; asyncToken::IR.Ty
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.device_async_create_group", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -134,7 +132,7 @@ function device_async_wait(asyncDependencies::Value; numGroups=nothing, location
     attributes = NamedAttribute[]
     !isnothing(numGroups) && push!(attributes, NamedAttribute("numGroups", numGroups))
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.device_async_wait", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -167,7 +165,7 @@ function ldmatrix(srcMemref::Value, indices::Vector{Value}; res::IR.Type, transp
     successors = Block[]
     attributes = NamedAttribute[NamedAttribute("transpose", transpose), NamedAttribute("numTiles", numTiles), ]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.ldmatrix", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -199,7 +197,7 @@ function mbarrier_arrive_expect_tx(barrier::Value, txcount::Value; location=Loca
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.arrive.expect_tx", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -227,7 +225,7 @@ function mbarrier_arrive_nocomplete(barrier::Value, count::Value; token::IR.Type
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.arrive.nocomplete", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -256,7 +254,7 @@ function mbarrier_arrive(barrier::Value; token::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.arrive", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -285,7 +283,7 @@ function mbarrier_create(; barrier::IR.Type, location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.create", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -312,7 +310,7 @@ function mbarrier_init(barrier::Value, count::Value; location=Location())
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.init", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -338,7 +336,7 @@ function mbarrier_test_wait(barrier::Value, token::Value; waitComplete::IR.Type,
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.test.wait", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -366,7 +364,7 @@ function mbarrier_try_wait_parity(barrier::Value, phase::Value, ticks::Value; lo
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mbarrier.try_wait.parity", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -407,7 +405,7 @@ function mma_sp_sync(matrixA::Value, matrixB::Value, matrixC::Value, sparseMetad
     !isnothing(sparsitySelector) && push!(attributes, NamedAttribute("sparsitySelector", sparsitySelector))
     !isnothing(tf32Enabled) && push!(attributes, NamedAttribute("tf32Enabled", tf32Enabled))
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mma.sp.sync", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -445,7 +443,7 @@ function mma_sync(matrixA::Value, matrixB::Value, matrixC::Value; res::IR.Type, 
     attributes = NamedAttribute[NamedAttribute("mmaShape", mmaShape), ]
     !isnothing(tf32Enabled) && push!(attributes, NamedAttribute("tf32Enabled", tf32Enabled))
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.mma.sync", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -471,7 +469,7 @@ function tma_async_load(dst::Value, barrier::Value, tensorMapDescriptor::Value, 
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.tma.async.load", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
@@ -500,12 +498,11 @@ function tma_create_descriptor(tensor::Value, boxDimensions::Vector{Value}; tens
     successors = Block[]
     attributes = NamedAttribute[]
     
-    create_operation(
+    IR.create_operation(
         "nvgpu.tma.create.descriptor", location;
         operands, owned_regions, successors, attributes,
         results=op_ty_results,
         result_inference=false
     )
 end
-
 end # nvgpu
