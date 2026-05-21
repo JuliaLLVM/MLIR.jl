@@ -134,16 +134,20 @@ function mlir_dialects(version::VersionNumber)
 
     dialects["llvm"] = (;
         output_file="LLVMIR.jl",
-        td_files=["LLVMIR/LLVMOps.td", "LLVMIR/NVVMOps.td", "LLVMIR/ROCDLOps.td"],
+        td_files=["LLVMIR/LLVMOps.td"],
     )
     if v"16" <= version
         push!(dialects["llvm"].td_files, "LLVMIR/LLVMIntrinsicOps.td")
     end
+
+    dialects["nvvm"] = (; output_file="NVVM.jl", td_files=["LLVMIR/NVVMOps.td"])
+    dialects["rocdl"] = (; output_file="ROCDL.jl", td_files=["LLVMIR/ROCDLOps.td"])
+
     if v"19" <= version
-        push!(dialects["llvm"].td_files, "LLVMIR/VCIXOps.td")
+        dialects["vcix"] = (; output_file="VCIX.jl", td_files=["LLVMIR/VCIXOps.td"])
     end
     if v"21" <= version
-        push!(dialects["llvm"].td_files, "LLVMIR/XeVMOps.td")
+        dialects["xevm"] = (; output_file="XeVM.jl", td_files=["LLVMIR/XeVMOps.td"])
     end
 
     dialects["math"] = (; output_file="Math.jl", td_files=["Math/IR/MathOps.td"])
@@ -166,10 +170,10 @@ function mlir_dialects(version::VersionNumber)
         dialects["mpi"] = (; output_file="MPI.jl", td_files=["MPI/IR/MPIOps.td"])
     end
 
-    # dialect added in v15
-    # if v"15" <= version
-    #     dialects["nvgpu"] = (; output_file="NVGPU.jl", td_files=["NVGPU/IR/NVGPU.td"])
-    # end
+    # dialect added in v15, but no ops until v21
+    if v"21" <= version
+        dialects["nvgpu"] = (; output_file="NVGPU.jl", td_files=["NVGPU/IR/NVGPU.td"])
+    end
 
     dialects["omp"] = (; output_file="OpenMP.jl", td_files=["OpenMP/OpenMPOps.td"])
     dialects["pdl_interp"] = (;
@@ -177,8 +181,8 @@ function mlir_dialects(version::VersionNumber)
     )
     dialects["pdl"] = (; output_file="PDL.jl", td_files=["PDL/IR/PDLOps.td"])
 
-    # dialect added in v19 and removed in v20
-    if v"19" <= version < v"20"
+    # dialect added in v19 and removed in v21
+    if v"19" <= version < v"21"
         dialects["polynomial"] = (;
             output_file="Polynomial.jl", td_files=["Polynomial/IR/Polynomial.td"]
         )
