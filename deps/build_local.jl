@@ -39,6 +39,9 @@ s = ArgParseSettings()
     "--debug"
         help = "Build with debug symbols."
         action = :store_true
+    "--disable-cleanup"
+        help = "Don't delete install directory after building."
+        action = :store_true
 end
 #! format: on
 
@@ -56,13 +59,12 @@ llvm_assertions = parsed_args["llvm-assertions"]
 debug = parsed_args["debug"]
 
 install_dir = parsed_args["install-dir"]
-if isdir(install_dir)
+if isdir(install_dir) && !parsed_args["disable-cleanup"]
     println("Removing existing installation at $install_dir")
     rm(install_dir; recursive=true)
 end
 
 build_dir = parsed_args["build-dir"]
-mkpath(build_dir)
 
 # download LLVM and MLIR artifacts if required
 llvm_dir = if !isnothing(parsed_args["llvm-dir"])
@@ -96,7 +98,7 @@ cmake() do cmake_path
     run(`$cmake_path --build $(build_dir) --target install`)
 end
 
-bin_path = joinpath(install_dir, "bin", only(readdir(joinpath(install_dir, "bin"))))
+bin_path = joinpath(install_dir, "bin", "mlir-jl-tblgen")
 isfile(bin_path) || error("Could not find executable $bin_path in build directory")
 
 # tell LLVM.jl to load our executable instead of the default artifact one

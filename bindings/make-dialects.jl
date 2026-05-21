@@ -1,6 +1,44 @@
 using Pkg
 import BinaryBuilderBase:
     PkgSpec, Prefix, temp_prefix, setup_dependencies, cleanup_dependencies, destdir
+using ArgParse
+
+s = ArgParseSettings()
+#! format: off
+@add_arg_table s begin
+    "--julia-version"
+        help = "Target Julia version."
+        arg_type = String
+        default = "1.10"
+    "--llvm-version"
+        help = "Target LLVM version."
+        arg_type = String
+    "--local"
+        help = "Whether to build mlir-jl-tblgen locally for the target."
+        action = :store_true
+end
+#! format: on
+
+parsed_args = parse_args(ARGS, s)
+
+julia_version = VersionNumber(parsed_args["julia-version"])
+
+llvm_versions = if !isnothing(parsed_args["llvm-version"])
+    [VersionNumber(parsed_args["llvm-version"])]
+else
+    [
+        v"14.0.6+4",
+        v"15.0.7+9",
+        v"16.0.6+5",
+        v"17.0.6+5",
+        v"18.1.7+4",
+        v"19.1.7+1",
+        v"20.1.8+0",
+        v"21.1.8+0",
+    ]
+end
+
+build_local = parsed_args["local"]
 
 # returns a mapping of dialect name to expected output file name and list of td files to generate from, for a given MLIR version
 function mlir_dialects(version::VersionNumber)
@@ -281,19 +319,8 @@ function mlir_dialects(version::VersionNumber)
     return dialects
 end
 
-julia_llvm = [
-    (v"1.9", v"14.0.6+4"),
-    (v"1.10", v"15.0.7+9"),
-    (v"1.11", v"16.0.6+5"),
-    (v"1.12", v"17.0.6+5"),
-    (v"1.12", v"18.1.7+4"),
-    (v"1.12", v"19.1.7+1"),
-    (v"1.12", v"20.1.8+0"),
-    (v"1.12", v"21.1.8+0"),
-]
-
-for (julia_version, llvm_version) in julia_llvm
-    println("Generating... julia version: $julia_version, llvm version: $llvm_version")
+for llvm_version in llvm_versions
+    println("Generating... Julia $julia_version, LLVM $llvm_version")
 
     temp_prefix() do prefix
         platform = Pkg.BinaryPlatforms.HostPlatform()
@@ -306,10 +333,15 @@ for (julia_version, llvm_version) in julia_llvm
             PkgSpec(; name="mlir_jl_tblgen_jll"),
         ]
 
+        project_prefix = destdir(prefix, platform)
         artifact_paths = setup_dependencies(prefix, dependencies, platform; verbose=true)
 
-        mlir_jl_tblgen = joinpath(destdir(prefix, platform), "bin", "mlir-jl-tblgen")
-        include_dir = joinpath(destdir(prefix, platform), "include")
+        mlir_jl_tblgen = joinpath(project_prefix, "bin", "mlir-jl-tblgen")
+        include_dir = joinpath(project_prefix, "include")
+
+        if build_local
+            run(`$(Base.julia_cmd()) --project=$(joinpath(@__DIR__, "..", "deps")) $(joinpath(@__DIR__, "..", "deps", "build_local.jl")) --llvm-version=$(llvm_version) --install-dir=$project_prefix --disable-cleanup --debug`)
+        end
 
         # generate MLIR dialect bindings
         mkpath(joinpath(@__DIR__, "..", "src", "Dialects", string(llvm_version.major)))
@@ -321,6 +353,7 @@ for (julia_version, llvm_version) in julia_llvm
                 flags = [
                     "--generator=emit-op-table-defs",
                     "--disable-module-wrap",
+                    "--dialect-name=$(dialect_name)",
                     tdpath,
                     "-I",
                     dirname(tdpath),

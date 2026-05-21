@@ -3,6 +3,7 @@ import BinaryBuilderBase:
     PkgSpec, Prefix, temp_prefix, setup_dependencies, cleanup_dependencies, destdir
 using Clang.Generators
 using Clang: Clang, CLLinkageSpec, children
+using ArgParse
 
 # Add support for extern "C" blocks - Clang.jl doesn't handle these by default
 # We need to recurse into the children of the linkage spec to process the declarations inside
@@ -15,23 +16,48 @@ function Generators.collect_top_level_nodes!(
     return nodes
 end
 
-julia_llvm = [
-    (v"1.9", v"14.0.6+4"),
-    (v"1.10", v"15.0.7+9"),
-    (v"1.11", v"16.0.6+5"),
-    (v"1.12", v"17.0.6+5"),
-    (v"1.12", v"18.1.7+4"),
-    (v"1.12", v"19.1.7+1"),
-    (v"1.12", v"20.1.8+0"),
-    (v"1.12", v"21.1.8+0"),
-]
+s = ArgParseSettings()
+#! format: off
+@add_arg_table s begin
+    "--julia-version"
+        help = "Target Julia version."
+        arg_type = String
+        default = "1.10"
+    "--llvm-version"
+        help = "Target LLVM version."
+        arg_type = String
+end
+#! format: on
+
+parsed_args = parse_args(ARGS, s)
+
+julia_version = VersionNumber(parsed_args["julia-version"])
+println("Using Julia $julia_version")
+
+llvm_version = parsed_args["llvm-version"]
+
+llvm_versions = if haskey(parsed_args, "llvm-version")
+    [VersionNumber(parsed_args["llvm-version"])]
+else
+    [
+        v"14.0.6+4",
+        v"15.0.7+9",
+        v"16.0.6+5",
+        v"17.0.6+5",
+        v"18.1.7+4",
+        v"19.1.7+1",
+        v"20.1.8+0",
+        v"21.1.8+0",
+    ]
+end
+
 options = load_options(joinpath(@__DIR__, "wrap.toml"))
 
 @add_def off_t
 @add_def MlirTypesCallback
 
-for (julia_version, llvm_version) in julia_llvm
-    println("Generating... julia version: $julia_version, llvm version: $llvm_version")
+for llvm_version in llvm_versions
+    println("Generating... llvm version: $llvm_version")
 
     temp_prefix() do prefix
         platform = Pkg.BinaryPlatforms.HostPlatform()
@@ -41,12 +67,9 @@ for (julia_version, llvm_version) in julia_llvm
         # Note: 1.10
         dependencies = PkgSpec[
             PkgSpec(; name="LLVM_full_jll", version=llvm_version),
-            PkgSpec(; name="mlir_jl_tblgen_jll"),
         ]
 
         artifact_paths = setup_dependencies(prefix, dependencies, platform; verbose=true)
-
-        mlir_jl_tblgen = joinpath(destdir(prefix, platform), "bin", "mlir-jl-tblgen")
         include_dir = joinpath(destdir(prefix, platform), "include")
 
         # generate MLIR API bindings
