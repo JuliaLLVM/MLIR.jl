@@ -103,7 +103,7 @@ This only supports a few Julia Core primitives and scalar types of type $BrutusS
     representing Julia IR and progressively lower it to base MLIR dialects.
 """
 function code_mlir(f, types)
-    ctx = context()
+    ctx = IR.current_context()
     ir, ret = only(Core.Compiler.code_ircode(f, types))
     @assert first(ir.argtypes) isa Core.Const
 
@@ -291,7 +291,10 @@ end
 using Test, LLVM
 using MLIR.IR, MLIR
 
-fptr = IR.context!(IR.Context()) do
+ctx = IR.Context()
+IR.activate(ctx)
+
+fptr = begin
     op = Brutus.code_mlir(pow, Tuple{Int,Int})
 
     mod = IR.Module(Location())
@@ -317,6 +320,9 @@ fptr = IR.context!(IR.Context()) do
     end
     MLIR.API.mlirExecutionEngineLookup(jit, "pow")
 end
+
+IR.deactivate(ctx)
+IR.dispose(ctx)
 
 x, y = 3, 4
 

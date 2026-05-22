@@ -927,7 +927,6 @@ function NamedAttribute(name, attr::Attribute; context=context(attr))
 end
 
 function NamedAttribute(name::Identifier, attr::Attribute; context=context(attr))
-    refcheck(attr.ref)
     return NamedAttribute(API.mlirNamedAttributeGet(name, attr))
 end
 
