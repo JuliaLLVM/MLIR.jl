@@ -9,7 +9,11 @@ Creates a new, empty module and transfers ownership to the caller.
 """
 Module(loc::Location=Location()) = Module(mark_alloc(API.mlirModuleCreateEmpty(loc)))
 
-Module(op::Operation) = Module(API.mlirModuleFromOperation(mark_donate(op)))
+function Module(op::Operation)
+    _mod = Module(API.mlirModuleFromOperation(op))
+    mark_donate(_mod, op)
+    return _mod
+end
 
 """
     dispose(module)
