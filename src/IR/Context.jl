@@ -8,7 +8,14 @@ end
 Creates an MLIR context.
 """
 function Context(registry=DialectRegistry(); threading::Bool=false)
-    return Context(mark_alloc(API.mlirContextCreateWithRegistry(registry, threading)))
+    if MLIR_VERSION[] >= v"17"
+        return Context(mark_alloc(API.mlirContextCreateWithRegistry(registry, threading)))
+    else
+        ctx = mark_alloc(API.mlirContextCreate())
+        API.mlirContextAppendDialectRegistry(ctx, registry)
+        API.mlirContextEnableMultithreading(ctx, threading)
+        return Context(ctx)
+    end
 end
 
 """

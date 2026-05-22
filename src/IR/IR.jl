@@ -1,5 +1,6 @@
 module IR
 
+using ..MLIR: MLIR_VERSION
 using ..API
 
 # WARN do not export `Type` nor `Module` as they are already defined in Core
