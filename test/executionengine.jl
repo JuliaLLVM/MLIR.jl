@@ -60,7 +60,7 @@ function lowerModuleToLLVM(ctx, mod)
     return MLIR.API.mlirPassManagerDestroy(pm)
 end
 
-ctx = MLIR.API.mlirContextCreate()
+ctx = MLIR.IR.Context()
 registerAllUpstreamDialects!(ctx)
 
 if LLVM.version() >= v"15"

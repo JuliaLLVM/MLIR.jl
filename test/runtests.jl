@@ -14,8 +14,12 @@ include("ir.jl")
 end
 
 @testset "show" begin
-    MLIR.IR.context!(MLIR.IR.Context()) do
-        dialect = IR.get_or_load_dialect!(IR.DialectHandle(:llvm))
-        @test sprint(show, dialect) == "Dialect(\"llvm\")"
-    end
+    ctx = IR.Context()
+    IR.activate(ctx)
+
+    dialect = IR.get_or_load_dialect!(IR.DialectHandle(:llvm))
+    @test sprint(show, dialect) == "Dialect(\"llvm\")"
+
+    IR.deactivate(ctx)
+    IR.dispose(ctx)
 end

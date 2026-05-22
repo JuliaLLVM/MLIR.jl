@@ -10,6 +10,7 @@ Creates a new, empty module and transfers ownership to the caller.
 Module(loc::Location=Location()) = Module(mark_alloc(API.mlirModuleCreateEmpty(loc)))
 
 function Module(op::Operation)
+    @assert name(op) == "builtin.module"
     _mod = Module(API.mlirModuleFromOperation(op))
     mark_donate(_mod, op)
     return _mod
