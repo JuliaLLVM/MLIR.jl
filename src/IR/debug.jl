@@ -7,7 +7,7 @@ const MEMCHECK_ENABLED = parse(Bool, @load_preference("memcheck", "false"))
 const tracked_objects = Dict{Any,Any}()
 
 # the most basic check is asserting that we don't use a null pointer
-@inline function refcheck(::Type, ref::Ptr)
+@inline function refcheck(::Core.Type, ref::Ptr)
     return ref == C_NULL && throw(UndefRefError())
 end
 
