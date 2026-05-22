@@ -51,7 +51,6 @@ makedocs(;
             "Dialect" => "IR/dialect.md",
             "Identifier" => "IR/identifier.md",
             "IntegerSet" => "IR/integerset.md",
-            "Iterators" => "IR/iterators.md",
             "Location" => "IR/location.md",
             "LogicalResult" => "IR/logicalresult.md",
             "Module" => "IR/module.md",
