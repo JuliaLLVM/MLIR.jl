@@ -1,5 +1,5 @@
 [general]
-library_name = "MLIR_C_PATH[]"
+library_name = "mlir_c"
 output_file_path = "libMLIR_h.jl"
 prologue_file_path = "prologue.jl"
 epilogue_file_path = ""
