@@ -103,7 +103,13 @@ function mark_dispose(f, obj)
 end
 
 # we could potentially track ownership here
-mark_donate(new_owner, obj) = mark_dispose(obj)
+#
+# Both forms return `obj`, so that they can wrap an argument in place, as in
+# `mlirBlockAppendOwnedOperation(block, mark_donate(op))`. The one-argument form
+# donates to an owner that the caller does not name (e.g. `move_after!`, where the
+# new owner is whichever block the other operation belongs to).
+mark_donate(obj) = (mark_dispose(obj); obj)
+mark_donate(new_owner, obj) = mark_donate(obj)
 
 # MLIR.API types
 for AT in [
