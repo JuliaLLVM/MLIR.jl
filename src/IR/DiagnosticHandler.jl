@@ -78,7 +78,7 @@ Represents an attached diagnostic handler. Use [`detach_diagnostic_handler!`](@r
 to remove it, or let it be cleaned up when the context is destroyed.
 """
 mutable struct DiagnosticHandler
-    id::API.MlirDiagnosticHandlerID
+    id::UInt64   # API.MlirDiagnosticHandlerID
     context::Context
     key::UInt64  # key into _handler_registry
 end

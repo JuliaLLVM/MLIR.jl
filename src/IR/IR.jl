@@ -1,5 +1,6 @@
 module IR
 
+using ..MLIR: MLIR_VERSION
 using ..API
 
 mark_donate(x) = (mark_dispose(x); x)
@@ -62,6 +63,8 @@ export nsuccessors, successor
 export @affinemap
 
 using Random: randstring
+
+include("debug.jl")
 
 include("Utils.jl")
 
