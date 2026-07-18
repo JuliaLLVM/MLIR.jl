@@ -1,5 +1,7 @@
 abstract type AbstractPass end
 
+using StableRNGs: StableRNG
+
 mutable struct ExternalPassHandle
     ctx::Union{Nothing,Context}
     pass::AbstractPass
@@ -81,12 +83,12 @@ end
 
 # Where to dump the MLIR modules
 const DUMP_MLIR_DIR = Ref{Union{Nothing,String}}(nothing)
-
 # Whether to always dump MLIR, regardless of failure
 const DUMP_MLIR_ALWAYS = Ref{Bool}(false)
-
 # Counter for dumping MLIR modules
 const MLIR_DUMP_COUNTER = Threads.Atomic{Int}(0)
+
+const DUMP_RNG = StableRNG(0)
 
 function dump_mlir(
     mod::Module, pm::Union{Nothing,PassManager}=nothing, mode::String=""; failed::Bool=false
@@ -118,7 +120,7 @@ function dump_mlir(
 
         # Attempt to get the name of the module if that exists
         mod_name = getattr(op, String(API.mlirSymbolTableGetSymbolAttributeName()))
-        fname = mod_name === nothing ? "" : String(mod_name)
+        fname = mod_name === nothing ? randstring(DUMP_RNG, 4) : String(mod_name)
         fname = "module_" * lpad(MLIR_DUMP_COUNTER[], 3, "0") * "_$(fname)"
         if isempty(mode)
             fname *= ".mlir"
@@ -165,7 +167,7 @@ function try_compile_dump_mlir(f, mod::Module, pm=nothing)
         rethrow()
     finally
         if failed || DUMP_MLIR_ALWAYS[]
-            dump_mlir(Operation(mod), pm, "post"; failed)
+            dump_mlir(Operation(mod), pm, "post_xla_compile"; failed)
         end
     end
 end
