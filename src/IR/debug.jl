@@ -102,40 +102,6 @@ function mark_dispose(f, obj)
     return nothing
 end
 
-# we could potentially track ownership here
-mark_donate(new_owner, obj) = mark_dispose(obj)
-
-# MLIR.API types
-for AT in [
-    :MlirDialect,
-    :MlirDialectHandle,
-    :MlirDialectRegistry,
-    :MlirContext,
-    :MlirLocation,
-    :MlirType,
-    :MlirTypeID,
-    :MlirTypeIDAllocator,
-    :MlirModule,
-    :MlirOperation,
-    :MlirOpOperand,
-    :MlirBlock,
-    :MlirRegion,
-    :MlirValue,
-    # :MlirLogicalResult,
-    :MlirAffineExpr,
-    :MlirAffineMap,
-    # :MlirAttribute,
-    # :MlirNamedAttribute,
-    :MlirIntegerSet,
-    :MlirIdentifier,
-    :MlirSymbolTable,
-    :MlirExecutionEngine,
-    :MlirPassManager,
-    :MlirOpPassManager,
-]
-    @eval refcheck(T::Core.Type, ref::API.$AT) = refcheck(T, ref.ptr)
-end
-
 function report_leaks(code=0)
     # if we errored, we can't trust the memory state
     if code != 0

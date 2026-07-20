@@ -9,12 +9,7 @@ Creates a new, empty module and transfers ownership to the caller.
 """
 Module(loc::Location=Location()) = Module(mark_alloc(API.mlirModuleCreateEmpty(loc)))
 
-function Module(op::Operation)
-    @assert name(op) == "builtin.module"
-    _mod = Module(API.mlirModuleFromOperation(op))
-    mark_donate(_mod, op)
-    return _mod
-end
+Module(op::Operation) = Module(API.mlirModuleFromOperation(mark_donate(op)))
 
 """
     dispose(module)
@@ -96,4 +91,16 @@ function current_module(; throw_error::Core.Bool=true)
         return nothing
     end
     return last(task_local_storage(:mlir_module)::Vector{Module})
+end
+
+macro with_module(_mod, body)
+    quote
+        _mod = $(esc(_mod))
+        $activate(_mod)
+        try
+            $(esc(body))
+        finally
+            $deactivate(_mod)
+        end
+    end
 end

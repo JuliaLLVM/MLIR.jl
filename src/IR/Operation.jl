@@ -337,6 +337,7 @@ function create_operation_common(
             API.mlirOperationStateAddOperands(state, length(operands), operands)
         end
         if !isnothing(owned_regions)
+            mark_donate.(owned_regions)
             GC.@preserve owned_regions begin
                 mlir_regions = Base.unsafe_convert.(API.MlirRegion, owned_regions)
                 API.mlirOperationStateAddOwnedRegions(
@@ -359,9 +360,6 @@ function create_operation_common(
         op = API.mlirOperationCreate(state)
         if mlirIsNull(op)
             error("Create Operation '$name' failed")
-        end
-        if !isnothing(owned_regions)
-            mark_donate.(Ref(op), owned_regions)
         end
         return Operation(op)
     end

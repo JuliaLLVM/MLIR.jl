@@ -658,6 +658,12 @@ function DenseElementsAttribute(values::AbstractArray{String})
     # )
 end
 
+function DenseIndexElementsAttribute(values::AbstractArray{Int64})
+    shaped_type = TensorType(collect(Int, size(values)), IndexType())
+    values = Attribute.(to_row_major(values), (IndexType(),))
+    return Attribute(API.mlirDenseElementsAttrGet(shaped_type, length(values), values))
+end
+
 """
     Base.reshape(attr, shapedType)
 
@@ -899,11 +905,23 @@ function Base.getindex(attr::Attribute)
     end
 end
 
-function Base.show(io::IO, attribute::Attribute)
-    print(io, "Attribute(#= ")
+"""
+    print(io, attribute)
+
+Print `attribute` in MLIR's textual form, e.g. `#aie<bd_dim_layout_array[]>`.
+Unlike [`show`](@ref), this emits just the attribute, which is what you want when
+interpolating it into MLIR source text.
+"""
+function Base.print(io::IO, attribute::Attribute)
     c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirAttributePrint(attribute, c_print_callback, ref)
+    return nothing
+end
+
+function Base.show(io::IO, attribute::Attribute)
+    print(io, "Attribute(#= ")
+    print(io, attribute)
     return print(io, " =#)")
 end
 
@@ -927,6 +945,7 @@ function NamedAttribute(name, attr::Attribute; context=context(attr))
 end
 
 function NamedAttribute(name::Identifier, attr::Attribute; context=context(attr))
+    @assert !mlirIsNull(attr.ref)
     return NamedAttribute(API.mlirNamedAttributeGet(name, attr))
 end
 
