@@ -62,8 +62,6 @@ export nresults, result, noperands, operand, setoperand!
 export nsuccessors, successor
 export @affinemap
 
-using Random: randstring
-
 include("debug.jl")
 
 include("Utils.jl")
