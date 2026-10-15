@@ -10,7 +10,7 @@ Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 ScopedValues = "7e506255-f358-4e82-b7e4-beb19740aa63"
 
 [compat]
-CEnum = "0.4"
+CEnum = "0.5, 1"
 MLIR_jll = "14,15,16,17,18,19,20,21"
 Preferences = "1"
 ScopedValues = "1"
