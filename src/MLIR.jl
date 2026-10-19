@@ -14,7 +14,26 @@ struct Session{P,V} end
 Session(path, version) = Session{Symbol(path)}(version)
 Session{P}(version::Integer) = Session{Symbol(path),version}()
 Session{P}(version::VersionNumber) = Session{Symbol(path),Int(version.major)}()
-@inline mlir_path(@specialize(_::Type{<:Session{P}})) where {P} = String(P)
+
+"""
+    mlir_path(::Session)
+
+Return the path to the `libMLIR` encoded in the [`Session`](@ref).
+"""
+function mlir_path end
+
+mlir_path(::S) where {S<:Session} = mlir_path(S)
+@inline mlir_path(@specialize(_::Type{<:Session{P}})) where {P} = P
+
+
+"""
+    mlir_version(::Session)
+
+Return the version of the `libMLIR` encoded in the [`Session`](@ref).
+"""
+function mlir_version end
+
+mlir_path(::S) where {S<:Session} = mlir_path(S)
 @inline mlir_version(@specialize(_::Type{Session{P,V}})) where {P,V} = VersionNumber(V)
 
 const MLIR_VERSION = ScopedValue(
