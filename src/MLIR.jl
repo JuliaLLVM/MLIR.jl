@@ -12,8 +12,8 @@ This is required by the FFI bindings to be able to switch _libMLIR_ in a way ame
 """
 struct Session{P,V} end
 Session(path, version) = Session{Symbol(path)}(version)
-Session{P}(version::Integer) = Session{Symbol(path),version}()
-Session{P}(version::VersionNumber) = Session{Symbol(path),Int(version.major)}()
+Session{P}(version::Integer) = Session{P,version}()
+Session{P}(version::VersionNumber) = Session{P,Int(version.major)}()
 
 """
     mlir_path(::Session)
