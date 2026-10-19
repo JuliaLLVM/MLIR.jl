@@ -1,71 +1,47 @@
 module API
 
-using ..MLIR: MLIR_VERSION, MLIRException, MLIR_VERSION_MIN, MLIR_VERSION_MAX
+using ..MLIR: MLIRException, MLIR_VERSION_MIN, MLIR_VERSION_MAX, mlir_version, default_session
 
 include("Types.jl")
 using .Types
 
-# generate versioned API modules
-for dir in Base.Filesystem.readdir(joinpath(@__DIR__))
-    isdir(joinpath(@__DIR__, dir)) || continue
-    @eval module $(Symbol(:v, dir))
-        using ...MLIR: MLIR_VERSION, mlir_c
-        using ..API.Types
-        include(joinpath(@__DIR__, $dir, "libMLIR_h.jl"))
-    end
-end
+let
+    for dir in Base.Filesystem.readdir(joinpath(@__DIR__))
+        isdir(joinpath(@__DIR__, dir)) || continue
 
-# generate version-less API functions
-begin
-    local ops = mapreduce(∪, [v14, v15, v16, v17, v18, v19, v20, v21]) do mod
-        filter(names(mod; all=true)) do name
-            name ∉ [nameof(mod), :eval, :include] && !startswith(string(name), '#')
-        end
-    end
-
-    for op in ops
-        container_mods = filter([v14, v15, v16, v17, v18, v19, v20, v21]) do mod
-            op in names(mod; all=true)
-        end
-        container_mods = map(container_mods) do mod
-            mod, VersionNumber(string(nameof(mod)))
+        modname = Symbol(:v, dir)
+        version_major = parse(Int, dir)
+        
+        # generate versioned API modules
+        #! format: off
+        @eval module $modname
+            using ...MLIR: mlir_c
+            using ..API.Types
+            include(joinpath(@__DIR__, $dir, "libMLIR_h.jl"))
         end
 
-        @eval function $op(args...; kwargs...)
-            version = MLIR_VERSION[]
-            if !($MLIR_VERSION_MIN <= version <= $MLIR_VERSION_MAX)
-                error("Unsupported MLIR version $version")
+        is_mlir_api = (name) -> name ∉ [nameof(mod), :eval, :include] && !startswith(string(name), '#')
+        for funcname in Iterators.filter(is_mlir_api, names(mod; all=true))
+            if !Base.isdefined(API, funcname)
+                @eval begin
+                    # fallback for MLIR versions that do not have such API function for that version
+                    function $funcname(session::Session, args...; kwargs...)
+                        error("API.$funcname not defined for version $(mlir_version(session))")
+                    end
+
+                    # some sugar if you code by hand
+                    function $funcname(args...; session = default_session(), kwargs...)
+                        return $funcname(session, args...; kwargs...)
+                    end
+                end
             end
 
-            $(
-                map(container_mods) do (mod, version)
-                    :(
-                        if @v_str($(version.major)) <=
-                            version <
-                            @v_str($(version.major + 1))
-                            return $mod.$op(args...; kwargs...)
-                        end
-                    )
-                end...
-            )
-
-            throw(
-                MLIRException(
-                    string(
-                        $op,
-                        " is not implemented for MLIR $(version.major). You can find it in MLIR ",
-                        $(join(
-                            map(container_mods) do (_, version)
-                                "$(version.major)"
-                            end,
-                            ", ",
-                            ", and ",
-                        )),
-                        ".",
-                    ),
-                ),
-            )
+            # dispatch to appropiate module based on major version of MLIR
+            @eval function $funcname(session::Session{P,$version_major}, args...; kwargs...) where {P}
+                return $modname.$funcname(session, args...; kwargs...)
+            end
         end
+        #! format: on
     end
 end
 

@@ -36,9 +36,12 @@ function mlir_version end
 mlir_path(::S) where {S<:Session} = mlir_path(S)
 @inline mlir_version(@specialize(_::Type{Session{P,V}})) where {P,V} = VersionNumber(V)
 
-const MLIR_VERSION = ScopedValue(
-    VersionNumber(@load_preference("MLIR_VERSION", Base.libllvm_version_string))
-)
+# TODO is this type-stable? if not, would a generated function work here?
+function default_session()
+    path = @load_preference("MLIR_C_PATH", mlir_c)
+    version = VersionNumber(@load_preference("MLIR_VERSION", Base.libllvm_version_string))
+    return Session(path, version.major)
+end
 
 # The auto-generated `@ccall mlir_c.xxx(...)` sites in `src/API/N/libMLIR_h.jl`
 # bind their library path directly to `MLIR_jll`'s `mlir_c` product — a
