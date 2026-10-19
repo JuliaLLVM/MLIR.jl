@@ -9,7 +9,7 @@ using .Types
 for dir in Base.Filesystem.readdir(joinpath(@__DIR__))
     isdir(joinpath(@__DIR__, dir)) || continue
     @eval module $(Symbol(:v, dir))
-        using ...MLIR: MLIR_VERSION, MLIR_C_PATH
+        using ...MLIR: MLIR_VERSION, mlir_c
         using ..API.Types
         include(joinpath(@__DIR__, $dir, "libMLIR_h.jl"))
     end

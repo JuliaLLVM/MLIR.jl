@@ -1,4 +1,3 @@
-# inspired by LLVM.jl's memory tracking utilities, but with an extra `mark_donate` function to track when objects are given another object as owner
 using Preferences
 
 const MEMCHECK_ENABLED = parse(Bool, @load_preference("memcheck", "false"))
