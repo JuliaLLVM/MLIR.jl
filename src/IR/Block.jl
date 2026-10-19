@@ -234,3 +234,15 @@ function current_block(; throw_error::Core.Bool=true)
     end
     return last(task_local_storage(:mlir_block)::Vector{Block})
 end
+
+macro with_block(blk, body)
+    quote
+        blk = $(esc(blk))
+        $activate(blk)
+        try
+            $(esc(body))
+        finally
+            $deactivate(blk)
+        end
+    end
+end

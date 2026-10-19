@@ -1,4 +1,3 @@
-# inspired by LLVM.jl's memory tracking utilities, but with an extra `mark_donate` function to track when objects are given another object as owner
 using Preferences
 
 const MEMCHECK_ENABLED = parse(Bool, @load_preference("memcheck", "false"))
@@ -100,49 +99,6 @@ function mark_dispose(f, obj)
         end
     end
     return nothing
-end
-
-# we could potentially track ownership here. `mark_dispose` returns nothing,
-# but the underlying handle must still flow through to the API call that
-# consumes it, so we return `obj` rather than the dispose return value.
-function mark_donate(new_owner, obj)
-    mark_dispose(obj)
-    return obj
-end
-function mark_donate(obj)
-    mark_dispose(obj)
-    return obj
-end
-
-# MLIR.API types
-for AT in [
-    :MlirDialect,
-    :MlirDialectHandle,
-    :MlirDialectRegistry,
-    :MlirContext,
-    :MlirLocation,
-    :MlirType,
-    :MlirTypeID,
-    :MlirTypeIDAllocator,
-    :MlirModule,
-    :MlirOperation,
-    :MlirOpOperand,
-    :MlirBlock,
-    :MlirRegion,
-    :MlirValue,
-    # :MlirLogicalResult,
-    :MlirAffineExpr,
-    :MlirAffineMap,
-    # :MlirAttribute,
-    # :MlirNamedAttribute,
-    :MlirIntegerSet,
-    :MlirIdentifier,
-    :MlirSymbolTable,
-    :MlirExecutionEngine,
-    :MlirPassManager,
-    :MlirOpPassManager,
-]
-    @eval refcheck(T::Core.Type, ref::API.$AT) = refcheck(T, ref.ptr)
 end
 
 function report_leaks(code=0)

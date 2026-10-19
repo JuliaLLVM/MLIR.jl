@@ -200,6 +200,41 @@ Type(::Core.Type{Float64}; context::Context=current_context()) =
     Type(API.mlirF64TypeGet(context))
 
 """
+    isf8e5m2(type)
+
+Checks whether the given type is an f8E5M2 type.
+"""
+isf8e5m2(type::Type) = API.mlirTypeIsAFloat8E5M2(type)
+
+"""
+    isf8e4m3fn(type)
+
+Checks whether the given type is an f8E4M3FN type.
+"""
+isf8e4m3fn(type::Type) = API.mlirTypeIsAFloat8E4M3FN(type)
+
+"""
+    isf8e4m3b11fnuz(type)
+
+Checks whether the given type is an f8E4M3B11FNUZ type.
+"""
+isf8e4m3b11fnuz(type::Type) = API.mlirTypeIsAFloat8E4M3B11FNUZ(type)
+
+"""
+    isf8e5m2fnuz(type)
+
+Checks whether the given type is an f8E5M2FNUZ type.
+"""
+isf8e5m2fnuz(type::Type) = API.mlirTypeIsAFloat8E5M2FNUZ(type)
+
+"""
+    isf8e4m3fnuz(type)
+
+Checks whether the given type is an f8E4M3FNUZ type.
+"""
+isf8e4m3fnuz(type::Type) = API.mlirTypeIsAFloat8E4M3FNUZ(type)
+
+"""
     isbf16(type)
 
 Checks whether the given type is a bf16 type.
@@ -226,6 +261,13 @@ isf32(type::Type) = API.mlirTypeIsAF32(type)
 Checks whether the given type is an f64 type.
 """
 isf64(type::Type) = API.mlirTypeIsAF64(type)
+
+"""
+    istf32(type)
+
+Checks whether the given type is an tf32 type.
+"""
+istf32(type::Type) = API.mlirTypeIsATF32(type)
 
 # Complex types
 """
@@ -755,10 +797,22 @@ function julia_type(type::Type)
     end
 end
 
-function Base.show(io::IO, type::Type)
-    print(io, "Type(#= ")
-    c_print_callback = @cfunction(API.print_callback, Cvoid, (API.MlirStringRef, Any))
+"""
+    print(io, type)
+
+Print `type` in MLIR's textual form, e.g. `memref<1024xi32>`. Unlike [`show`](@ref),
+this emits just the type, which is what you want when interpolating it into MLIR
+source text.
+"""
+function Base.print(io::IO, type::Type)
+    c_print_callback = @cfunction(print_callback, Cvoid, (API.MlirStringRef, Any))
     ref = Ref(io)
     API.mlirTypePrint(type, c_print_callback, ref)
+    return nothing
+end
+
+function Base.show(io::IO, type::Type)
+    print(io, "Type(#= ")
+    print(io, type)
     return print(io, " =#)")
 end

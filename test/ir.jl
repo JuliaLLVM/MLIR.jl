@@ -4,7 +4,7 @@ using MLIR.IR, LLVM
 @testset "operation introspection" begin
     ctx = IR.Context()
     IR.activate(ctx)
-    
+
     IR.get_or_load_dialect!(IR.DialectHandle(:linalg))
     if LLVM.version() >= v"15"
         IR.load_all_available_dialects()
@@ -14,7 +14,7 @@ using MLIR.IR, LLVM
     @test IR.name(op) == "arith.constant"
     @test IR.dialect(op) === :arith
     @test IR.isbool(IR.getattr(op, "value"))
-    
+
     IR.deactivate(ctx)
     IR.dispose(ctx)
 end
@@ -34,10 +34,10 @@ end
     @test IR.name(op) == "builtin.module"
 
     # Only a `module` operation can be used to create a module.
-    @test_throws AssertionError IR.Module(
+    @test_throws UndefRefError IR.Module(
         arith.constant(; value=true, result=IR.Type(Bool))
     )
-    
+
     IR.deactivate(ctx)
     IR.dispose(ctx)
 end

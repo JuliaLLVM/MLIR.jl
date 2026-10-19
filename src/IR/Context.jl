@@ -68,3 +68,15 @@ function current_context(; throw_error::Core.Bool=true)
     end
     return last(task_local_storage(:mlir_context_stack)::Vector{Context})
 end
+
+macro with_context(ctx, body)
+    quote
+        ctx = $(esc(ctx))
+        $activate(ctx)
+        try
+            $(esc(body))
+        finally
+            $deactivate(ctx)
+        end
+    end
+end

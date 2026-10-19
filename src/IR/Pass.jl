@@ -81,10 +81,8 @@ end
 
 # Where to dump the MLIR modules
 const DUMP_MLIR_DIR = Ref{Union{Nothing,String}}(nothing)
-
 # Whether to always dump MLIR, regardless of failure
 const DUMP_MLIR_ALWAYS = Ref{Bool}(false)
-
 # Counter for dumping MLIR modules
 const MLIR_DUMP_COUNTER = Threads.Atomic{Int}(0)
 
@@ -118,8 +116,8 @@ function dump_mlir(
 
         # Attempt to get the name of the module if that exists
         mod_name = getattr(op, String(API.mlirSymbolTableGetSymbolAttributeName()))
-        fname = mod_name === nothing ? "" : String(mod_name)
-        fname = "module_" * lpad(MLIR_DUMP_COUNTER[], 3, "0") * "_$(fname)"
+        fname = mod_name === nothing ? "" : "_" * String(mod_name)
+        fname = "module_" * lpad(MLIR_DUMP_COUNTER[], 3, "0") * fname
         if isempty(mode)
             fname *= ".mlir"
         else

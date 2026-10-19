@@ -1,6 +1,6 @@
 name = "MLIR"
 uuid = "bfde9dd4-8f40-4a1e-be09-1475335e1c92"
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
@@ -10,7 +10,7 @@ Preferences = "21216c6a-2e73-6563-6e65-726566657250"
 ScopedValues = "7e506255-f358-4e82-b7e4-beb19740aa63"
 
 [compat]
-CEnum = "0.4"
+CEnum = "0.5, 1"
 MLIR_jll = "14,15,16,17,18,19,20,21"
 Preferences = "1"
 ScopedValues = "1"
